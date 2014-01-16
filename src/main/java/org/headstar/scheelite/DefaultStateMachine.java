@@ -25,7 +25,7 @@ public class DefaultStateMachine<T, U> implements StateMachine<T, U> {
         this.transitions = transitions;
         this.transitionsFromState = ArrayListMultimap.create();
         for(Transition<T, U> transition : transitions) {
-            transitionsFromState.put(transition.getInputStateId(), transition);
+            transitionsFromState.put(transition.getFromState(), transition);
         }
     }
 
@@ -57,7 +57,7 @@ public class DefaultStateMachine<T, U> implements StateMachine<T, U> {
             currentState.onExit(entity, context);
 
             // enter next state
-            State<T, U> nextState = states.get(activatedTransition.getOutputStateId());
+            State<T, U> nextState = states.get(activatedTransition.getToState());
             nextState.onEntry(entity, context);
 
             // return next state

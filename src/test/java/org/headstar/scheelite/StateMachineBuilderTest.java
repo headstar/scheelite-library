@@ -80,8 +80,8 @@ public class StateMachineBuilderTest {
 
     private class TestTransition extends TransitionAdapter<Entity, Object> {
 
-        public TestTransition(Object inputStateId, Object outputStateId) {
-            super(inputStateId, outputStateId);
+        public TestTransition(Object fromState, Object toState) {
+            super(fromState, toState);
         }
     }
 

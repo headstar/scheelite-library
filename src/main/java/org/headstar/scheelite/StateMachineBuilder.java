@@ -73,17 +73,17 @@ public class StateMachineBuilder<T, U> {
             if(transition.getGuard()== null) {
                 throw new IllegalStateException(String.format("transition guard cannot be null: transition=[%s]", transition));
             }
-            if(transition.getInputStateId() == null) {
+            if(transition.getFromState() == null) {
                 throw new IllegalStateException(String.format("transition input state id cannot be null: transition=[%s]", transition));
             }
-            if(transition.getOutputStateId() == null) {
+            if(transition.getToState() == null) {
                 throw new IllegalStateException(String.format("transition output state id cannot be null: transition=[%s]", transition));
             }
-            if(!stateMap.containsKey(transition.getInputStateId())) {
-                throw new IllegalStateException(String.format("transition input state id unknown: inputStateId=[%s]", transition.getInputStateId()));
+            if(!stateMap.containsKey(transition.getFromState())) {
+                throw new IllegalStateException(String.format("transition input state id unknown: inputStateId=[%s]", transition.getFromState()));
             }
-            if(!stateMap.containsKey(transition.getOutputStateId())) {
-                throw new IllegalStateException(String.format("transition output state id unknown: outputStateId=[%s]", transition.getOutputStateId()));
+            if(!stateMap.containsKey(transition.getToState())) {
+                throw new IllegalStateException(String.format("transition output state id unknown: outputStateId=[%s]", transition.getToState()));
             }
         }
 
@@ -129,7 +129,7 @@ public class StateMachineBuilder<T, U> {
     protected Multimap<Object, Object> getEdges(Set<Transition<T, U>> transitions) {
         Multimap<Object, Object> edges = HashMultimap.create();
         for(Transition<T, U> transition : transitions) {
-            edges.put(transition.getInputStateId(), transition.getOutputStateId());
+            edges.put(transition.getFromState(), transition.getToState());
         }
         return edges;
     }

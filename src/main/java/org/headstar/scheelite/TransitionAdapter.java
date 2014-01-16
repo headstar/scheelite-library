@@ -13,12 +13,12 @@ public class TransitionAdapter<T, U> implements Transition<T, U> {
     }
 
     @Override
-    public Object getInputStateId() {
+    public Object getFromState() {
         return inputStateId;
     }
 
     @Override
-    public Object getOutputStateId() {
+    public Object getToState() {
         return outputStateId;
     }
 

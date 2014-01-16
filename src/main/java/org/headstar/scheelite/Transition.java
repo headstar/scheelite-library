@@ -4,8 +4,8 @@ import com.google.common.base.Optional;
 
 public interface Transition<T, U> {
 
-    Object getInputStateId();
-    Object getOutputStateId();
+    Object getFromState();
+    Object getToState();
     Optional<Action<T, U>> getAction();
     Guard<T, U>  getGuard();
 
