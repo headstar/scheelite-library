@@ -2,14 +2,14 @@ package org.headstar.scheelite;
 
 import com.google.common.base.Optional;
 
-public class TransitionAdapter<T, U> implements Transition<T, U> {
+public class TransitionAdapter<T, U> implements Transition<T> {
 
     private final Object inputStateId;
     private final Object outputStateId;
-    private final Action<T, U> action;
-    private final Guard<T, U> guard;
+    private final Action<T> action;
+    private final Guard<T> guard;
 
-    public TransitionAdapter(Object inputStateId, Object outputStateId, Action<T, U> action, Guard<T, U> guard) {
+    public TransitionAdapter(Object inputStateId, Object outputStateId, Action<T> action, Guard<T> guard) {
         this.inputStateId = inputStateId;
         this.outputStateId = outputStateId;
         this.action = action;
@@ -17,7 +17,7 @@ public class TransitionAdapter<T, U> implements Transition<T, U> {
     }
 
     public TransitionAdapter(Object inputStateId, Object outputStateId) {
-        this(inputStateId, outputStateId, null, new AlwaysAcceptsGuard<T, U>());
+        this(inputStateId, outputStateId, null, new AlwaysAcceptsGuard<T>());
     }
 
     @Override
@@ -31,12 +31,12 @@ public class TransitionAdapter<T, U> implements Transition<T, U> {
     }
 
     @Override
-    public Optional<Action<T, U>> getAction() {
+    public Optional<Action<T>> getAction() {
         return Optional.of(action);
     }
 
     @Override
-    public Guard<T, U> getGuard() {
+    public Guard<T> getGuard() {
         return guard;
     }
 

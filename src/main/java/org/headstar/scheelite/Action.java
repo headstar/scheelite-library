@@ -1,6 +1,6 @@
 package org.headstar.scheelite;
 
-public interface Action<T, U> {
+public interface Action<T> {
 
-    void execute(T entity, U context, Object event);
+    void execute(T entity, Object event);
 }

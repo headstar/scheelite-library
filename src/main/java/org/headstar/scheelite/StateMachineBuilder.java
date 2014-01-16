@@ -4,18 +4,18 @@ import com.google.common.collect.*;
 
 import java.util.*;
 
-public class StateMachineBuilder<T, U> {
+public class StateMachineBuilder<T> {
 
-    private State<T, U> startState;
-    private final List<State<T, U>> inputStates;
-    private final List<Transition<T, U>> inputTransitions;
+    private State<T> startState;
+    private final List<State<T>> inputStates;
+    private final List<Transition<T>> inputTransitions;
 
     public StateMachineBuilder() {
         inputStates = Lists.newArrayList();
         inputTransitions = Lists.newArrayList();
     }
 
-    public StateMachineBuilder<T, U> addStartState(State<T, U> state) {
+    public StateMachineBuilder<T> addStartState(State<T> state) {
         if(startState != null) {
             throw new IllegalStateException("start state already added");
         }
@@ -23,12 +23,12 @@ public class StateMachineBuilder<T, U> {
         return this;
     }
 
-    public StateMachineBuilder<T, U> addState(State<T, U> state) {
+    public StateMachineBuilder<T> addState(State<T> state) {
         inputStates.add(state);
         return this;
     }
 
-    public StateMachineBuilder<T, U> addTransition(Transition<T, U> transition) {
+    public StateMachineBuilder<T> addTransition(Transition<T> transition) {
         inputTransitions.add(transition);
         return this;
     }
@@ -40,10 +40,10 @@ public class StateMachineBuilder<T, U> {
             throw new IllegalStateException("no start state added");
         }
 
-        List<State<T, U>> allStates = Lists.newArrayList(inputStates);
+        List<State<T>> allStates = Lists.newArrayList(inputStates);
         allStates.add(startState);
-        Multimap<Object, State<T, U>> stateMap = ArrayListMultimap.create();
-        for(State<T, U> state : allStates) {
+        Multimap<Object, State<T>> stateMap = ArrayListMultimap.create();
+        for(State<T> state : allStates) {
             if(state.getIdentifier() == null) {
                 throw new IllegalStateException(String.format("state identifier cannot be null: state=[%s]", state));
             }
@@ -51,25 +51,25 @@ public class StateMachineBuilder<T, U> {
         }
 
         // check state identifiers are unique
-        for(State<T, U> state : allStates) {
+        for(State<T> state : allStates) {
             if(stateMap.get(state.getIdentifier()).size() > 1) {
                 throw new IllegalStateException(String.format("state identifier not unique: identifier=[%s]", state.getIdentifier()));
             }
         }
 
         // check so no state equals some other state
-        for(State<T, U> outer : allStates) {
-            for(State<T, U> inner: allStates) {
+        for(State<T> outer : allStates) {
+            for(State<T> inner: allStates) {
                 if(outer != inner && outer.equals(inner))  {
                     throw new IllegalStateException(String.format("state cannot be equal to another state: stateA=[%s], stateB=[%s]", outer, inner));
                 }
             }
         }
 
-        Set<State<T, U>> states = Sets.newHashSet(allStates);
+        Set<State<T>> states = Sets.newHashSet(allStates);
 
         // check transitions are valid
-        for(Transition<T, U> transition : inputTransitions) {
+        for(Transition<T> transition : inputTransitions) {
             if(transition.getAction() == null) {
                 throw new IllegalStateException(String.format("transition action cannot be null: transition=[%s]", transition));
             }
@@ -90,14 +90,14 @@ public class StateMachineBuilder<T, U> {
             }
         }
 
-        Set<Transition<T, U>> transitions = Sets.newHashSet(inputTransitions);
+        Set<Transition<T>> transitions = Sets.newHashSet(inputTransitions);
 
         checkAllStatesAreReachableFromStartState(startState, states, transitions);
 
         return new DefaultStateMachine(states, transitions);
     }
 
-    protected void checkAllStatesAreReachableFromStartState(State<T, U> startState, Set<State<T, U>> allStates, Set<Transition<T, U>> transitions) {
+    protected void checkAllStatesAreReachableFromStartState(State<T> startState, Set<State<T>> allStates, Set<Transition<T>> transitions) {
 
         Set<Object> visited = Sets.newHashSet();
 
@@ -119,7 +119,7 @@ public class StateMachineBuilder<T, U> {
         }
 
         Set<Object> allStateIdentifiers = Sets.newHashSet();
-        for(State<T, U> state : allStates) {
+        for(State<T> state : allStates) {
             allStateIdentifiers.add(state.getIdentifier());
         }
         Set<Object> notVisited = Sets.difference(allStateIdentifiers, visited);
@@ -129,9 +129,9 @@ public class StateMachineBuilder<T, U> {
     }
 
 
-    protected Multimap<Object, Object> getEdges(Set<Transition<T, U>> transitions) {
+    protected Multimap<Object, Object> getEdges(Set<Transition<T>> transitions) {
         Multimap<Object, Object> edges = HashMultimap.create();
-        for(Transition<T, U> transition : transitions) {
+        for(Transition<T> transition : transitions) {
             edges.put(transition.getFromState(), transition.getToState());
         }
         return edges;

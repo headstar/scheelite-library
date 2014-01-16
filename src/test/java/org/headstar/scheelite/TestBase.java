@@ -12,35 +12,50 @@ public class TestBase {
     static class Entity {
     }
 
-    protected StateMachineBuilder<Entity, Object> builder;
+    protected StateMachineBuilder<Entity> builder;
 
     @BeforeMethod
     public void setup() {
-        builder = new StateMachineBuilder<Entity, Object>();
+        builder = new StateMachineBuilder<Entity>();
     }
 
-    protected class TestAction implements Action<Entity, Object> {
+    protected class TestAction implements Action<Entity> {
+
         @Override
-        public void execute(Entity entity, Object context, Object event) {
+        public void execute(Entity entity, Object event) {
 
         }
     }
 
-    protected class TestGuard implements Guard<Entity, Object> {
+    protected class TestGuard implements Guard<Entity> {
+        private final boolean accept;
+
+        public TestGuard(boolean accept) {
+            this.accept = accept;
+        }
+
+        public TestGuard() {
+            this(true);
+        }
+
         @Override
-        public boolean accept(Entity entity, Object context, Object event) {
-            return true;
+        public boolean accept(Entity entity, Object event) {
+            return accept;
         }
     }
 
-    protected class TestTransition implements Transition<Entity, Object> {
+    protected class TestTransition implements Transition<Entity> {
         private final Object inputStateId;
         private final Object outputStateId;
         private final Optional<TestAction> action;
-        private final Guard<Entity, Object> guard;
+        private final Guard<Entity> guard;
 
         TestTransition(Object inputStateId, Object outputStateId) {
             this(inputStateId, outputStateId, Optional.of(new TestAction()), new TestGuard());
+        }
+
+        TestTransition(Object inputStateId, Object outputStateId, TestGuard guard) {
+            this(inputStateId, outputStateId, Optional.of(new TestAction()), guard);
         }
 
         TestTransition(Object inputStateId, Object outputStateId, Optional<TestAction> action, TestGuard guard) {
@@ -61,16 +76,16 @@ public class TestBase {
         }
 
         @Override
-        public Optional<? extends Action<Entity, Object>> getAction() {
+        public Optional<? extends Action<Entity>> getAction() {
             return action;
         }
 
-        public Guard<Entity, Object> getGuard() {
+        public Guard<Entity> getGuard() {
             return guard;
         }
     }
 
-    protected class TestState extends StateAdapter<Entity, Object> {
+    protected class TestState extends StateAdapter<Entity> {
 
         private STATE id;
 

@@ -11,54 +11,54 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-public class DefaultStateMachine<T, U> implements StateMachine<T, U> {
+public class DefaultStateMachine<T> implements StateMachine<T> {
 
-    private final Map<Object, State<T, U>> states;
-    private final Set<Transition<T, U>> transitions;
-    private final Multimap<Object, Transition<T, U>> transitionsFromState;
+    private final Map<Object, State<T>> states;
+    private final Set<Transition<T>> transitions;
+    private final Multimap<Object, Transition<T>> transitionsFromState;
 
-    protected DefaultStateMachine(Set<State<T, U>> states, Set<Transition<T, U>> transitions) {
+    protected DefaultStateMachine(Set<State<T>> states, Set<Transition<T>> transitions) {
         this.states = Maps.newHashMap();
-        for(State<T, U> state : states) {
+        for(State<T> state : states) {
             this.states.put(state.getIdentifier(), state);
         }
         this.transitions = transitions;
         this.transitionsFromState = ArrayListMultimap.create();
-        for(Transition<T, U> transition : transitions) {
+        for(Transition<T> transition : transitions) {
             transitionsFromState.put(transition.getFromState(), transition);
         }
     }
 
     @Override
-    public Object process(Object stateIdentifier, T entity, U context, Object event) {
+    public Object process(Object stateIdentifier, T entity, Object event) {
 
         // get current state
-        State<T, U> currentState = states.get(stateIdentifier);
+        State<T> currentState = states.get(stateIdentifier);
         if(currentState == null) {
             throw new IllegalArgumentException(String.format("unknown state: stateIdentifier=%s", stateIdentifier));
         }
 
         // handle event
-        currentState.onEvent(entity, context, event);
+        currentState.onEvent(entity, event);
 
         // process activated transition (if any)
-        Optional<Transition<T, U>> activatedTransitionOpt = getActivatedTransition(stateIdentifier,entity, context, event);
+        Optional<Transition<T>> activatedTransitionOpt = getActivatedTransition(stateIdentifier, entity, event);
         if(activatedTransitionOpt.isPresent()) {
-            Transition<T, U> activatedTransition = activatedTransitionOpt.get();
+            Transition<T> activatedTransition = activatedTransitionOpt.get();
 
             // execute action (if any)
-            Optional<? extends Action<T, U>> actionOpt = activatedTransition.getAction();
+            Optional<? extends Action<T>> actionOpt = activatedTransition.getAction();
             if(actionOpt.isPresent()) {
-                Action<T, U> action = actionOpt.get();
-                action.execute(entity, context, event);
+                Action<T> action = actionOpt.get();
+                action.execute(entity, event);
             }
 
             // exit current state
-            currentState.onExit(entity, context);
+            currentState.onExit(entity);
 
             // enter next state
-            State<T, U> nextState = states.get(activatedTransition.getToState());
-            nextState.onEntry(entity, context);
+            State<T> nextState = states.get(activatedTransition.getToState());
+            nextState.onEntry(entity);
 
             // return next state
             return nextState.getIdentifier();
@@ -68,11 +68,11 @@ public class DefaultStateMachine<T, U> implements StateMachine<T, U> {
         }
    }
 
-    protected Optional<Transition<T, U>> getActivatedTransition(Object stateIdentifier, T entity, U context, Object event) {
-        Collection<Transition<T, U>> transitionsFromCurrentState = transitionsFromState.get(stateIdentifier);
+    protected Optional<Transition<T>> getActivatedTransition(Object stateIdentifier, T entity, Object event) {
+        Collection<Transition<T>> transitionsFromCurrentState = transitionsFromState.get(stateIdentifier);
 
-        Collection<Transition<T, U>> activatedTransitions = Collections2.filter(transitionsFromCurrentState,
-                new GuardIsAccepting<T, U>(entity, context, event));
+        Collection<Transition<T>> activatedTransitions = Collections2.filter(transitionsFromCurrentState,
+                new GuardIsAccepting<T>(entity, event));
         if(activatedTransitions.isEmpty()) {
             return Optional.absent();
         } else if(activatedTransitions.size() == 1) {
@@ -82,21 +82,19 @@ public class DefaultStateMachine<T, U> implements StateMachine<T, U> {
         }
     }
 
-    private static class GuardIsAccepting<T, U> implements Predicate<Transition<T, U>> {
+    private static class GuardIsAccepting<T> implements Predicate<Transition<T>> {
 
         private final T entity;
-        private final U context;
         private final Object event;
 
-        private GuardIsAccepting(T entity, U context, Object event) {
+        private GuardIsAccepting(T entity, Object event) {
             this.entity = entity;
-            this.context = context;
             this.event = event;
         }
 
         @Override
-        public boolean apply(Transition<T, U> input) {
-            return input.getGuard().accept(entity, context, event);
+        public boolean apply(Transition<T> input) {
+            return input.getGuard().accept(entity, event);
         }
     }
 }

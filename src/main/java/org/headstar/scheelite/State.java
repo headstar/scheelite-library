@@ -1,10 +1,10 @@
 package org.headstar.scheelite;
 
-public interface State<T, U> {
+public interface State<T> {
 
     Object getIdentifier();
 
-    void onEntry(T entity, U context);
-    void onExit(T entity, U context);
-    void onEvent(T entity, U context, Object event);
+    void onEntry(T entity);
+    void onExit(T entity);
+    void onEvent(T entity, Object event);
 }

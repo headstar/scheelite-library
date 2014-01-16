@@ -1,6 +1,6 @@
 package org.headstar.scheelite;
 
-public interface Guard<T, U> {
+public interface Guard<T> {
 
-    boolean accept(T entity, U context, Object event);
+    boolean accept(T entity, Object event);
 }
