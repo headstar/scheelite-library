@@ -13,9 +13,9 @@ import java.util.Set;
 
 public class DefaultStateMachine<T, U> implements StateMachine<T, U> {
 
-    private final Map<StateIdentifier, State<T, U>> states;
+    private final Map<Object, State<T, U>> states;
     private final Set<Transition<T, U>> transitions;
-    private final Multimap<StateIdentifier, Transition<T, U>> transitionsFromState;
+    private final Multimap<Object, Transition<T, U>> transitionsFromState;
 
     protected DefaultStateMachine(Set<State<T, U>> states, Set<Transition<T, U>> transitions) {
         this.states = Maps.newHashMap();
@@ -30,10 +30,13 @@ public class DefaultStateMachine<T, U> implements StateMachine<T, U> {
     }
 
     @Override
-    public StateIdentifier process(StateIdentifier stateIdentifier, T entity, U context, Object event) {
+    public Object process(Object stateIdentifier, T entity, U context, Object event) {
 
         // get current state
         State<T, U> currentState = states.get(stateIdentifier);
+        if(currentState == null) {
+            throw new IllegalArgumentException(String.format("unknown state: stateIdentifier=%s", stateIdentifier));
+        }
 
         // handle event
         currentState.onEvent(entity, context, event);
@@ -65,7 +68,7 @@ public class DefaultStateMachine<T, U> implements StateMachine<T, U> {
         }
    }
 
-    protected Optional<Transition<T, U>> getActivatedTransition(StateIdentifier stateIdentifier, T entity, U context, Object event) {
+    protected Optional<Transition<T, U>> getActivatedTransition(Object stateIdentifier, T entity, U context, Object event) {
         Collection<Transition<T, U>> transitionsFromCurrentState = transitionsFromState.get(stateIdentifier);
 
         Collection<Transition<T, U>> activatedTransitions = Collections2.filter(transitionsFromCurrentState, new GuardIsAccepting<T, U>(entity, context, event));
