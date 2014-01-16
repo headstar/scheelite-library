@@ -44,6 +44,9 @@ public class StateMachineBuilder<T, U> {
         allStates.add(startState);
         Multimap<Object, State<T, U>> stateMap = ArrayListMultimap.create();
         for(State<T, U> state : allStates) {
+            if(state.getIdentifier() == null) {
+                throw new IllegalStateException(String.format("state identifier cannot be null: state=[%s]", state));
+            }
             stateMap.put(state.getIdentifier(), state);
         }
 
@@ -74,7 +77,7 @@ public class StateMachineBuilder<T, U> {
                 throw new IllegalStateException(String.format("transition guard cannot be null: transition=[%s]", transition));
             }
             if(transition.getFromState() == null) {
-                throw new IllegalStateException(String.format("transition from state cannot be null: transition=[%s]", transition));
+                throw new IllegalStateException(String.format("transition fromState cannot be null: transition=[%s]", transition));
             }
             if(transition.getToState() == null) {
                 throw new IllegalStateException(String.format("transition toState cannot be null: transition=[%s]", transition));

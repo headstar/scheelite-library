@@ -6,7 +6,7 @@ public interface Transition<T, U> {
 
     Object getFromState();
     Object getToState();
-    Optional<Action<T, U>> getAction();
+    Optional<? extends Action<T, U>> getAction();
     Guard<T, U>  getGuard();
 
 }

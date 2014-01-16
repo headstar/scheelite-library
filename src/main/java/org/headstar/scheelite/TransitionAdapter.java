@@ -6,10 +6,18 @@ public class TransitionAdapter<T, U> implements Transition<T, U> {
 
     private final Object inputStateId;
     private final Object outputStateId;
+    private final Action<T, U> action;
+    private final Guard<T, U> guard;
 
-    public TransitionAdapter(Object inputStateId, Object outputStateId) {
+    public TransitionAdapter(Object inputStateId, Object outputStateId, Action<T, U> action, Guard<T, U> guard) {
         this.inputStateId = inputStateId;
         this.outputStateId = outputStateId;
+        this.action = action;
+        this.guard = guard;
+    }
+
+    public TransitionAdapter(Object inputStateId, Object outputStateId) {
+        this(inputStateId, outputStateId, null, new AlwaysAcceptsGuard<T, U>());
     }
 
     @Override
@@ -24,12 +32,12 @@ public class TransitionAdapter<T, U> implements Transition<T, U> {
 
     @Override
     public Optional<Action<T, U>> getAction() {
-        return Optional.absent();
+        return Optional.of(action);
     }
 
     @Override
     public Guard<T, U> getGuard() {
-        return new AlwaysAcceptsGuard<T, U>();
+        return guard;
     }
 
     @Override

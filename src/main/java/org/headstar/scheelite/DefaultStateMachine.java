@@ -47,7 +47,7 @@ public class DefaultStateMachine<T, U> implements StateMachine<T, U> {
             Transition<T, U> activatedTransition = activatedTransitionOpt.get();
 
             // execute action (if any)
-            Optional<Action<T, U>> actionOpt = activatedTransition.getAction();
+            Optional<? extends Action<T, U>> actionOpt = activatedTransition.getAction();
             if(actionOpt.isPresent()) {
                 Action<T, U> action = actionOpt.get();
                 action.execute(entity, context, event);
