@@ -5,18 +5,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import java.util.Observable;
-
-public class StateMachineBuilderTest {
-
-    enum STATE {A, B, C, D, E}
-
-    StateMachineBuilder<Entity, Object> builder;
-
-    @BeforeMethod
-    public void setup() {
-        builder = new StateMachineBuilder<Entity, Object>();
-    }
+public class StateMachineBuilderTest extends TestBase {
 
     @Test(expectedExceptions = IllegalStateException.class, expectedExceptionsMessageRegExp = "no start state.*")
     public void testNoStartState() {
@@ -160,79 +149,5 @@ public class StateMachineBuilderTest {
         // then ...no exception should be thrown
     }
 
-    private static class Entity {
-    }
-
-    private class TestAction implements Action<Entity, Object> {
-        @Override
-        public void execute(Entity entity, Object context, Object event) {
-
-        }
-    }
-
-    private class TestGuard implements Guard<Entity, Object> {
-        @Override
-        public boolean accept(Entity entity, Object context, Object event) {
-            return true;
-        }
-    }
-
-    private class TestTransition implements Transition<Entity, Object> {
-        private final Object inputStateId;
-        private final Object outputStateId;
-        private final Optional<TestAction> action;
-        private final Guard<Entity, Object> guard;
-
-        private TestTransition(Object inputStateId, Object outputStateId) {
-            this(inputStateId, outputStateId, Optional.of(new TestAction()), new TestGuard());
-        }
-
-        private TestTransition(Object inputStateId, Object outputStateId, Optional<TestAction> action, TestGuard guard) {
-            this.inputStateId = inputStateId;
-            this.outputStateId = outputStateId;
-            this.action = action;
-            this.guard = guard;
-        }
-
-        @Override
-        public Object getFromState() {
-            return inputStateId;
-        }
-
-        @Override
-        public Object getToState() {
-            return outputStateId;
-        }
-
-        @Override
-        public Optional<? extends Action<Entity, Object>> getAction() {
-            return action;
-        }
-
-        public Guard<Entity, Object> getGuard() {
-            return guard;
-        }
-    }
-
-    private class TestState extends StateAdapter<Entity, Object> {
-
-        private STATE id;
-
-        TestState(STATE id) {
-            this.id = id;
-        }
-
-        @Override
-        public Object getIdentifier() {
-            return id;
-        }
-
-        @Override
-        public String toString() {
-            return "TestState{" +
-                    "id=" + id +
-                    "} " + super.toString();
-        }
-    }
 
 }

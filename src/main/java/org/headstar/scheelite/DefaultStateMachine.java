@@ -71,7 +71,8 @@ public class DefaultStateMachine<T, U> implements StateMachine<T, U> {
     protected Optional<Transition<T, U>> getActivatedTransition(Object stateIdentifier, T entity, U context, Object event) {
         Collection<Transition<T, U>> transitionsFromCurrentState = transitionsFromState.get(stateIdentifier);
 
-        Collection<Transition<T, U>> activatedTransitions = Collections2.filter(transitionsFromCurrentState, new GuardIsAccepting<T, U>(entity, context, event));
+        Collection<Transition<T, U>> activatedTransitions = Collections2.filter(transitionsFromCurrentState,
+                new GuardIsAccepting<T, U>(entity, context, event));
         if(activatedTransitions.isEmpty()) {
             return Optional.absent();
         } else if(activatedTransitions.size() == 1) {
