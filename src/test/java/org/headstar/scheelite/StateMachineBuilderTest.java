@@ -51,7 +51,7 @@ public class StateMachineBuilderTest {
         // then ...exception should be thrown
     }
 
-    @Test(expectedExceptions = IllegalStateException.class, expectedExceptionsMessageRegExp = "transition output state id unknown.*")
+    @Test(expectedExceptions = IllegalStateException.class, expectedExceptionsMessageRegExp = "transition to state unknown.*")
     public void testTransitionToUnknownState() {
         // given
 

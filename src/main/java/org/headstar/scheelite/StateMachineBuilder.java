@@ -74,16 +74,16 @@ public class StateMachineBuilder<T, U> {
                 throw new IllegalStateException(String.format("transition guard cannot be null: transition=[%s]", transition));
             }
             if(transition.getFromState() == null) {
-                throw new IllegalStateException(String.format("transition input state id cannot be null: transition=[%s]", transition));
+                throw new IllegalStateException(String.format("transition from state cannot be null: transition=[%s]", transition));
             }
             if(transition.getToState() == null) {
-                throw new IllegalStateException(String.format("transition output state id cannot be null: transition=[%s]", transition));
+                throw new IllegalStateException(String.format("transition to state cannot be null: transition=[%s]", transition));
             }
             if(!stateMap.containsKey(transition.getFromState())) {
-                throw new IllegalStateException(String.format("transition input state id unknown: inputStateId=[%s]", transition.getFromState()));
+                throw new IllegalStateException(String.format("transition from state unknown: fromState=[%s]", transition.getFromState()));
             }
             if(!stateMap.containsKey(transition.getToState())) {
-                throw new IllegalStateException(String.format("transition output state id unknown: outputStateId=[%s]", transition.getToState()));
+                throw new IllegalStateException(String.format("transition to state unknown: toState=[%s]", transition.getToState()));
             }
         }
 
