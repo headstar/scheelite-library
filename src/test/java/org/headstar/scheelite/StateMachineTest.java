@@ -1,6 +1,5 @@
 package org.headstar.scheelite;
 
-import com.google.common.base.Optional;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
@@ -15,9 +14,9 @@ public class StateMachineTest extends TestBase {
         // given
         Entity e = new Entity();
         StateMachine<Entity> stateMachine = builder
-                .addStartState(new TestState(STATE.A))
-                .addState(new TestState(STATE.B))
-                .addTransition(new TestTransition(STATE.A, STATE.B, new TestGuard(true)))
+                .withStartState(new TestState(STATE.A))
+                .withState(new TestState(STATE.B))
+                .withTransition(new TestTransition(STATE.A, STATE.B, new TestGuard(true)))
                 .build();
 
         // when
@@ -32,9 +31,9 @@ public class StateMachineTest extends TestBase {
         // given
         Entity e = new Entity();
         StateMachine<Entity> stateMachine = builder
-                .addStartState(new TestState(STATE.A))
-                .addState(new TestState(STATE.B))
-                .addTransition(new TestTransition(STATE.A, STATE.B, new TestGuard(false)))
+                .withStartState(new TestState(STATE.A))
+                .withState(new TestState(STATE.B))
+                .withTransition(new TestTransition(STATE.A, STATE.B, new TestGuard(false)))
                 .build();
 
         // when

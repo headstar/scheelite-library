@@ -1,7 +1,6 @@
 package org.headstar.scheelite;
 
 import com.google.common.base.Optional;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -22,7 +21,7 @@ public class StateMachineBuilderTest extends TestBase {
         // given
 
         // when
-        builder.addStartState(new TestState(null))
+        builder.withStartState(new TestState(null))
                 .build();
 
         // then ...exception should be thrown
@@ -33,8 +32,8 @@ public class StateMachineBuilderTest extends TestBase {
         // given
 
         // when
-        builder.addStartState(new TestState(STATE.A))
-                .addState(new TestState(null))
+        builder.withStartState(new TestState(STATE.A))
+                .withState(new TestState(null))
                 .build();
 
         // then ...exception should be thrown
@@ -65,9 +64,9 @@ public class StateMachineBuilderTest extends TestBase {
         // given
 
         // when
-        builder.addStartState(new TestState(STATE.A))
-                .addState(new TestState(STATE.B))
-                .addTransition(transition)
+        builder.withStartState(new TestState(STATE.A))
+                .withState(new TestState(STATE.B))
+                .withTransition(transition)
                 .build();
 
         // then ...exception should be thrown
@@ -79,8 +78,8 @@ public class StateMachineBuilderTest extends TestBase {
         // given
 
         // when
-        builder.addStartState(new TestState(STATE.A))
-                .addState(new TestState(STATE.B))
+        builder.withStartState(new TestState(STATE.A))
+                .withState(new TestState(STATE.B))
                 .build();
 
         // then ...exception should be thrown
@@ -91,10 +90,10 @@ public class StateMachineBuilderTest extends TestBase {
         // given
 
         // when
-        builder.addStartState(new TestState(STATE.A))
-                .addState(new TestState(STATE.B))
-                .addState(new TestState(STATE.C))  // not reachable
-                .addTransition(new TestTransition(STATE.A, STATE.B))
+        builder.withStartState(new TestState(STATE.A))
+                .withState(new TestState(STATE.B))
+                .withState(new TestState(STATE.C))  // not reachable
+                .withTransition(new TestTransition(STATE.A, STATE.B))
                 .build();
 
         // then ...exception should be thrown
@@ -105,8 +104,8 @@ public class StateMachineBuilderTest extends TestBase {
         // given
 
         // when
-        builder.addStartState(new TestState(STATE.A))
-                .addTransition(new TestTransition(STATE.C, STATE.A))
+        builder.withStartState(new TestState(STATE.A))
+                .withTransition(new TestTransition(STATE.C, STATE.A))
                 .build();
 
         // then ...no exception should be thrown
@@ -117,8 +116,8 @@ public class StateMachineBuilderTest extends TestBase {
         // given
 
         // when
-        builder.addStartState(new TestState(STATE.A))
-                .addTransition(new TestTransition(STATE.A, STATE.B))
+        builder.withStartState(new TestState(STATE.A))
+                .withTransition(new TestTransition(STATE.A, STATE.B))
                 .build();
 
         // then ...no exception should be thrown
@@ -129,7 +128,7 @@ public class StateMachineBuilderTest extends TestBase {
         // given
 
         // when
-        builder.addStartState(new TestState(STATE.A))
+        builder.withStartState(new TestState(STATE.A))
                 .build();
 
         // then ...no exception should be thrown
@@ -140,10 +139,10 @@ public class StateMachineBuilderTest extends TestBase {
         // given
 
         // when
-        builder.addStartState(new TestState(STATE.A))
-                .addState(new TestState(STATE.B))
-                .addTransition(new TestTransition(STATE.A, STATE.B))
-                .addTransition(new TestTransition(STATE.B, STATE.A))
+        builder.withStartState(new TestState(STATE.A))
+                .withState(new TestState(STATE.B))
+                .withTransition(new TestTransition(STATE.A, STATE.B))
+                .withTransition(new TestTransition(STATE.B, STATE.A))
                 .build();
 
         // then ...no exception should be thrown

@@ -15,7 +15,7 @@ public class StateMachineBuilder<T> {
         inputTransitions = Lists.newArrayList();
     }
 
-    public StateMachineBuilder<T> addStartState(State<T> state) {
+    public StateMachineBuilder<T> withStartState(State<T> state) {
         if(startState != null) {
             throw new IllegalStateException("start state already added");
         }
@@ -23,12 +23,12 @@ public class StateMachineBuilder<T> {
         return this;
     }
 
-    public StateMachineBuilder<T> addState(State<T> state) {
+    public StateMachineBuilder<T> withState(State<T> state) {
         inputStates.add(state);
         return this;
     }
 
-    public StateMachineBuilder<T> addTransition(Transition<T> transition) {
+    public StateMachineBuilder<T> withTransition(Transition<T> transition) {
         inputTransitions.add(transition);
         return this;
     }
