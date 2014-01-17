@@ -1,14 +1,17 @@
 apply plugin: 'java'
 apply plugin: 'idea'
+apply plugin: 'eclipse'
 
-sourceCompatibility = 1.6
-version = '1.0'
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+ext.guavaVersion = '15.0'
+ext.testngVersion = '6.8.7'
 
 test {
-    // enable TestNG support (default is JUnit)
     useTestNG()
-
-    // show standard out and standard error of the test JVM(s) on the console
     testLogging.showStandardStreams = true
 }
 
@@ -16,7 +19,11 @@ repositories {
     mavenCentral()
 }
 
+tasks.withType(Compile) {
+    options.compilerArgs << "-Xlint:unchecked"
+}
+
 dependencies {
-    compile 'com.google.guava:guava:15.0'
-    testCompile 'org.testng:testng:6.8.7'
+    compile "com.google.guava:guava:$guavaVersion"
+    testCompile "org.testng:testng:$testngVersion"
 }
