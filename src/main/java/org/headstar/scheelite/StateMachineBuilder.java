@@ -1,35 +1,54 @@
 package org.headstar.scheelite;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.*;
 
 import java.util.*;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public class StateMachineBuilder<T> {
 
     private State<T> startState;
-    private final List<State<T>> inputStates;
-    private final List<Transition<T>> inputTransitions;
+    private final Set<State<T>> states;
+    private final Set<Transition<T>> transitions;
 
     public StateMachineBuilder() {
-        inputStates = Lists.newArrayList();
-        inputTransitions = Lists.newArrayList();
+        states = Sets.newHashSet();
+        transitions = Sets.newHashSet();
     }
 
     public StateMachineBuilder<T> withStartState(State<T> state) {
+        Preconditions.checkNotNull(state, "state cannot be null");
+
         if(startState != null) {
-            throw new IllegalStateException("start state already added");
+            throw new IllegalArgumentException(String.format("start state already added: state=[%s]", state));
         }
+        validateState(state);
         startState = state;
+        states.add(state);
         return this;
     }
 
     public StateMachineBuilder<T> withState(State<T> state) {
-        inputStates.add(state);
+        Preconditions.checkNotNull(state, "state cannot be null");
+
+        if(states.contains(state)) {
+            throw new IllegalArgumentException(String.format("state already added: state=[%s]", state));
+        }
+        validateState(state);
+        states.add(state);
         return this;
     }
 
     public StateMachineBuilder<T> withTransition(Transition<T> transition) {
-        inputTransitions.add(transition);
+        Preconditions.checkNotNull(transition, "transition cannot be null");
+
+        if(transitions.contains(transition)) {
+            throw new IllegalArgumentException(String.format("transition already added: transition=[%s]", transition));
+        }
+        validateTransition(transition);
+        transitions.add(transition);
         return this;
     }
 
@@ -40,61 +59,71 @@ public class StateMachineBuilder<T> {
             throw new IllegalStateException("no start state added");
         }
 
-        List<State<T>> allStates = Lists.newArrayList(inputStates);
-        allStates.add(startState);
-        Multimap<Object, State<T>> stateMap = ArrayListMultimap.create();
-        for(State<T> state : allStates) {
-            if(state.getIdentifier() == null) {
-                throw new IllegalStateException(String.format("state identifier cannot be null: state=[%s]", state));
-            }
-            stateMap.put(state.getIdentifier(), state);
-        }
-
-        // check state identifiers are unique
-        for(State<T> state : allStates) {
-            if(stateMap.get(state.getIdentifier()).size() > 1) {
-                throw new IllegalStateException(String.format("state identifier not unique: identifier=[%s]", state.getIdentifier()));
-            }
-        }
-
-        // check so no state equals some other state
-        for(State<T> outer : allStates) {
-            for(State<T> inner: allStates) {
-                if(outer != inner && outer.equals(inner))  {
-                    throw new IllegalStateException(String.format("state cannot be equal to another state: stateA=[%s], stateB=[%s]", outer, inner));
-                }
-            }
-        }
-
-        Set<State<T>> states = Sets.newHashSet(allStates);
+        // check state id equals and state equals relation
+        checkStateEquals(states);
 
         // check transitions are valid
-        for(Transition<T> transition : inputTransitions) {
-            if(transition.getAction() == null) {
-                throw new IllegalStateException(String.format("transition action cannot be null: transition=[%s]", transition));
-            }
-            if(transition.getGuard()== null) {
-                throw new IllegalStateException(String.format("transition guard cannot be null: transition=[%s]", transition));
-            }
-            if(transition.getFromState() == null) {
-                throw new IllegalStateException(String.format("transition fromState cannot be null: transition=[%s]", transition));
-            }
-            if(transition.getToState() == null) {
-                throw new IllegalStateException(String.format("transition toState cannot be null: transition=[%s]", transition));
-            }
-            if(!stateMap.containsKey(transition.getFromState())) {
-                throw new IllegalStateException(String.format("transition fromState unknown: fromState=[%s]", transition.getFromState()));
-            }
-            if(!stateMap.containsKey(transition.getToState())) {
-                throw new IllegalStateException(String.format("transition toState unknown: toState=[%s]", transition.getToState()));
-            }
-        }
+        checkTransitionsToAndFromStates(states, transitions);
 
-        Set<Transition<T>> transitions = Sets.newHashSet(inputTransitions);
-
+        // check all states are reachable from the start state
         checkAllStatesAreReachableFromStartState(startState, states, transitions);
 
         return new DefaultStateMachine(states, transitions);
+    }
+
+    protected void validateTransition(Transition<T> transition) {
+        if(transition.getAction() == null) {
+            throw new IllegalStateException(String.format("transition action cannot be null: transition=[%s]", transition));
+        }
+        if(transition.getGuard()== null) {
+            throw new IllegalStateException(String.format("transition guard cannot be null: transition=[%s]", transition));
+        }
+        if(transition.getFromState() == null) {
+            throw new IllegalStateException(String.format("transition fromState cannot be null: transition=[%s]", transition));
+        }
+        if(transition.getToState() == null) {
+            throw new IllegalStateException(String.format("transition toState cannot be null: transition=[%s]", transition));
+        }
+
+    }
+
+    protected void validateState(State<T> state) {
+        if(state.getIdentifier() == null) {
+            throw new IllegalArgumentException(String.format("state identifier cannot be null: state=[%s]", state));
+        }
+    }
+
+    protected void checkStateEquals(Set<State<T>> states) {
+        for(State<T> outer : this.states) {
+            for(State<T> inner: this.states) {
+                if(!(outer.getIdentifier().equals(inner.getIdentifier()) == outer.equals(inner))) {
+                    throw new IllegalStateException(String.format("states equals not valid: states=[]", Arrays.asList(outer, inner)));
+                }
+            }
+        }
+    }
+
+    protected void checkTransitionsToAndFromStates(Set<State<T>> states, Set<Transition<T>> transitions) {
+
+        Set<Object> stateIdentifiers = collectStateIdentifiers(states);
+
+        for(Transition<T> transition : transitions) {
+            if(!stateIdentifiers.contains(transition.getFromState())) {
+                throw new IllegalStateException(String.format("transition fromState unknown: fromState=[%s]", transition.getFromState()));
+            }
+            if(!stateIdentifiers.contains(transition.getToState())) {
+                throw new IllegalStateException(String.format("transition toState unknown: toState=[%s]", transition.getToState()));
+            }
+        }
+    }
+
+    protected Set<Object> collectStateIdentifiers(Set<State<T>> states) {
+        Set<Object> identifiers = Sets.newHashSet();
+        for(State<T> state : this.states) {
+            identifiers.add(state.getIdentifier());
+        }
+
+        return identifiers;
     }
 
     protected void checkAllStatesAreReachableFromStartState(State<T> startState, Set<State<T>> allStates, Set<Transition<T>> transitions) {
@@ -127,7 +156,6 @@ public class StateMachineBuilder<T> {
             throw new IllegalStateException(String.format("states unreachable from start state: states=[%s]", notVisited));
         }
     }
-
 
     protected Multimap<Object, Object> getEdges(Set<Transition<T>> transitions) {
         Multimap<Object, Object> edges = HashMultimap.create();

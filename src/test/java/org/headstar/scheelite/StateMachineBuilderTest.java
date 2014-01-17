@@ -16,7 +16,17 @@ public class StateMachineBuilderTest extends TestBase {
         // then ...exception should be thrown
     }
 
-    @Test(expectedExceptions = IllegalStateException.class, expectedExceptionsMessageRegExp = "state identifier cannot be null.*")
+    @Test(expectedExceptions = NullPointerException.class, expectedExceptionsMessageRegExp = "state cannot be null.*")
+    public void testStartStateNull() {
+        // given
+
+        // when
+        builder.withStartState(null);
+
+        // then ...exception should be thrown
+    }
+
+    @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "state identifier cannot be null.*")
     public void testNullStartStateId() {
         // given
 
@@ -27,29 +37,39 @@ public class StateMachineBuilderTest extends TestBase {
         // then ...exception should be thrown
     }
 
-    @Test(expectedExceptions = IllegalStateException.class, expectedExceptionsMessageRegExp = "state identifier cannot be null.*")
+    @Test(expectedExceptions = NullPointerException.class, expectedExceptionsMessageRegExp = "state cannot be null.*")
+    public void testOtherStateNull() {
+        // given
+
+        // when
+        builder.withStartState(new TestState(STATE.A))
+                .withState(null);
+
+        // then ...exception should be thrown
+    }
+
+    @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "state identifier cannot be null.*")
     public void testNullOtherStateId() {
         // given
 
         // when
         builder.withStartState(new TestState(STATE.A))
-                .withState(new TestState(null))
-                .build();
+                .withState(new TestState(null));
 
         // then ...exception should be thrown
     }
 
     @DataProvider(name = "transitionNulls")
-    public Object[][] transitionNulls(){
+    public Object[][] transitionNulls() {
         return new Object[][]{
                 {
-                new TestTransition(null, STATE.B),
-        },
+                        new TestTransition(null, STATE.B),
+                },
                 {
                         new TestTransition(STATE.A, null),
                 },
                 {
-                        new TestTransition(STATE.A, STATE.B, null, new TestGuard()) ,
+                        new TestTransition(STATE.A, STATE.B, null, new TestGuard()),
                 },
                 {
                         new TestTransition(STATE.A, STATE.B, Optional.of(new TestAction()), null),
@@ -58,16 +78,13 @@ public class StateMachineBuilderTest extends TestBase {
         };
     }
 
-    @Test(dataProvider="transitionNulls", expectedExceptions = IllegalStateException.class,
+    @Test(dataProvider = "transitionNulls", expectedExceptions = IllegalStateException.class,
             expectedExceptionsMessageRegExp = "transition.*")
     public void testTransitionFieldsNull(Transition transition) {
         // given
 
         // when
-        builder.withStartState(new TestState(STATE.A))
-                .withState(new TestState(STATE.B))
-                .withTransition(transition)
-                .build();
+        builder.withTransition(transition);
 
         // then ...exception should be thrown
     }
