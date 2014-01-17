@@ -80,7 +80,7 @@ public class StateMachineBuilder<T, U> {
         // check all states are reachable from the start state
         checkAllStatesAreReachableFromStartState(startState, states, transitions);
 
-        return new DefaultStateMachine(states, transitions, entityMutator);
+        return new DefaultStateMachine<T, U>(states, transitions, entityMutator);
     }
 
     protected void validateTransition(Transition<T, U> transition) {

@@ -89,7 +89,7 @@ public class StateMachineBuilderTest extends TestBase {
 
     @Test(dataProvider = "transitionNulls", expectedExceptions = IllegalStateException.class,
             expectedExceptionsMessageRegExp = "transition.*")
-    public void testTransitionFieldsNull(Transition transition) {
+    public void testTransitionFieldsNull(TestTransition transition) {
         // given
 
         // when
