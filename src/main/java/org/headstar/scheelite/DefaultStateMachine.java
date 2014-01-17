@@ -2,32 +2,29 @@ package org.headstar.scheelite;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
+import com.google.common.collect.*;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public class DefaultStateMachine<T, U> implements StateMachine<T> {
 
-    private final Map<Object, State<T, U>> states;
-    private final Set<Transition<T, U>> transitions;
-    private final Multimap<Object, Transition<T, U>> transitionsFromState;
+    private final ImmutableMap<U, State<T, U>> states;  // state id -> state
+    private final ImmutableSet<Transition<T, U>> transitions;
+    private final ImmutableMultimap<U, Transition<T, U>> transitionsFromState; // state id -> transitions from state
     private final EntityMutator<T, U> entityMutator;
 
     protected DefaultStateMachine(Set<State<T, U>> states, Set<Transition<T, U>> transitions, EntityMutator<T, U> entityMutator) {
-        this.states = Maps.newHashMap();
-        for(State<T, U> state : states) {
-            this.states.put(state.getIdentifier(), state);
-        }
-        this.transitions = transitions;
-        this.transitionsFromState = ArrayListMultimap.create();
-        for(Transition<T, U> transition : transitions) {
-            transitionsFromState.put(transition.getFromState(), transition);
-        }
+        checkNotNull(states, "states cannot be null");
+        checkNotNull(transitions, "transitions cannot be null");
+        checkNotNull(entityMutator, "entityMutator cannot be null");
+
+        this.states = createStatesMap(states);
+        this.transitions = ImmutableSet.copyOf(transitions);
+        this.transitionsFromState = createTransitionsFromMap(transitions);
         this.entityMutator = entityMutator;
     }
 
@@ -35,29 +32,33 @@ public class DefaultStateMachine<T, U> implements StateMachine<T> {
     public void process(T entity, Object event) {
 
         // get current state
-        Object stateIdentifier = entityMutator.getStateIdentifier(entity);
+        U stateIdentifier = entityMutator.getStateIdentifier(entity);
+        if(stateIdentifier == null) {
+            throw new IllegalStateException(String.format("stateIdentifier is null"));
+        }
+
         State<T, U> currentState = states.get(stateIdentifier);
-        if(currentState == null) {
-            throw new IllegalStateException(String.format("unknown current state: stateIdentifier=%s", stateIdentifier));
+        if (currentState == null) {
+            throw new IllegalStateException(String.format("state unknown: stateIdentifier=%s", stateIdentifier));
         }
 
         // handle event
         currentState.onEvent(entity, event);
 
         // process triggered transition (if any)
-        Optional<Transition<T, U>> activatedTransitionOpt = getActivatedTransition(stateIdentifier, entity, event);
-        if(activatedTransitionOpt.isPresent()) {
+        Optional<Transition<T, U>> activatedTransitionOpt = getTriggeredTransition(stateIdentifier, entity, event);
+        if (activatedTransitionOpt.isPresent()) {
             Transition<T, U> activatedTransition = activatedTransitionOpt.get();
 
             // get next state
             State<T, U> nextState = states.get(activatedTransition.getToState());
-            if(nextState == null) {
-                throw new IllegalStateException(String.format("unknown next state: stateIdentifier=%s", stateIdentifier));
+            if (nextState == null) {
+                throw new IllegalStateException(String.format("next state unknown: stateIdentifier=%s", stateIdentifier));
             }
 
             // execute action (if any)
             Optional<? extends Action<T>> actionOpt = activatedTransition.getAction();
-            if(actionOpt.isPresent()) {
+            if (actionOpt.isPresent()) {
                 Action<T> action = actionOpt.get();
                 action.execute(entity, event);
             }
@@ -71,19 +72,35 @@ public class DefaultStateMachine<T, U> implements StateMachine<T> {
             // enter next state
             nextState.onEntry(entity);
         }
-   }
+    }
 
-    protected Optional<Transition<T, U>> getActivatedTransition(Object stateIdentifier, T entity, Object event) {
+    protected ImmutableMap<U, State<T, U>> createStatesMap(Set<State<T, U>> states) {
+        Map<U, State<T, U>> map = Maps.newHashMap();
+        for (State<T, U> state : states) {
+            map.put(state.getIdentifier(), state);
+        }
+        return new ImmutableMap.Builder<U, State<T, U>>().putAll(map).build();
+    }
+
+    protected ImmutableMultimap<U, Transition<T, U>> createTransitionsFromMap(Set<Transition<T, U>> transitions) {
+        Multimap<U, Transition<T, U>> map = ArrayListMultimap.create();
+        for (Transition<T, U> transition : transitions) {
+            map.put(transition.getFromState(), transition);
+        }
+        return new ImmutableMultimap.Builder<U, Transition<T, U>>().putAll(map).build();
+    }
+
+    protected Optional<Transition<T, U>> getTriggeredTransition(U stateIdentifier, T entity, Object event) {
         Collection<Transition<T, U>> transitionsFromCurrentState = transitionsFromState.get(stateIdentifier);
 
         Collection<Transition<T, U>> activatedTransitions = Collections2.filter(transitionsFromCurrentState,
                 new GuardIsAccepting<T, U>(entity, event));
-        if(activatedTransitions.isEmpty()) {
+        if (activatedTransitions.isEmpty()) {
             return Optional.absent();
-        } else if(activatedTransitions.size() == 1) {
+        } else if (activatedTransitions.size() == 1) {
             return Optional.of(activatedTransitions.iterator().next());
         } else {
-            throw new IllegalStateException("more than 1 transition activated!");
+            throw new IllegalStateException("more than 1 transition triggered!");
         }
     }
 
