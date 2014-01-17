@@ -4,6 +4,14 @@ apply plugin: 'idea'
 sourceCompatibility = 1.6
 version = '1.0'
 
+test {
+    // enable TestNG support (default is JUnit)
+    useTestNG()
+
+    // show standard out and standard error of the test JVM(s) on the console
+    testLogging.showStandardStreams = true
+}
+
 repositories {
     mavenCentral()
 }
