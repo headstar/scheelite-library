@@ -38,7 +38,7 @@ public class DefaultStateMachine<T, U> implements StateMachine<T> {
         Object stateIdentifier = entityMutator.getStateIdentifier(entity);
         State<T, U> currentState = states.get(stateIdentifier);
         if(currentState == null) {
-            throw new IllegalStateException(String.format("unknown state: stateIdentifier=%s", stateIdentifier));
+            throw new IllegalStateException(String.format("unknown current state: stateIdentifier=%s", stateIdentifier));
         }
 
         // handle event
@@ -48,6 +48,12 @@ public class DefaultStateMachine<T, U> implements StateMachine<T> {
         Optional<Transition<T, U>> activatedTransitionOpt = getActivatedTransition(stateIdentifier, entity, event);
         if(activatedTransitionOpt.isPresent()) {
             Transition<T, U> activatedTransition = activatedTransitionOpt.get();
+
+            // get next state
+            State<T, U> nextState = states.get(activatedTransition.getToState());
+            if(nextState == null) {
+                throw new IllegalStateException(String.format("unknown next state: stateIdentifier=%s", stateIdentifier));
+            }
 
             // execute action (if any)
             Optional<? extends Action<T>> actionOpt = activatedTransition.getAction();
@@ -59,12 +65,11 @@ public class DefaultStateMachine<T, U> implements StateMachine<T> {
             // exit current state
             currentState.onExit(entity);
 
-            // enter next state
-            State<T, U> nextState = states.get(activatedTransition.getToState());
-            nextState.onEntry(entity);
-
             // update entity
             entityMutator.setStateIdentifier(entity, nextState.getIdentifier());
+
+            // enter next state
+            nextState.onEntry(entity);
         }
    }
 
