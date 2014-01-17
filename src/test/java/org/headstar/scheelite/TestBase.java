@@ -7,27 +7,51 @@ import org.testng.annotations.BeforeMethod;
  * Created by Per on 2014-01-16.
  */
 public class TestBase {
-    enum STATE {A, B, C, D, E}
+    enum StateId {A, B, C, D, E}
 
-    static class Entity {
+    protected class TestEntity implements EntityMutator<TestEntity, StateId> {
+
+        private StateId state;
+
+        TestEntity() {
+          this(StateId.A);
+        }
+
+        TestEntity(StateId state) {
+            this.state = state;
+        }
+
+        public StateId getState() {
+            return state;
+        }
+
+        @Override
+        public StateId getStateIdentifier(TestEntity entity) {
+            return state;
+        }
+
+        @Override
+        public void setStateIdentifier(TestEntity entity, StateId identifier) {
+            this.state = identifier;
+        }
     }
 
-    protected StateMachineBuilder<Entity> builder;
+    protected StateMachineBuilder<TestEntity, StateId> builder;
 
     @BeforeMethod
     public void setup() {
-        builder = new StateMachineBuilder<Entity>();
+        builder = new StateMachineBuilder<TestEntity, StateId>();
     }
 
-    protected class TestAction implements Action<Entity> {
+    protected class TestAction implements Action<TestEntity> {
 
         @Override
-        public void execute(Entity entity, Object event) {
+        public void execute(TestEntity entity, Object event) {
 
         }
     }
 
-    protected class TestGuard implements Guard<Entity> {
+    protected class TestGuard implements Guard<TestEntity> {
         private final boolean accept;
 
         public TestGuard(boolean accept) {
@@ -39,26 +63,26 @@ public class TestBase {
         }
 
         @Override
-        public boolean accept(Entity entity, Object event) {
+        public boolean accept(TestEntity entity, Object event) {
             return accept;
         }
     }
 
-    protected class TestTransition implements Transition<Entity> {
-        private final Object inputStateId;
-        private final Object outputStateId;
+    protected class TestTransition implements Transition<TestEntity, StateId> {
+        private final StateId inputStateId;
+        private final StateId outputStateId;
         private final Optional<TestAction> action;
-        private final Guard<Entity> guard;
+        private final Guard<TestEntity> guard;
 
-        TestTransition(Object inputStateId, Object outputStateId) {
+        TestTransition(StateId inputStateId, StateId outputStateId) {
             this(inputStateId, outputStateId, Optional.of(new TestAction()), new TestGuard());
         }
 
-        TestTransition(Object inputStateId, Object outputStateId, TestGuard guard) {
+        TestTransition(StateId inputStateId, StateId outputStateId, TestGuard guard) {
             this(inputStateId, outputStateId, Optional.of(new TestAction()), guard);
         }
 
-        TestTransition(Object inputStateId, Object outputStateId, Optional<TestAction> action, TestGuard guard) {
+        TestTransition(StateId inputStateId, StateId outputStateId, Optional<TestAction> action, TestGuard guard) {
             this.inputStateId = inputStateId;
             this.outputStateId = outputStateId;
             this.action = action;
@@ -66,35 +90,35 @@ public class TestBase {
         }
 
         @Override
-        public Object getFromState() {
+        public StateId getFromState() {
             return inputStateId;
         }
 
         @Override
-        public Object getToState() {
+        public StateId getToState() {
             return outputStateId;
         }
 
         @Override
-        public Optional<? extends Action<Entity>> getAction() {
+        public Optional<? extends Action<TestEntity>> getAction() {
             return action;
         }
 
-        public Guard<Entity> getGuard() {
+        public Guard<TestEntity> getGuard() {
             return guard;
         }
     }
 
-    protected class TestState extends StateAdapter<Entity> {
+    protected class TestState extends StateAdapter<TestEntity, StateId> {
 
-        private STATE id;
+        private StateId id;
 
-        TestState(STATE id) {
+        TestState(StateId id) {
             this.id = id;
         }
 
         @Override
-        public Object getIdentifier() {
+        public StateId getIdentifier() {
             return id;
         }
 

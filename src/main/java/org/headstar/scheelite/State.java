@@ -1,8 +1,8 @@
 package org.headstar.scheelite;
 
-public interface State<T> {
+public interface State<T, U> {
 
-    Object getIdentifier();
+    U getIdentifier();
 
     void onEntry(T entity);
     void onExit(T entity);

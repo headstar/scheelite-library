@@ -12,35 +12,37 @@ public class StateMachineTest extends TestBase {
     @Test
     public void testGuardAccept() {
         // given
-        Entity e = new Entity();
-        StateMachine<Entity> stateMachine = builder
-                .withStartState(new TestState(STATE.A))
-                .withState(new TestState(STATE.B))
-                .withTransition(new TestTransition(STATE.A, STATE.B, new TestGuard(true)))
+        TestEntity e = new TestEntity(StateId.A);
+        StateMachine<TestEntity> stateMachine = builder
+                .withEntityMutator(e)
+                .withStartState(new TestState(StateId.A))
+                .withState(new TestState(StateId.B))
+                .withTransition(new TestTransition(StateId.A, StateId.B, new TestGuard(true)))
                 .build();
 
         // when
-        Object newStateId = stateMachine.process(STATE.A, e, new TestEventX());
+        stateMachine.process(e, new TestEventX());
 
         // then
-        assertEquals(newStateId, STATE.B);
+        assertEquals(e.getState(), StateId.B);
     }
 
     @Test
     public void testGuardDeny() {
         // given
-        Entity e = new Entity();
-        StateMachine<Entity> stateMachine = builder
-                .withStartState(new TestState(STATE.A))
-                .withState(new TestState(STATE.B))
-                .withTransition(new TestTransition(STATE.A, STATE.B, new TestGuard(false)))
+        TestEntity e = new TestEntity(StateId.A);
+        StateMachine<TestEntity> stateMachine = builder
+                .withEntityMutator(e)
+                .withStartState(new TestState(StateId.A))
+                .withState(new TestState(StateId.B))
+                .withTransition(new TestTransition(StateId.A, StateId.B, new TestGuard(false)))
                 .build();
 
         // when
-        Object newStateId = stateMachine.process(STATE.A, e, new TestEventX());
+        stateMachine.process(e, new TestEventX());
 
         // then
-        assertEquals(newStateId, STATE.A);
+        assertEquals(e.getState(), StateId.A);
     }
 
 }
