@@ -16,16 +16,20 @@ public class DefaultStateMachine<T, U> implements StateMachine<T> {
     private final ImmutableSet<Transition<T, U>> transitions;
     private final ImmutableMultimap<U, Transition<T, U>> transitionsFromState; // state id -> transitions from state
     private final EntityMutator<T, U> entityMutator;
+    private final MultipleTransitionsTriggeredPolicy<T, U> multipleTransitionsTriggeredPolicy;
 
-    protected DefaultStateMachine(Set<State<T, U>> states, Set<Transition<T, U>> transitions, EntityMutator<T, U> entityMutator) {
+    protected DefaultStateMachine(Set<State<T, U>> states, Set<Transition<T, U>> transitions, EntityMutator<T, U> entityMutator,
+                                  MultipleTransitionsTriggeredPolicy<T, U> multipleTransitionsTriggeredPolicy) {
         checkNotNull(states, "states cannot be null");
         checkNotNull(transitions, "transitions cannot be null");
         checkNotNull(entityMutator, "entityMutator cannot be null");
+        checkNotNull(multipleTransitionsTriggeredPolicy, "multipleTransitionsTriggeredPolicy cannot be null");
 
         this.states = createStatesMap(states);
         this.transitions = ImmutableSet.copyOf(transitions);
         this.transitionsFromState = createTransitionsFromMap(transitions);
         this.entityMutator = entityMutator;
+        this.multipleTransitionsTriggeredPolicy = multipleTransitionsTriggeredPolicy;
     }
 
     @Override
@@ -46,18 +50,18 @@ public class DefaultStateMachine<T, U> implements StateMachine<T> {
         currentState.onEvent(entity, event);
 
         // process triggered transition (if any)
-        Optional<Transition<T, U>> activatedTransitionOpt = getTriggeredTransition(stateIdentifier, entity, event);
-        if (activatedTransitionOpt.isPresent()) {
-            Transition<T, U> activatedTransition = activatedTransitionOpt.get();
+        Optional<Transition<T, U>> triggeredTransitionOpt = getTriggeredTransition(stateIdentifier, entity, event);
+        if (triggeredTransitionOpt.isPresent()) {
+            Transition<T, U> triggeredTransition = triggeredTransitionOpt.get();
 
             // get next state
-            State<T, U> nextState = states.get(activatedTransition.getToState());
+            State<T, U> nextState = states.get(triggeredTransition.getToState());
             if (nextState == null) {
                 throw new IllegalStateException(String.format("next state unknown: stateIdentifier=%s", stateIdentifier));
             }
 
             // execute action (if any)
-            Optional<? extends Action<T>> actionOpt = activatedTransition.getAction();
+            Optional<? extends Action<T>> actionOpt = triggeredTransition.getAction();
             if (actionOpt.isPresent()) {
                 Action<T> action = actionOpt.get();
                 action.execute(entity, event);
@@ -100,7 +104,8 @@ public class DefaultStateMachine<T, U> implements StateMachine<T> {
         } else if (activatedTransitions.size() == 1) {
             return Optional.of(activatedTransitions.iterator().next());
         } else {
-            throw new IllegalStateException("more than 1 transition triggered!");
+            return Optional.of(multipleTransitionsTriggeredPolicy
+                    .triggeredTransitions(stateIdentifier, entity, event, activatedTransitions));
         }
     }
 

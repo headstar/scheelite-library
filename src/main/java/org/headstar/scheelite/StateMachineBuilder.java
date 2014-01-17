@@ -13,10 +13,12 @@ public class StateMachineBuilder<T, U> {
     private final Set<State<T,U>> states;
     private final Set<Transition<T, U>> transitions;
     private EntityMutator<T, U> entityMutator;
+    private MultipleTransitionsTriggeredPolicy<T, U> multipleTransitionsTriggeredPolicy;
 
     public StateMachineBuilder() {
         states = Sets.newHashSet();
         transitions = Sets.newHashSet();
+        multipleTransitionsTriggeredPolicy = new MultipleTransitionsTriggeredThrowException<T, U>();
     }
 
     public StateMachineBuilder<T, U> withEntityMutator(EntityMutator<T, U> entityMutator) {
@@ -59,6 +61,14 @@ public class StateMachineBuilder<T, U> {
         return this;
     }
 
+    public StateMachineBuilder<T, U> withMultipleTransitionsTriggerPolicy(
+            MultipleTransitionsTriggeredPolicy<T, U> multipleTransitionsTriggeredPolicy) {
+        Preconditions.checkNotNull(multipleTransitionsTriggeredPolicy, "transition cannot be null");
+
+        this.multipleTransitionsTriggeredPolicy = multipleTransitionsTriggeredPolicy;
+        return this;
+    }
+
     public StateMachine<T> build() {
 
         // check we have a start state
@@ -80,7 +90,7 @@ public class StateMachineBuilder<T, U> {
         // check all states are reachable from the start state
         checkAllStatesAreReachableFromStartState(startState, states, transitions);
 
-        return new DefaultStateMachine<T, U>(states, transitions, entityMutator);
+        return new DefaultStateMachine<T, U>(states, transitions, entityMutator, multipleTransitionsTriggeredPolicy);
     }
 
     protected void validateTransition(Transition<T, U> transition) {
