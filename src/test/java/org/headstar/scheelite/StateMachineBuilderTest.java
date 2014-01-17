@@ -4,6 +4,8 @@ import com.google.common.base.Optional;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import static org.testng.Assert.assertEquals;
+
 public class StateMachineBuilderTest extends TestBase {
 
     @Test(expectedExceptions = IllegalStateException.class)
@@ -94,6 +96,36 @@ public class StateMachineBuilderTest extends TestBase {
 
         // when
         builder.withTransition(transition);
+
+        // then ...exception should be thrown
+    }
+
+    @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "state already added.*")
+    public void testStartStateAndOtherStateEquals() {
+        // given
+        TestState a1 = new TestState(StateId.A);
+        TestState a2 = new TestState(StateId.A);
+        assertEquals(a1, a2);
+
+        // when
+        builder .withEntityMutator(new TestEntity())
+                .withState(a2)
+                .withStartState(a1);
+
+        // then ...exception should be thrown
+    }
+
+    @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "state already added.*")
+    public void testOtherStateAndStartStateAndEquals() {
+        // given
+        TestState a1 = new TestState(StateId.A);
+        TestState a2 = new TestState(StateId.A);
+        assertEquals(a1, a2);
+
+        // when
+        builder .withEntityMutator(new TestEntity())
+                .withStartState(a1)
+                .withState(a2);
 
         // then ...exception should be thrown
     }

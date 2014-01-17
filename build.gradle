@@ -9,6 +9,7 @@ targetCompatibility = 1.7
 
 ext.guavaVersion = '15.0'
 ext.testngVersion = '6.8.7'
+ext.mockitoVersion = '1.9.5'
 
 test {
     useTestNG()
@@ -20,10 +21,11 @@ repositories {
 }
 
 tasks.withType(Compile) {
-    options.compilerArgs << "-Xlint:unchecked"
+    options.compilerArgs << "-Xlint"
 }
 
 dependencies {
-    compile "com.google.guava:guava:$guavaVersion"
+    compile "com.google.guava:guava:$guavaVersion",
+            "org.mockito:mockito-all:$mockitoVersion"
     testCompile "org.testng:testng:$testngVersion"
 }

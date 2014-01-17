@@ -100,7 +100,7 @@ public class TestBase {
         }
 
         @Override
-        public Optional<? extends Action<TestEntity>> getAction() {
+        public Optional<TestAction> getAction() {
             return action;
         }
 
@@ -127,6 +127,23 @@ public class TestBase {
             return "TestState{" +
                     "id=" + id +
                     "} " + super.toString();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            TestState testState = (TestState) o;
+
+            if (id != testState.id) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            return id != null ? id.hashCode() : 0;
         }
     }
 

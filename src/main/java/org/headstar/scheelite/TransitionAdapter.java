@@ -4,30 +4,30 @@ import com.google.common.base.Optional;
 
 public class TransitionAdapter<T, U> implements Transition<T, U> {
 
-    private final U inputStateId;
-    private final U outputStateId;
+    private final U fromState;
+    private final U toState;
     private final Action<T> action;
     private final Guard<T> guard;
 
-    public TransitionAdapter(U inputStateId, U outputStateId, Action<T> action, Guard<T> guard) {
-        this.inputStateId = inputStateId;
-        this.outputStateId = outputStateId;
+    public TransitionAdapter(U fromState, U toState, Action<T> action, Guard<T> guard) {
+        this.fromState = fromState;
+        this.toState = toState;
         this.action = action;
         this.guard = guard;
     }
 
-    public TransitionAdapter(U inputStateId, U outputStateId) {
-        this(inputStateId, outputStateId, null, new AlwaysAcceptsGuard<T>());
+    public TransitionAdapter(U fromState, U toState) {
+        this(fromState, toState, null, new AlwaysAcceptsGuard<T>());
     }
 
     @Override
     public U getFromState() {
-        return inputStateId;
+        return fromState;
     }
 
     @Override
     public U getToState() {
-        return outputStateId;
+        return toState;
     }
 
     @Override
@@ -40,6 +40,7 @@ public class TransitionAdapter<T, U> implements Transition<T, U> {
         return guard;
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -47,24 +48,24 @@ public class TransitionAdapter<T, U> implements Transition<T, U> {
 
         TransitionAdapter that = (TransitionAdapter) o;
 
-        if (!inputStateId.equals(that.inputStateId)) return false;
-        if (!outputStateId.equals(that.outputStateId)) return false;
+        if (!fromState.equals(that.fromState)) return false;
+        if (!toState.equals(that.toState)) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = inputStateId.hashCode();
-        result = 31 * result + outputStateId.hashCode();
+        int result = fromState.hashCode();
+        result = 31 * result + toState.hashCode();
         return result;
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("TransitionAdapter [");
-        sb.append("inputStateId=").append(inputStateId);
-        sb.append(", outputStateId=").append(outputStateId);
+        sb.append("fromState=").append(fromState);
+        sb.append(", toState=").append(toState);
         sb.append(']');
         return sb.toString();
     }

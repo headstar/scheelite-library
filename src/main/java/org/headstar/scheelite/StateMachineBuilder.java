@@ -33,6 +33,10 @@ public class StateMachineBuilder<T, U> {
         if(startState != null) {
             throw new IllegalArgumentException(String.format("start state already added: state=[%s]", state));
         }
+        if(states.contains(state)) {
+            throw new IllegalArgumentException(String.format("state already added: state=[%s]", state));
+        }
+
         validateState(state);
         startState = state;
         states.add(state);

@@ -97,15 +97,15 @@ public class DefaultStateMachine<T, U> implements StateMachine<T> {
     protected Optional<Transition<T, U>> getTriggeredTransition(U stateIdentifier, T entity, Object event) {
         Collection<Transition<T, U>> transitionsFromCurrentState = transitionsFromState.get(stateIdentifier);
 
-        Collection<Transition<T, U>> activatedTransitions = Collections2.filter(transitionsFromCurrentState,
-                new GuardIsAccepting<T, U>(entity, event));
-        if (activatedTransitions.isEmpty()) {
+        Collection<Transition<T, U>> triggeredTransition = Lists.newArrayList(Iterables.filter(transitionsFromCurrentState,
+                new GuardIsAccepting<T, U>(entity, event)));
+        if (triggeredTransition.isEmpty()) {
             return Optional.absent();
-        } else if (activatedTransitions.size() == 1) {
-            return Optional.of(activatedTransitions.iterator().next());
+        } else if (triggeredTransition.size() == 1) {
+            return Optional.of(triggeredTransition.iterator().next());
         } else {
             return Optional.of(multipleTransitionsTriggeredPolicy
-                    .triggeredTransitions(stateIdentifier, entity, event, activatedTransitions));
+                    .triggeredTransitions(stateIdentifier, entity, event, triggeredTransition));
         }
     }
 
