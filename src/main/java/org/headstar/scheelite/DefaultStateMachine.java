@@ -20,10 +20,10 @@ public class DefaultStateMachine<T, U> implements StateMachine<T> {
 
     protected DefaultStateMachine(Set<State<T, U>> states, Set<Transition<T, U>> transitions, EntityMutator<T, U> entityMutator,
                                   MultipleTransitionsTriggeredPolicy<T, U> multipleTransitionsTriggeredPolicy) {
-        checkNotNull(states, "states cannot be null");
-        checkNotNull(transitions, "transitions cannot be null");
-        checkNotNull(entityMutator, "entityMutator cannot be null");
-        checkNotNull(multipleTransitionsTriggeredPolicy, "multipleTransitionsTriggeredPolicy cannot be null");
+        checkNotNull(states);
+        checkNotNull(transitions);
+        checkNotNull(entityMutator);
+        checkNotNull(multipleTransitionsTriggeredPolicy);
 
         this.states = createStatesMap(states);
         this.transitions = ImmutableSet.copyOf(transitions);

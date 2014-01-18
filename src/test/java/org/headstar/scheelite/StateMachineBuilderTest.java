@@ -18,7 +18,7 @@ public class StateMachineBuilderTest extends TestBase {
         // then ...exception should be thrown
     }
 
-    @Test(expectedExceptions = NullPointerException.class, expectedExceptionsMessageRegExp = "entity mutator cannot be null.*")
+    @Test(expectedExceptions = NullPointerException.class)
     public void testEntityMutatorNull() {
         // given
 
@@ -28,7 +28,7 @@ public class StateMachineBuilderTest extends TestBase {
         // then ...exception should be thrown
     }
 
-    @Test(expectedExceptions = NullPointerException.class, expectedExceptionsMessageRegExp = "state cannot be null.*")
+    @Test(expectedExceptions = NullPointerException.class)
     public void testStartStateNull() {
         // given
 
@@ -38,7 +38,7 @@ public class StateMachineBuilderTest extends TestBase {
         // then ...exception should be thrown
     }
 
-    @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "state identifier cannot be null.*")
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void testNullStartStateId() {
         // given
 
@@ -48,7 +48,7 @@ public class StateMachineBuilderTest extends TestBase {
         // then ...exception should be thrown
     }
 
-    @Test(expectedExceptions = NullPointerException.class, expectedExceptionsMessageRegExp = "state cannot be null.*")
+    @Test(expectedExceptions = NullPointerException.class)
     public void testOtherStateNull() {
         // given
 
@@ -59,7 +59,7 @@ public class StateMachineBuilderTest extends TestBase {
         // then ...exception should be thrown
     }
 
-    @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "state identifier cannot be null.*")
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void testNullOtherStateId() {
         // given
 
@@ -100,7 +100,7 @@ public class StateMachineBuilderTest extends TestBase {
         // then ...exception should be thrown
     }
 
-    @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "state already added.*")
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void testStartStateAndOtherStateEquals() {
         // given
         TestState a1 = new TestState(StateId.A);
@@ -115,7 +115,7 @@ public class StateMachineBuilderTest extends TestBase {
         // then ...exception should be thrown
     }
 
-    @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "state already added.*")
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void testOtherStateAndStartStateAndEquals() {
         // given
         TestState a1 = new TestState(StateId.A);
@@ -131,7 +131,7 @@ public class StateMachineBuilderTest extends TestBase {
     }
 
 
-    @Test(expectedExceptions = IllegalStateException.class, expectedExceptionsMessageRegExp = "states unreachable.*")
+    @Test(expectedExceptions = IllegalStateException.class)
     public void testUnreachableState1() {
         // given
 
@@ -144,7 +144,7 @@ public class StateMachineBuilderTest extends TestBase {
         // then ...exception should be thrown
     }
 
-    @Test(expectedExceptions = IllegalStateException.class, expectedExceptionsMessageRegExp = "states unreachable.*")
+    @Test(expectedExceptions = IllegalStateException.class)
     public void testUnreachableState2() {
         // given
 
@@ -159,7 +159,7 @@ public class StateMachineBuilderTest extends TestBase {
         // then ...exception should be thrown
     }
 
-    @Test(expectedExceptions = IllegalStateException.class, expectedExceptionsMessageRegExp = "transition fromState unknown.*")
+    @Test(expectedExceptions = IllegalStateException.class)
     public void testTransitionFromUnknownState() {
         // given
 
@@ -172,7 +172,7 @@ public class StateMachineBuilderTest extends TestBase {
         // then ...no exception should be thrown
     }
 
-    @Test(expectedExceptions = IllegalStateException.class, expectedExceptionsMessageRegExp = "transition toState unknown.*")
+    @Test(expectedExceptions = IllegalStateException.class)
     public void testTransitionToUnknownState() {
         // given
 

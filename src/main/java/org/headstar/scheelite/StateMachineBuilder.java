@@ -22,13 +22,13 @@ public class StateMachineBuilder<T, U> {
     }
 
     public StateMachineBuilder<T, U> withEntityMutator(EntityMutator<T, U> entityMutator) {
-        Preconditions.checkNotNull(entityMutator, "entity mutator cannot be null");
+        Preconditions.checkNotNull(entityMutator);
         this.entityMutator = entityMutator;
         return this;
     }
 
     public StateMachineBuilder<T, U> withStartState(State<T, U> state) {
-        Preconditions.checkNotNull(state, "state cannot be null");
+        Preconditions.checkNotNull(state);
 
         if(startState != null) {
             throw new IllegalArgumentException(String.format("start state already added: state=[%s]", state));
@@ -44,7 +44,7 @@ public class StateMachineBuilder<T, U> {
     }
 
     public StateMachineBuilder<T, U> withState(State<T, U> state) {
-        Preconditions.checkNotNull(state, "state cannot be null");
+        Preconditions.checkNotNull(state);
 
         if(states.contains(state)) {
             throw new IllegalArgumentException(String.format("state already added: state=[%s]", state));
@@ -55,7 +55,7 @@ public class StateMachineBuilder<T, U> {
     }
 
     public StateMachineBuilder<T, U> withTransition(Transition<T, U> transition) {
-        Preconditions.checkNotNull(transition, "transition cannot be null");
+        Preconditions.checkNotNull(transition);
 
         if(transitions.contains(transition)) {
             throw new IllegalArgumentException(String.format("transition already added: transition=[%s]", transition));
