@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class DefaultStateMachine<T, U> implements StateMachine<T> {
@@ -28,6 +29,8 @@ public class DefaultStateMachine<T, U> implements StateMachine<T> {
 
     @Override
     public void process(T entity, Object event) {
+        checkNotNull(entity);
+        checkNotNull(event);
 
         // get current state
         U stateIdentifier = entityMutator.getStateIdentifier(entity);
