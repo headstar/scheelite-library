@@ -40,7 +40,7 @@ public class TestBase {
 
     @BeforeMethod
     public void setup() {
-        builder = new StateMachineBuilder<TestEntity, StateId>();
+        builder = StateMachineBuilder.<TestEntity, StateId>newBuilder();
     }
 
     protected class TestAction implements Action<TestEntity> {

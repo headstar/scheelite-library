@@ -15,51 +15,46 @@ public class StateMachineBuilder<T, U> {
     private EntityMutator<T, U> entityMutator;
     private MultipleTransitionsTriggeredPolicy<T, U> multipleTransitionsTriggeredPolicy;
 
-    public StateMachineBuilder() {
+    public static <T, U> StateMachineBuilder<T, U> newBuilder() {
+        return new StateMachineBuilder<T, U>();
+    }
+
+    private StateMachineBuilder() {
         states = Sets.newHashSet();
         transitions = Sets.newHashSet();
         multipleTransitionsTriggeredPolicy = new MultipleTransitionsTriggeredThrowException<T, U>();
     }
 
     public StateMachineBuilder<T, U> withEntityMutator(EntityMutator<T, U> entityMutator) {
-        Preconditions.checkNotNull(entityMutator);
-        this.entityMutator = entityMutator;
+        Preconditions.checkState(this.entityMutator == null, "entityMutator was already set");
+        this.entityMutator = checkNotNull(entityMutator);
         return this;
     }
 
     public StateMachineBuilder<T, U> withStartState(State<T, U> state) {
-        Preconditions.checkNotNull(state);
-
-        if(startState != null) {
-            throw new IllegalArgumentException(String.format("start state already added: state=[%s]", state));
-        }
-        if(states.contains(state)) {
-            throw new IllegalArgumentException(String.format("state already added: state=[%s]", state));
-        }
+        Preconditions.checkState(this.startState == null, "start state was already set to %s", this.startState);
+        Preconditions.checkState(!states.contains(state), "state already added %s", state);
+        this.startState = Preconditions.checkNotNull(state);
 
         validateState(state);
-        startState = state;
+        this.startState = state;
         states.add(state);
         return this;
     }
 
     public StateMachineBuilder<T, U> withState(State<T, U> state) {
         Preconditions.checkNotNull(state);
+        Preconditions.checkState(!states.contains(state), "state already added %s", state);
 
-        if(states.contains(state)) {
-            throw new IllegalArgumentException(String.format("state already added: state=[%s]", state));
-        }
         validateState(state);
         states.add(state);
         return this;
     }
 
     public StateMachineBuilder<T, U> withTransition(Transition<T, U> transition) {
+        Preconditions.checkState(!transitions.contains(transition), "transition already added %s", transition);
         Preconditions.checkNotNull(transition);
 
-        if(transitions.contains(transition)) {
-            throw new IllegalArgumentException(String.format("transition already added: transition=[%s]", transition));
-        }
         validateTransition(transition);
         transitions.add(transition);
         return this;

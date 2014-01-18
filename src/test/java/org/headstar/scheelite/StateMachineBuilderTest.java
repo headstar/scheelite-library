@@ -1,6 +1,7 @@
 package org.headstar.scheelite;
 
 import com.google.common.base.Optional;
+import com.google.common.cache.CacheBuilder;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -100,7 +101,7 @@ public class StateMachineBuilderTest extends TestBase {
         // then ...exception should be thrown
     }
 
-    @Test(expectedExceptions = IllegalArgumentException.class)
+    @Test(expectedExceptions = IllegalStateException.class)
     public void testStartStateAndOtherStateEquals() {
         // given
         TestState a1 = new TestState(StateId.A);
@@ -115,7 +116,7 @@ public class StateMachineBuilderTest extends TestBase {
         // then ...exception should be thrown
     }
 
-    @Test(expectedExceptions = IllegalArgumentException.class)
+    @Test(expectedExceptions = IllegalStateException.class)
     public void testOtherStateAndStartStateAndEquals() {
         // given
         TestState a1 = new TestState(StateId.A);
@@ -210,6 +211,7 @@ public class StateMachineBuilderTest extends TestBase {
                 .build();
 
         // then ...no exception should be thrown
+
     }
 
 
