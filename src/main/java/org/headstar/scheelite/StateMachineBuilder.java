@@ -1,6 +1,7 @@
 package org.headstar.scheelite;
 
 import com.google.common.base.Preconditions;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.*;
 
 import java.util.*;
@@ -89,7 +90,23 @@ public class StateMachineBuilder<T, U> {
         // check all states are reachable from the start state
         checkAllStatesAreReachableFromStartState(startState, states, transitions);
 
-        return new DefaultStateMachine<T, U>(states, transitions, entityMutator, multipleTransitionsTriggeredPolicy);
+        return new DefaultStateMachine<T, U>(this);
+    }
+
+    Set<State<T, U>> getStates() {
+        return states;
+    }
+
+    Set<Transition<T, U>> getTransitions() {
+        return transitions;
+    }
+
+    EntityMutator<T, U> getEntityMutator() {
+        return entityMutator;
+    }
+
+    MultipleTransitionsTriggeredPolicy<T, U> getMultipleTransitionsTriggeredPolicy() {
+        return multipleTransitionsTriggeredPolicy;
     }
 
     protected void validateTransition(Transition<T, U> transition) {

@@ -18,18 +18,12 @@ public class DefaultStateMachine<T, U> implements StateMachine<T> {
     private final EntityMutator<T, U> entityMutator;
     private final MultipleTransitionsTriggeredPolicy<T, U> multipleTransitionsTriggeredPolicy;
 
-    protected DefaultStateMachine(Set<State<T, U>> states, Set<Transition<T, U>> transitions, EntityMutator<T, U> entityMutator,
-                                  MultipleTransitionsTriggeredPolicy<T, U> multipleTransitionsTriggeredPolicy) {
-        checkNotNull(states);
-        checkNotNull(transitions);
-        checkNotNull(entityMutator);
-        checkNotNull(multipleTransitionsTriggeredPolicy);
-
-        this.states = createStatesMap(states);
-        this.transitions = ImmutableSet.copyOf(transitions);
-        this.transitionsFromState = createTransitionsFromMap(transitions);
-        this.entityMutator = entityMutator;
-        this.multipleTransitionsTriggeredPolicy = multipleTransitionsTriggeredPolicy;
+    protected DefaultStateMachine(StateMachineBuilder<T,U> builder) {
+        this.states = createStatesMap(builder.getStates());
+        this.transitions = ImmutableSet.copyOf(builder.getTransitions());
+        this.transitionsFromState = createTransitionsFromMap(builder.getTransitions());
+        this.entityMutator = builder.getEntityMutator();
+        this.multipleTransitionsTriggeredPolicy = builder.getMultipleTransitionsTriggeredPolicy();
     }
 
     @Override
