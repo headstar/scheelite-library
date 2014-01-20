@@ -9,7 +9,7 @@ public class MultipleTransitionsTriggeredThrowException<T, U> implements Multipl
 
     @Override
     public Transition<T, U> triggeredTransitions(U stateIdentifier, T entity, Object event,
-                                                           Collection<Transition<T, U>> transitions) {
+                                                 Collection<Transition<T, U>> transitions) {
         throw new IllegalStateException(String.format("multiple transitions triggered: stateIdentifier=[%s]" +
                 ", entity=[%s], event=[%s], transitions=[%s]", stateIdentifier, entity, event, transitions));
     }

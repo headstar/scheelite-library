@@ -1,7 +1,6 @@
 package org.headstar.scheelite;
 
 import com.google.common.base.Optional;
-import com.google.common.cache.CacheBuilder;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -109,7 +108,7 @@ public class StateMachineBuilderTest extends TestBase {
         assertEquals(a1, a2);
 
         // when
-        builder .withEntityMutator(new TestEntity())
+        builder.withEntityMutator(new TestEntity())
                 .withState(a2)
                 .withStartState(a1);
 
@@ -124,7 +123,7 @@ public class StateMachineBuilderTest extends TestBase {
         assertEquals(a1, a2);
 
         // when
-        builder .withEntityMutator(new TestEntity())
+        builder.withEntityMutator(new TestEntity())
                 .withStartState(a1)
                 .withState(a2);
 
@@ -137,7 +136,7 @@ public class StateMachineBuilderTest extends TestBase {
         // given
 
         // when
-        builder .withEntityMutator(new TestEntity())
+        builder.withEntityMutator(new TestEntity())
                 .withStartState(new TestState(StateId.A))
                 .withState(new TestState(StateId.B))
                 .build();
@@ -150,7 +149,7 @@ public class StateMachineBuilderTest extends TestBase {
         // given
 
         // when
-        builder .withEntityMutator(new TestEntity())
+        builder.withEntityMutator(new TestEntity())
                 .withStartState(new TestState(StateId.A))
                 .withState(new TestState(StateId.B))
                 .withState(new TestState(StateId.C))  // not reachable
@@ -165,7 +164,7 @@ public class StateMachineBuilderTest extends TestBase {
         // given
 
         // when
-        builder .withEntityMutator(new TestEntity())
+        builder.withEntityMutator(new TestEntity())
                 .withStartState(new TestState(StateId.A))
                 .withTransition(new TestTransition(StateId.C, StateId.A))
                 .build();
@@ -178,7 +177,7 @@ public class StateMachineBuilderTest extends TestBase {
         // given
 
         // when
-        builder .withEntityMutator(new TestEntity())
+        builder.withEntityMutator(new TestEntity())
                 .withStartState(new TestState(StateId.A))
                 .withTransition(new TestTransition(StateId.A, StateId.B))
                 .build();
@@ -191,7 +190,7 @@ public class StateMachineBuilderTest extends TestBase {
         // given
 
         // when
-        builder .withEntityMutator(new TestEntity())
+        builder.withEntityMutator(new TestEntity())
                 .withStartState(new TestState(StateId.A))
                 .build();
 
@@ -203,7 +202,7 @@ public class StateMachineBuilderTest extends TestBase {
         // given
 
         // when
-        builder .withEntityMutator(new TestEntity())
+        builder.withEntityMutator(new TestEntity())
                 .withStartState(new TestState(StateId.A))
                 .withState(new TestState(StateId.B))
                 .withTransition(new TestTransition(StateId.A, StateId.B))

@@ -14,7 +14,7 @@ public class TestBase {
         private StateId state;
 
         TestEntity() {
-          this(StateId.A);
+            this(StateId.A);
         }
 
         TestEntity(StateId state) {

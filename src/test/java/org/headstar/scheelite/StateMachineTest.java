@@ -2,11 +2,8 @@ package org.headstar.scheelite;
 
 import com.google.common.base.Optional;
 import org.mockito.InOrder;
-import org.mockito.Mockito;
 import org.testng.annotations.Test;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.assertEquals;
 
@@ -142,9 +139,9 @@ public class StateMachineTest extends TestBase {
         inOrder.verify(a).onEvent(e, event);
         inOrder.verify(guard).accept(e, event);
 
-        Mockito.verify(action, never()).execute(e, event);
-        Mockito.verify(a, never()).onExit(e);
-        Mockito.verify(e, never()).setStateIdentifier(e, StateId.A);
-        Mockito.verify(a, never()).onEntry(e);
+        verify(action, never()).execute(e, event);
+        verify(a, never()).onExit(e);
+        verify(e, never()).setStateIdentifier(e, StateId.A);
+        verify(a, never()).onEntry(e);
     }
 }

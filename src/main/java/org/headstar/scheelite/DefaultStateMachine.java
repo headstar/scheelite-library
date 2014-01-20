@@ -8,7 +8,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class DefaultStateMachine<T, U> implements StateMachine<T> {
@@ -19,7 +18,7 @@ public class DefaultStateMachine<T, U> implements StateMachine<T> {
     private final EntityMutator<T, U> entityMutator;
     private final MultipleTransitionsTriggeredPolicy<T, U> multipleTransitionsTriggeredPolicy;
 
-    protected DefaultStateMachine(StateMachineBuilder<T,U> builder) {
+    protected DefaultStateMachine(StateMachineBuilder<T, U> builder) {
         this.states = createStatesMap(builder.getStates());
         this.transitions = ImmutableSet.copyOf(builder.getTransitions());
         this.transitionsFromState = createTransitionsFromMap(builder.getTransitions());
@@ -34,7 +33,7 @@ public class DefaultStateMachine<T, U> implements StateMachine<T> {
 
         // get current state
         U stateIdentifier = entityMutator.getStateIdentifier(entity);
-        if(stateIdentifier == null) {
+        if (stateIdentifier == null) {
             throw new IllegalStateException(String.format("stateIdentifier is null"));
         }
 
