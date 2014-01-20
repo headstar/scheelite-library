@@ -90,19 +90,61 @@ public class StateMachineTest extends TestBase {
     @Test
     public void testSelfTransition() {
         // given
-        TestEntity e = new TestEntity(StateId.A);
+        TestEntity e = spy(new TestEntity(StateId.A));
+        TestState a = spy(new TestState(StateId.A));
+        TestGuard guard = spy(new TestGuard(true));
+        TestAction action = spy(new TestAction());
+        TestTransition transition = new TestTransition(StateId.A, StateId.A, Optional.of(action), guard);
+
+        TestEventX event = new TestEventX();
+
         StateMachine<TestEntity> stateMachine = builder
                 .withEntityMutator(e)
-                .withStartState(new TestState(StateId.A))
-                .withTransition(new TestTransition(StateId.A, StateId.A, new TestGuard(true)))
+                .withStartState(a)
+                .withTransition(transition)
                 .build();
 
         // when
-        stateMachine.process(e, new TestEventX());
+        stateMachine.process(e, event);
 
         // then
-        assertEquals(e.getState(), StateId.A);
+        InOrder inOrder = inOrder(a, guard, action, e);
+        inOrder.verify(a).onEvent(e, event);
+        inOrder.verify(guard).accept(e, event);
+        inOrder.verify(action).execute(e, event);
+        inOrder.verify(a).onExit(e);
+        inOrder.verify(e).setStateIdentifier(e, StateId.A);
+        inOrder.verify(a).onEntry(e);
     }
 
+    @Test
+    public void testInternalTransition() {
+        // given
+        TestEntity e = spy(new TestEntity(StateId.A));
+        TestState a = spy(new TestState(StateId.A));
+        TestGuard guard = spy(new TestGuard(false));
+        TestAction action = spy(new TestAction());
+        TestTransition transition = new TestTransition(StateId.A, StateId.A, Optional.of(action), guard);
 
+        TestEventX event = new TestEventX();
+
+        StateMachine<TestEntity> stateMachine = builder
+                .withEntityMutator(e)
+                .withStartState(a)
+                .withTransition(transition)
+                .build();
+
+        // when
+        stateMachine.process(e, event);
+
+        // then
+        InOrder inOrder = inOrder(a, guard, action, e);
+        inOrder.verify(a).onEvent(e, event);
+        inOrder.verify(guard).accept(e, event);
+
+        Mockito.verify(action, never()).execute(e, event);
+        Mockito.verify(a, never()).onExit(e);
+        Mockito.verify(e, never()).setStateIdentifier(e, StateId.A);
+        Mockito.verify(a, never()).onEntry(e);
+    }
 }
