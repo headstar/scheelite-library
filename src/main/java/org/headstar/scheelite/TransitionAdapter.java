@@ -21,6 +21,11 @@ public class TransitionAdapter<T, U> implements Transition<T, U> {
     }
 
     @Override
+    public String getName() {
+        return String.format("%s-TO-%s.%s", fromState, toState, guard.getName());
+    }
+
+    @Override
     public U getFromState() {
         return fromState;
     }
@@ -31,7 +36,7 @@ public class TransitionAdapter<T, U> implements Transition<T, U> {
     }
 
     @Override
-    public Optional<Action<T>> getAction() {
+    public Optional<? extends Action<T>> getAction() {
         return Optional.of(action);
     }
 

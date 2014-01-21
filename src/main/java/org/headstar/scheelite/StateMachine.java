@@ -1,6 +1,6 @@
 package org.headstar.scheelite;
 
-public interface StateMachine<T> {
+public interface StateMachine<T extends Entity<?>> {
 
     void process(T entity, Object event);
 }

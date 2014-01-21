@@ -9,7 +9,7 @@ import org.testng.annotations.BeforeMethod;
 public class TestBase {
     enum StateId {A, B, C, D, E}
 
-    protected class TestEntity implements EntityMutator<TestEntity, StateId> {
+    protected class TestEntity implements Entity<StateId> {
 
         private StateId state;
 
@@ -26,22 +26,20 @@ public class TestBase {
         }
 
         @Override
-        public StateId getStateIdentifier(TestEntity entity) {
+        public Object getId() {
+            return 17L;
+        }
+
+        @Override
+        public StateId getStateId() {
             return state;
         }
 
         @Override
-        public void setStateIdentifier(TestEntity entity, StateId identifier) {
+        public void setStateId(StateId identifier) {
             this.state = identifier;
         }
 
-        @Override
-        public String toString() {
-            final StringBuilder sb = new StringBuilder("TestEntity [");
-            sb.append("state=").append(state);
-            sb.append(']');
-            return sb.toString();
-        }
     }
 
     protected StateMachineBuilder<TestEntity, StateId> builder;
@@ -54,20 +52,24 @@ public class TestBase {
     protected class TestAction implements Action<TestEntity> {
 
         @Override
+        public String getName() {
+            return "testAction";
+        }
+
+        @Override
         public void execute(TestEntity entity, Object event) {
 
         }
 
-        @Override
-        public String toString() {
-            final StringBuilder sb = new StringBuilder("TestAction [");
-            sb.append(']');
-            return sb.toString();
-        }
     }
 
     protected class TestGuard implements Guard<TestEntity> {
         private final boolean accept;
+
+        @Override
+        public String getName() {
+            return "testGuard";
+        }
 
         public TestGuard(boolean accept) {
             this.accept = accept;
@@ -82,20 +84,10 @@ public class TestBase {
             return accept;
         }
 
-        @Override
-        public String toString() {
-            final StringBuilder sb = new StringBuilder("TestGuard [");
-            sb.append("accept=").append(accept);
-            sb.append(']');
-            return sb.toString();
-        }
     }
 
-    protected class TestTransition implements Transition<TestEntity, StateId> {
-        private final StateId inputStateId;
-        private final StateId outputStateId;
+    protected class TestTransition extends TransitionAdapter<TestEntity, StateId> {
         private final Optional<TestAction> action;
-        private final Guard<TestEntity> guard;
 
         TestTransition(StateId inputStateId, StateId outputStateId) {
             this(inputStateId, outputStateId, Optional.of(new TestAction()), new TestGuard());
@@ -106,40 +98,14 @@ public class TestBase {
         }
 
         TestTransition(StateId inputStateId, StateId outputStateId, Optional<TestAction> action, TestGuard guard) {
-            this.inputStateId = inputStateId;
-            this.outputStateId = outputStateId;
+            super(inputStateId, outputStateId, action.get(), guard);
             this.action = action;
-            this.guard = guard;
         }
 
-        @Override
-        public StateId getFromState() {
-            return inputStateId;
-        }
-
-        @Override
-        public StateId getToState() {
-            return outputStateId;
-        }
 
         @Override
         public Optional<TestAction> getAction() {
             return action;
-        }
-
-        public Guard<TestEntity> getGuard() {
-            return guard;
-        }
-
-        @Override
-        public String toString() {
-            final StringBuilder sb = new StringBuilder("TestTransition [");
-            sb.append("inputStateId=").append(inputStateId);
-            sb.append(", outputStateId=").append(outputStateId);
-            sb.append(", action=").append(action);
-            sb.append(", guard=").append(guard);
-            sb.append(']');
-            return sb.toString();
         }
     }
 
@@ -152,15 +118,8 @@ public class TestBase {
         }
 
         @Override
-        public StateId getIdentifier() {
+        public StateId getId() {
             return id;
-        }
-
-        @Override
-        public String toString() {
-            return "TestState{" +
-                    "id=" + id +
-                    "} ";
         }
 
         @Override

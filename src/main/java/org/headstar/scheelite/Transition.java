@@ -4,6 +4,8 @@ import com.google.common.base.Optional;
 
 public interface Transition<T, U> {
 
+    String getName();
+
     U getFromState();
 
     U getToState();

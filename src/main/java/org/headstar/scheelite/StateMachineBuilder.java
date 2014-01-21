@@ -9,15 +9,14 @@ import java.util.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class StateMachineBuilder<T, U> {
+public class StateMachineBuilder<T extends Entity<U>, U> {
 
     private State<T, U> startState;
     private final Set<State<T, U>> states;
     private final Set<Transition<T, U>> transitions;
-    private EntityMutator<T, U> entityMutator;
     private MultipleTransitionsTriggeredPolicy<T, U> multipleTransitionsTriggeredPolicy;
 
-    public static <T, U> StateMachineBuilder<T, U> newBuilder() {
+    public static <T extends Entity<U>, U> StateMachineBuilder<T, U> newBuilder() {
         return new StateMachineBuilder<T, U>();
     }
 
@@ -25,12 +24,6 @@ public class StateMachineBuilder<T, U> {
         states = Sets.newHashSet();
         transitions = Sets.newHashSet();
         multipleTransitionsTriggeredPolicy = new MultipleTransitionsTriggeredThrowException<T, U>();
-    }
-
-    public StateMachineBuilder<T, U> withEntityMutator(EntityMutator<T, U> entityMutator) {
-        Preconditions.checkState(this.entityMutator == null, "entityMutator was already set");
-        this.entityMutator = checkNotNull(entityMutator);
-        return this;
     }
 
     public StateMachineBuilder<T, U> withStartState(State<T, U> state) {
@@ -77,11 +70,6 @@ public class StateMachineBuilder<T, U> {
             throw new IllegalStateException("no start state added");
         }
 
-        // check we have a entity mutator
-        if (entityMutator == null) {
-            throw new IllegalStateException("no entity mutator added");
-        }
-
         // check state id equals and state equals relation
         checkStateEquals(states);
 
@@ -100,10 +88,6 @@ public class StateMachineBuilder<T, U> {
 
     Set<Transition<T, U>> getTransitions() {
         return transitions;
-    }
-
-    EntityMutator<T, U> getEntityMutator() {
-        return entityMutator;
     }
 
     MultipleTransitionsTriggeredPolicy<T, U> getMultipleTransitionsTriggeredPolicy() {
@@ -127,7 +111,7 @@ public class StateMachineBuilder<T, U> {
     }
 
     protected void validateState(State<T, U> state) {
-        if (state.getIdentifier() == null) {
+        if (state.getId() == null) {
             throw new IllegalArgumentException(String.format("state identifier cannot be null: state=[%s]", state));
         }
     }
@@ -135,7 +119,7 @@ public class StateMachineBuilder<T, U> {
     protected void checkStateEquals(Set<State<T, U>> states) {
         for (State<T, U> outer : this.states) {
             for (State<T, U> inner : this.states) {
-                if (!(outer.getIdentifier().equals(inner.getIdentifier()) == outer.equals(inner))) {
+                if (!(outer.getId().equals(inner.getId()) == outer.equals(inner))) {
                     throw new IllegalStateException(String.format("states equals not valid: states=[]", Arrays.asList(outer, inner)));
                 }
             }
@@ -159,7 +143,7 @@ public class StateMachineBuilder<T, U> {
     protected Set<Object> collectStateIdentifiers(Set<State<T, U>> states) {
         Set<Object> identifiers = Sets.newHashSet();
         for (State<T, U> state : this.states) {
-            identifiers.add(state.getIdentifier());
+            identifiers.add(state.getId());
         }
 
         return identifiers;
@@ -170,8 +154,8 @@ public class StateMachineBuilder<T, U> {
         Set<Object> visited = Sets.newHashSet();
 
         Queue<Object> queue = new ArrayDeque<Object>();
-        queue.add(startState.getIdentifier());
-        visited.add(startState.getIdentifier());
+        queue.add(startState.getId());
+        visited.add(startState.getId());
 
         Multimap<Object, Object> edges = getEdges(transitions);
 
@@ -188,7 +172,7 @@ public class StateMachineBuilder<T, U> {
 
         Set<Object> allStateIdentifiers = Sets.newHashSet();
         for (State<T, U> state : allStates) {
-            allStateIdentifiers.add(state.getIdentifier());
+            allStateIdentifiers.add(state.getId());
         }
         Set<Object> notVisited = Sets.difference(allStateIdentifiers, visited);
         if (!notVisited.isEmpty()) {

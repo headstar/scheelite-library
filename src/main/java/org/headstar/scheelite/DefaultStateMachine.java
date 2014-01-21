@@ -12,21 +12,19 @@ import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class DefaultStateMachine<T, U> implements StateMachine<T> {
+public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine<T> {
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultStateMachine.class);
 
     private final ImmutableMap<U, State<T, U>> states;  // state id -> state
     private final ImmutableSet<Transition<T, U>> transitions;
     private final ImmutableMultimap<U, Transition<T, U>> transitionsFromState; // state id -> transitions from state
-    private final EntityMutator<T, U> entityMutator;
     private final MultipleTransitionsTriggeredPolicy<T, U> multipleTransitionsTriggeredPolicy;
 
     protected DefaultStateMachine(StateMachineBuilder<T, U> builder) {
         this.states = createStatesMap(builder.getStates());
         this.transitions = ImmutableSet.copyOf(builder.getTransitions());
         this.transitionsFromState = createTransitionsFromMap(builder.getTransitions());
-        this.entityMutator = builder.getEntityMutator();
         this.multipleTransitionsTriggeredPolicy = builder.getMultipleTransitionsTriggeredPolicy();
     }
 
@@ -36,7 +34,7 @@ public class DefaultStateMachine<T, U> implements StateMachine<T> {
         checkNotNull(event);
 
         // get current state
-        U stateIdentifier = entityMutator.getStateIdentifier(entity);
+        U stateIdentifier = entity.getStateId();
         if (stateIdentifier == null) {
             throw new IllegalStateException(String.format("stateIdentifier is null"));
         }
@@ -47,38 +45,38 @@ public class DefaultStateMachine<T, U> implements StateMachine<T> {
         }
 
         // handle event
-        logger.debug("handling event: entity={}, event={}, state={}", entity, event, currentState);
+        logger.debug("handling event: entity={}, event={}, state={}", entity.getId(), event, currentState.getId());
         currentState.onEvent(entity, event);
 
         // process triggered transition (if any)
         Optional<Transition<T, U>> triggeredTransitionOpt = getTriggeredTransition(stateIdentifier, entity, event);
         if (triggeredTransitionOpt.isPresent()) {
             Transition<T, U> triggeredTransition = triggeredTransitionOpt.get();
-            logger.debug("transition triggered: entity={}, transition={}", entity, triggeredTransition);
+            logger.debug("transition triggered: entity={}, transition={}", entity.getId(), triggeredTransition.getName());
 
             // get next state
             State<T, U> nextState = states.get(triggeredTransition.getToState());
             if (nextState == null) {
-                throw new IllegalStateException(String.format("next state unknown: stateId=%s", triggeredTransition.getToState()));
+                throw new IllegalStateException(String.format("next state unknown: state=%s", triggeredTransition.getToState()));
             }
 
             // execute action (if any)
             Optional<? extends Action<T>> actionOpt = triggeredTransition.getAction();
             if (actionOpt.isPresent()) {
                 Action<T> action = actionOpt.get();
-                logger.debug("executing action: entity={}, action={}", entity, action);
+                logger.debug("executing action: entity={}, action={}", entity.getId(), action.getName());
                 action.execute(entity, event);
             }
 
             // exit current state
-            logger.debug("exiting state: entity={}, state={}", entity, currentState);
+            logger.debug("exiting state: entity={}, state={}", entity.getId(), currentState.getId());
             currentState.onExit(entity);
 
             // update entity
-            entityMutator.setStateIdentifier(entity, nextState.getIdentifier());
+            entity.setStateId(nextState.getId());
 
             // enter next state
-            logger.debug("entering state: entity={}, state={}", entity, nextState);
+            logger.debug("entering state: entity={}, state={}", entity.getId(), nextState.getId());
             nextState.onEntry(entity);
         }
     }
@@ -86,7 +84,7 @@ public class DefaultStateMachine<T, U> implements StateMachine<T> {
     protected ImmutableMap<U, State<T, U>> createStatesMap(Set<State<T, U>> states) {
         Map<U, State<T, U>> map = Maps.newHashMap();
         for (State<T, U> state : states) {
-            map.put(state.getIdentifier(), state);
+            map.put(state.getId(), state);
         }
         return new ImmutableMap.Builder<U, State<T, U>>().putAll(map).build();
     }

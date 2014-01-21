@@ -19,16 +19,6 @@ public class StateMachineBuilderTest extends TestBase {
     }
 
     @Test(expectedExceptions = NullPointerException.class)
-    public void testEntityMutatorNull() {
-        // given
-
-        // when
-        builder.withEntityMutator(null);
-
-        // then ...exception should be thrown
-    }
-
-    @Test(expectedExceptions = NullPointerException.class)
     public void testStartStateNull() {
         // given
 
@@ -108,8 +98,7 @@ public class StateMachineBuilderTest extends TestBase {
         assertEquals(a1, a2);
 
         // when
-        builder.withEntityMutator(new TestEntity())
-                .withState(a2)
+        builder .withState(a2)
                 .withStartState(a1);
 
         // then ...exception should be thrown
@@ -123,8 +112,7 @@ public class StateMachineBuilderTest extends TestBase {
         assertEquals(a1, a2);
 
         // when
-        builder.withEntityMutator(new TestEntity())
-                .withStartState(a1)
+        builder.withStartState(a1)
                 .withState(a2);
 
         // then ...exception should be thrown
@@ -136,8 +124,7 @@ public class StateMachineBuilderTest extends TestBase {
         // given
 
         // when
-        builder.withEntityMutator(new TestEntity())
-                .withStartState(new TestState(StateId.A))
+        builder.withStartState(new TestState(StateId.A))
                 .withState(new TestState(StateId.B))
                 .build();
 
@@ -149,8 +136,7 @@ public class StateMachineBuilderTest extends TestBase {
         // given
 
         // when
-        builder.withEntityMutator(new TestEntity())
-                .withStartState(new TestState(StateId.A))
+        builder.withStartState(new TestState(StateId.A))
                 .withState(new TestState(StateId.B))
                 .withState(new TestState(StateId.C))  // not reachable
                 .withTransition(new TestTransition(StateId.A, StateId.B))
@@ -164,8 +150,7 @@ public class StateMachineBuilderTest extends TestBase {
         // given
 
         // when
-        builder.withEntityMutator(new TestEntity())
-                .withStartState(new TestState(StateId.A))
+        builder.withStartState(new TestState(StateId.A))
                 .withTransition(new TestTransition(StateId.C, StateId.A))
                 .build();
 
@@ -177,8 +162,7 @@ public class StateMachineBuilderTest extends TestBase {
         // given
 
         // when
-        builder.withEntityMutator(new TestEntity())
-                .withStartState(new TestState(StateId.A))
+        builder.withStartState(new TestState(StateId.A))
                 .withTransition(new TestTransition(StateId.A, StateId.B))
                 .build();
 
@@ -190,8 +174,7 @@ public class StateMachineBuilderTest extends TestBase {
         // given
 
         // when
-        builder.withEntityMutator(new TestEntity())
-                .withStartState(new TestState(StateId.A))
+        builder.withStartState(new TestState(StateId.A))
                 .build();
 
         // then ...no exception should be thrown
@@ -202,8 +185,7 @@ public class StateMachineBuilderTest extends TestBase {
         // given
 
         // when
-        builder.withEntityMutator(new TestEntity())
-                .withStartState(new TestState(StateId.A))
+        builder.withStartState(new TestState(StateId.A))
                 .withState(new TestState(StateId.B))
                 .withTransition(new TestTransition(StateId.A, StateId.B))
                 .withTransition(new TestTransition(StateId.B, StateId.A))

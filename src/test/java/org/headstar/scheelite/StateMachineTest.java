@@ -25,7 +25,6 @@ public class StateMachineTest extends TestBase {
         TestEventX event = new TestEventX();
 
         StateMachine<TestEntity> stateMachine = builder
-                .withEntityMutator(e)
                 .withStartState(a)
                 .withState(b)
                 .withTransition(transition)
@@ -42,7 +41,7 @@ public class StateMachineTest extends TestBase {
         inOrder.verify(guard).accept(e, event);
         inOrder.verify(action).execute(e, event);
         inOrder.verify(a).onExit(e);
-        inOrder.verify(e).setStateIdentifier(e, StateId.B);
+        inOrder.verify(e).setStateId(StateId.B);
         inOrder.verify(b).onEntry(e);
     }
 
@@ -51,7 +50,6 @@ public class StateMachineTest extends TestBase {
         // given
         TestEntity e = new TestEntity(StateId.A);
         StateMachine<TestEntity> stateMachine = builder
-                .withEntityMutator(e)
                 .withStartState(new TestState(StateId.A))
                 .withState(new TestState(StateId.B))
                 .withTransition(new TestTransition(StateId.A, StateId.B, new TestGuard(false)))
@@ -69,7 +67,6 @@ public class StateMachineTest extends TestBase {
         // given
         TestEntity e = new TestEntity(StateId.A);
         StateMachine<TestEntity> stateMachine = builder
-                .withEntityMutator(e)
                 .withStartState(new TestState(StateId.A))
                 .withState(new TestState(StateId.B))
                 .withTransition(new TestTransition(StateId.A, StateId.B, new TestGuard(false)))
@@ -96,7 +93,6 @@ public class StateMachineTest extends TestBase {
         TestEventX event = new TestEventX();
 
         StateMachine<TestEntity> stateMachine = builder
-                .withEntityMutator(e)
                 .withStartState(a)
                 .withTransition(transition)
                 .build();
@@ -110,7 +106,7 @@ public class StateMachineTest extends TestBase {
         inOrder.verify(guard).accept(e, event);
         inOrder.verify(action).execute(e, event);
         inOrder.verify(a).onExit(e);
-        inOrder.verify(e).setStateIdentifier(e, StateId.A);
+        inOrder.verify(e).setStateId(StateId.A);
         inOrder.verify(a).onEntry(e);
     }
 
@@ -126,7 +122,6 @@ public class StateMachineTest extends TestBase {
         TestEventX event = new TestEventX();
 
         StateMachine<TestEntity> stateMachine = builder
-                .withEntityMutator(e)
                 .withStartState(a)
                 .withTransition(transition)
                 .build();
@@ -141,7 +136,7 @@ public class StateMachineTest extends TestBase {
 
         verify(action, never()).execute(e, event);
         verify(a, never()).onExit(e);
-        verify(e, never()).setStateIdentifier(e, StateId.A);
+        verify(e, never()).setStateId(StateId.A);
         verify(a, never()).onEntry(e);
     }
 }

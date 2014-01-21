@@ -2,7 +2,7 @@ package org.headstar.scheelite;
 
 public interface State<T, U> {
 
-    U getIdentifier();
+    U getId();
 
     void onEntry(T entity);
 

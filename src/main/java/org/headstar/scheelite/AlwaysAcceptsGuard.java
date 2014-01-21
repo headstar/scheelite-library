@@ -1,6 +1,6 @@
 package org.headstar.scheelite;
 
-public class AlwaysAcceptsGuard<T> implements Guard<T> {
+public class AlwaysAcceptsGuard<T> extends GuardAdapter<T> {
 
     @Override
     public boolean accept(T entity, Object event) {
