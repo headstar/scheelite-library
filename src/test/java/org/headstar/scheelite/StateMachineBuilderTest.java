@@ -60,36 +60,6 @@ public class StateMachineBuilderTest extends TestBase {
         // then ...exception should be thrown
     }
 
-    @DataProvider(name = "transitionNulls")
-    public Object[][] transitionNulls() {
-        return new Object[][]{
-                {
-                        new TestTransition(null, StateId.B),
-                },
-                {
-                        new TestTransition(StateId.A, null),
-                },
-                {
-                        new TestTransition(StateId.A, StateId.B, null, Optional.of(new TestGuard())),
-                },
-                {
-                        new TestTransition(StateId.A, StateId.B, Optional.of(new TestAction()), null),
-                },
-
-        };
-    }
-
-    @Test(dataProvider = "transitionNulls", expectedExceptions = IllegalStateException.class,
-            expectedExceptionsMessageRegExp = "transition.*")
-    public void testTransitionFieldsNull(TestTransition transition) {
-        // given
-
-        // when
-        builder.withTransition(transition);
-
-        // then ...exception should be thrown
-    }
-
     @Test(expectedExceptions = IllegalStateException.class)
     public void testStartStateAndOtherStateEquals() {
         // given

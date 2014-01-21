@@ -86,50 +86,17 @@ public class TestBase {
 
     }
 
-    protected class TestTransition implements Transition<TestEntity, StateId> {
-
-        private final StateId fromState;
-        private final StateId toState;
-        private final Optional<? extends Action<TestEntity>> action;
-        private final Optional<? extends Guard<TestEntity>> guard;
-
+    protected class TestTransition extends Transition<TestEntity, StateId> {
         public TestTransition(StateId fromState, StateId toState, Optional<? extends Action<TestEntity>> action, Optional<? extends Guard<TestEntity>> guard) {
-            this.fromState = fromState;
-            this.toState = toState;
-            this.action = action;
-            this.guard = guard;
+            super(fromState, toState, action, guard);
         }
 
-        public TestTransition(StateId fromState, StateId toState, Optional<? extends Guard<TestEntity>> guard) {
-            this(fromState, toState, Optional.<Action<TestEntity>>absent(), guard);
+        public TestTransition(StateId fromState, StateId toState, Optional<? extends Action<TestEntity>> action) {
+            super(fromState, toState, action);
         }
 
         public TestTransition(StateId fromState, StateId toState) {
-            this(fromState, toState, Optional.<Action<TestEntity>>absent(), Optional.<Guard<TestEntity>>absent());
-        }
-
-        public String getName() {
-            return "testTransition";
-        }
-
-        @Override
-        public StateId getFromState() {
-            return fromState;
-        }
-
-        @Override
-        public StateId getToState() {
-            return toState;
-        }
-
-        @Override
-        public Optional<? extends Action<TestEntity>> getAction() {
-            return action;
-        }
-
-        @Override
-        public Optional<? extends Guard<TestEntity>> getGuard() {
-            return guard;
+            super(fromState, toState);
         }
     }
 

@@ -52,7 +52,7 @@ public class StateMachineTest extends TestBase {
         StateMachine<TestEntity> stateMachine = builder
                 .withStartState(new TestState(StateId.A))
                 .withState(new TestState(StateId.B))
-                .withTransition(new TestTransition(StateId.A, StateId.B, Optional.of(new TestGuard(false))))
+                .withTransition(new TestTransition(StateId.A, StateId.B, Optional.<TestAction>absent(), Optional.of(new TestGuard(false))))
                 .build();
 
         // when
@@ -69,9 +69,9 @@ public class StateMachineTest extends TestBase {
         StateMachine<TestEntity> stateMachine = builder
                 .withStartState(new TestState(StateId.A))
                 .withState(new TestState(StateId.B))
-                .withTransition(new TestTransition(StateId.A, StateId.B, Optional.of(new TestGuard(false))))
-                .withTransition(new TestTransition(StateId.A, StateId.B, Optional.of(new TestGuard(false))))
-                .withTransition(new TestTransition(StateId.A, StateId.B, Optional.of(new TestGuard(true))))
+                .withTransition(new TestTransition(StateId.A, StateId.B, Optional.<TestAction>absent(), Optional.of(new TestGuard(false))))
+                .withTransition(new TestTransition(StateId.A, StateId.B, Optional.<TestAction>absent(), Optional.of(new TestGuard(false))))
+                .withTransition(new TestTransition(StateId.A, StateId.B, Optional.<TestAction>absent(), Optional.of(new TestGuard(true))))
                 .build();
 
         // when
