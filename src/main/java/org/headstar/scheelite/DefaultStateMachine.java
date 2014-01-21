@@ -47,7 +47,7 @@ public class DefaultStateMachine<T, U> implements StateMachine<T> {
         }
 
         // handle event
-        logger.debug("handling event: entity={}, event={}", entity, event);
+        logger.debug("handling event: entity={}, event={}, state={}", entity, event, currentState);
         currentState.onEvent(entity, event);
 
         // process triggered transition (if any)
@@ -71,14 +71,14 @@ public class DefaultStateMachine<T, U> implements StateMachine<T> {
             }
 
             // exit current state
-            logger.debug("exiting state: entity={}, stateId={}", entity, currentState);
+            logger.debug("exiting state: entity={}, state={}", entity, currentState);
             currentState.onExit(entity);
 
             // update entity
             entityMutator.setStateIdentifier(entity, nextState.getIdentifier());
 
             // enter next state
-            logger.debug("entering state: entity={}, stateId={}", entity, nextState);
+            logger.debug("entering state: entity={}, state={}", entity, nextState);
             nextState.onEntry(entity);
         }
     }
