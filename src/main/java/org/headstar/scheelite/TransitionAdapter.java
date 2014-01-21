@@ -2,27 +2,29 @@ package org.headstar.scheelite;
 
 import com.google.common.base.Optional;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public class TransitionAdapter<T, U> implements Transition<T, U> {
 
     private final U fromState;
     private final U toState;
-    private final Action<T> action;
-    private final Guard<T> guard;
+    private final Optional<? extends Action<T>> action;
+    private final Optional<? extends Guard<T>> guard;
 
-    public TransitionAdapter(U fromState, U toState, Action<T> action, Guard<T> guard) {
-        this.fromState = fromState;
-        this.toState = toState;
-        this.action = action;
-        this.guard = guard;
+    public TransitionAdapter(U fromState, U toState, Optional<? extends Action<T>> action, Optional<? extends Guard<T>> guard) {
+        this.fromState = checkNotNull(fromState);
+        this.toState = checkNotNull(toState);
+        this.action = checkNotNull(action);
+        this.guard = checkNotNull(guard);
     }
 
     public TransitionAdapter(U fromState, U toState) {
-        this(fromState, toState, null, new AlwaysAcceptsGuard<T>());
+        this(fromState, toState, Optional.<Action<T>>absent(), Optional.<Guard<T>>absent());
     }
 
     @Override
     public String getName() {
-        return String.format("%s-TO-%s.%s", fromState, toState, guard.getName());
+        return String.format("%s-TO-%s", fromState, toState);
     }
 
     @Override
@@ -37,11 +39,11 @@ public class TransitionAdapter<T, U> implements Transition<T, U> {
 
     @Override
     public Optional<? extends Action<T>> getAction() {
-        return Optional.of(action);
+        return action;
     }
 
     @Override
-    public Guard<T> getGuard() {
+    public Optional<? extends Guard<T>> getGuard() {
         return guard;
     }
 
@@ -52,20 +54,20 @@ public class TransitionAdapter<T, U> implements Transition<T, U> {
 
         TransitionAdapter that = (TransitionAdapter) o;
 
-        if (action != null ? !action.equals(that.action) : that.action != null) return false;
-        if (fromState != null ? !fromState.equals(that.fromState) : that.fromState != null) return false;
-        if (guard != null ? !guard.equals(that.guard) : that.guard != null) return false;
-        if (toState != null ? !toState.equals(that.toState) : that.toState != null) return false;
+        if (!action.equals(that.action)) return false;
+        if (!fromState.equals(that.fromState)) return false;
+        if (!guard.equals(that.guard)) return false;
+        if (!toState.equals(that.toState)) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = fromState != null ? fromState.hashCode() : 0;
-        result = 31 * result + (toState != null ? toState.hashCode() : 0);
-        result = 31 * result + (action != null ? action.hashCode() : 0);
-        result = 31 * result + (guard != null ? guard.hashCode() : 0);
+        int result = fromState.hashCode();
+        result = 31 * result + toState.hashCode();
+        result = 31 * result + action.hashCode();
+        result = 31 * result + guard.hashCode();
         return result;
     }
 }

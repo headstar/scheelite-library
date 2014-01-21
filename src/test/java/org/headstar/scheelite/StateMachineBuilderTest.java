@@ -70,7 +70,7 @@ public class StateMachineBuilderTest extends TestBase {
                         new TestTransition(StateId.A, null),
                 },
                 {
-                        new TestTransition(StateId.A, StateId.B, null, new TestGuard()),
+                        new TestTransition(StateId.A, StateId.B, null, Optional.of(new TestGuard())),
                 },
                 {
                         new TestTransition(StateId.A, StateId.B, Optional.of(new TestAction()), null),

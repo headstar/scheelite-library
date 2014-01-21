@@ -20,7 +20,7 @@ public class StateMachineTest extends TestBase {
         TestState b = spy(new TestState(StateId.B));
         TestGuard guard = spy(new TestGuard(true));
         TestAction action = spy(new TestAction());
-        TestTransition transition = new TestTransition(StateId.A, StateId.B, Optional.of(action), guard);
+        TestTransition transition = new TestTransition(StateId.A, StateId.B, Optional.of(action), Optional.of(guard));
 
         TestEventX event = new TestEventX();
 
@@ -52,7 +52,7 @@ public class StateMachineTest extends TestBase {
         StateMachine<TestEntity> stateMachine = builder
                 .withStartState(new TestState(StateId.A))
                 .withState(new TestState(StateId.B))
-                .withTransition(new TestTransition(StateId.A, StateId.B, new TestGuard(false)))
+                .withTransition(new TestTransition(StateId.A, StateId.B, Optional.of(new TestGuard(false))))
                 .build();
 
         // when
@@ -69,9 +69,9 @@ public class StateMachineTest extends TestBase {
         StateMachine<TestEntity> stateMachine = builder
                 .withStartState(new TestState(StateId.A))
                 .withState(new TestState(StateId.B))
-                .withTransition(new TestTransition(StateId.A, StateId.B, new TestGuard(false)))
-                .withTransition(new TestTransition(StateId.A, StateId.B, new TestGuard(false)))
-                .withTransition(new TestTransition(StateId.A, StateId.B, new TestGuard(true)))
+                .withTransition(new TestTransition(StateId.A, StateId.B, Optional.of(new TestGuard(false))))
+                .withTransition(new TestTransition(StateId.A, StateId.B, Optional.of(new TestGuard(false))))
+                .withTransition(new TestTransition(StateId.A, StateId.B, Optional.of(new TestGuard(true))))
                 .build();
 
         // when
@@ -88,7 +88,7 @@ public class StateMachineTest extends TestBase {
         TestState a = spy(new TestState(StateId.A));
         TestGuard guard = spy(new TestGuard(true));
         TestAction action = spy(new TestAction());
-        TestTransition transition = new TestTransition(StateId.A, StateId.A, Optional.of(action), guard);
+        TestTransition transition = new TestTransition(StateId.A, StateId.A, Optional.of(action), Optional.of(guard));
 
         TestEventX event = new TestEventX();
 
@@ -117,7 +117,7 @@ public class StateMachineTest extends TestBase {
         TestState a = spy(new TestState(StateId.A));
         TestGuard guard = spy(new TestGuard(false));
         TestAction action = spy(new TestAction());
-        TestTransition transition = new TestTransition(StateId.A, StateId.A, Optional.of(action), guard);
+        TestTransition transition = new TestTransition(StateId.A, StateId.A, Optional.of(action), Optional.of(guard));
 
         TestEventX event = new TestEventX();
 

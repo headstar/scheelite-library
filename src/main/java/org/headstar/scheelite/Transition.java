@@ -12,6 +12,6 @@ public interface Transition<T, U> {
 
     Optional<? extends Action<T>> getAction();
 
-    Guard<T> getGuard();
+    Optional<? extends Guard<T>> getGuard();
 
 }

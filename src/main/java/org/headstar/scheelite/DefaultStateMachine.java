@@ -124,7 +124,11 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
 
         @Override
         public boolean apply(Transition<T, U> input) {
-            return input.getGuard().accept(entity, event);
+            if(input.getGuard().isPresent()) {
+                return input.getGuard().get().accept(entity, event);
+            } else {
+                return true;
+            }
         }
     }
 }

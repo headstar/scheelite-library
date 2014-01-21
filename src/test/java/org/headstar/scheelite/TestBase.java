@@ -86,26 +86,50 @@ public class TestBase {
 
     }
 
-    protected class TestTransition extends TransitionAdapter<TestEntity, StateId> {
-        private final Optional<TestAction> action;
+    protected class TestTransition implements Transition<TestEntity, StateId> {
 
-        TestTransition(StateId inputStateId, StateId outputStateId) {
-            this(inputStateId, outputStateId, Optional.of(new TestAction()), new TestGuard());
-        }
+        private final StateId fromState;
+        private final StateId toState;
+        private final Optional<? extends Action<TestEntity>> action;
+        private final Optional<? extends Guard<TestEntity>> guard;
 
-        TestTransition(StateId inputStateId, StateId outputStateId, TestGuard guard) {
-            this(inputStateId, outputStateId, Optional.of(new TestAction()), guard);
-        }
-
-        TestTransition(StateId inputStateId, StateId outputStateId, Optional<TestAction> action, TestGuard guard) {
-            super(inputStateId, outputStateId, action.get(), guard);
+        public TestTransition(StateId fromState, StateId toState, Optional<? extends Action<TestEntity>> action, Optional<? extends Guard<TestEntity>> guard) {
+            this.fromState = fromState;
+            this.toState = toState;
             this.action = action;
+            this.guard = guard;
         }
 
+        public TestTransition(StateId fromState, StateId toState, Optional<? extends Guard<TestEntity>> guard) {
+            this(fromState, toState, Optional.<Action<TestEntity>>absent(), guard);
+        }
+
+        public TestTransition(StateId fromState, StateId toState) {
+            this(fromState, toState, Optional.<Action<TestEntity>>absent(), Optional.<Guard<TestEntity>>absent());
+        }
+
+        public String getName() {
+            return "testTransition";
+        }
 
         @Override
-        public Optional<TestAction> getAction() {
+        public StateId getFromState() {
+            return fromState;
+        }
+
+        @Override
+        public StateId getToState() {
+            return toState;
+        }
+
+        @Override
+        public Optional<? extends Action<TestEntity>> getAction() {
             return action;
+        }
+
+        @Override
+        public Optional<? extends Guard<TestEntity>> getGuard() {
+            return guard;
         }
     }
 
