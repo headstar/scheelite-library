@@ -14,7 +14,7 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
     private State<T, U> startState;
     private final Set<State<T, U>> states;
     private final Set<Transition<T, U>> transitions;
-    private MultipleTransitionsTriggeredPolicy<T, U> multipleTransitionsTriggeredPolicy;
+    private MultipleTransitionsTriggeredResolver<T, U> multipleTransitionsTriggeredResolver;
 
     public static <T extends Entity<U>, U> StateMachineBuilder<T, U> newBuilder() {
         return new StateMachineBuilder<T, U>();
@@ -23,7 +23,7 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
     private StateMachineBuilder() {
         states = Sets.newHashSet();
         transitions = Sets.newHashSet();
-        multipleTransitionsTriggeredPolicy = new MultipleTransitionsTriggeredThrowException<T, U>();
+        multipleTransitionsTriggeredResolver = new ThrowExceptionResolver<T, U>();
     }
 
     public StateMachineBuilder<T, U> withStartState(State<T, U> state) {
@@ -56,10 +56,10 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
     }
 
     public StateMachineBuilder<T, U> withMultipleTransitionsTriggerPolicy(
-            MultipleTransitionsTriggeredPolicy<T, U> multipleTransitionsTriggeredPolicy) {
-        Preconditions.checkNotNull(multipleTransitionsTriggeredPolicy, "transition cannot be null");
+            MultipleTransitionsTriggeredResolver<T, U> multipleTransitionsTriggeredResolver) {
+        Preconditions.checkNotNull(multipleTransitionsTriggeredResolver, "transition cannot be null");
 
-        this.multipleTransitionsTriggeredPolicy = multipleTransitionsTriggeredPolicy;
+        this.multipleTransitionsTriggeredResolver = multipleTransitionsTriggeredResolver;
         return this;
     }
 
@@ -90,8 +90,8 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
         return transitions;
     }
 
-    MultipleTransitionsTriggeredPolicy<T, U> getMultipleTransitionsTriggeredPolicy() {
-        return multipleTransitionsTriggeredPolicy;
+    MultipleTransitionsTriggeredResolver<T, U> getMultipleTransitionsTriggeredResolver() {
+        return multipleTransitionsTriggeredResolver;
     }
 
     protected void validateTransition(Transition<T, U> transition) {

@@ -19,13 +19,13 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
     private final ImmutableMap<U, State<T, U>> states;  // state id -> state
     private final ImmutableSet<Transition<T, U>> transitions;
     private final ImmutableMultimap<U, Transition<T, U>> transitionsFromState; // state id -> transitions from state
-    private final MultipleTransitionsTriggeredPolicy<T, U> multipleTransitionsTriggeredPolicy;
+    private final MultipleTransitionsTriggeredResolver<T, U> multipleTransitionsTriggeredResolver;
 
     protected DefaultStateMachine(StateMachineBuilder<T, U> builder) {
         this.states = createStatesMap(builder.getStates());
         this.transitions = ImmutableSet.copyOf(builder.getTransitions());
         this.transitionsFromState = createTransitionsFromMap(builder.getTransitions());
-        this.multipleTransitionsTriggeredPolicy = builder.getMultipleTransitionsTriggeredPolicy();
+        this.multipleTransitionsTriggeredResolver = builder.getMultipleTransitionsTriggeredResolver();
     }
 
     @Override
@@ -100,15 +100,15 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
     protected Optional<Transition<T, U>> getTriggeredTransition(U stateIdentifier, T entity, Object event) {
         Collection<Transition<T, U>> transitionsFromCurrentState = transitionsFromState.get(stateIdentifier);
 
-        Collection<Transition<T, U>> triggeredTransition = Lists.newArrayList(Iterables.filter(transitionsFromCurrentState,
+        Collection<Transition<T, U>> triggeredTransitions = Lists.newArrayList(Iterables.filter(transitionsFromCurrentState,
                 new GuardIsAccepting<T, U>(entity, event)));
-        if (triggeredTransition.isEmpty()) {
+        if (triggeredTransitions.isEmpty()) {
             return Optional.absent();
-        } else if (triggeredTransition.size() == 1) {
-            return Optional.of(triggeredTransition.iterator().next());
+        } else if (triggeredTransitions.size() == 1) {
+            return Optional.of(triggeredTransitions.iterator().next());
         } else {
-            return Optional.of(multipleTransitionsTriggeredPolicy
-                    .triggeredTransitions(stateIdentifier, entity, event, triggeredTransition));
+            return Optional.of(multipleTransitionsTriggeredResolver
+                    .resolve(entity, event, triggeredTransitions));
         }
     }
 
