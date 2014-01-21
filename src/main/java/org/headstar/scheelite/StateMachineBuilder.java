@@ -120,7 +120,7 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
         for (State<T, U> outer : this.states) {
             for (State<T, U> inner : this.states) {
                 if (!(outer.getId().equals(inner.getId()) == outer.equals(inner))) {
-                    throw new IllegalStateException(String.format("states equals not valid: states=[]", Arrays.asList(outer, inner)));
+                    throw new IllegalStateException(String.format("states equals not valid: states=[]", outer, inner));
                 }
             }
         }
