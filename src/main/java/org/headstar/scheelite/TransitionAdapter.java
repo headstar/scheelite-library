@@ -45,7 +45,6 @@ public class TransitionAdapter<T, U> implements Transition<T, U> {
         return guard;
     }
 
-    @SuppressWarnings("rawtypes")
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -53,25 +52,20 @@ public class TransitionAdapter<T, U> implements Transition<T, U> {
 
         TransitionAdapter that = (TransitionAdapter) o;
 
-        if (!fromState.equals(that.fromState)) return false;
-        if (!toState.equals(that.toState)) return false;
+        if (action != null ? !action.equals(that.action) : that.action != null) return false;
+        if (fromState != null ? !fromState.equals(that.fromState) : that.fromState != null) return false;
+        if (guard != null ? !guard.equals(that.guard) : that.guard != null) return false;
+        if (toState != null ? !toState.equals(that.toState) : that.toState != null) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = fromState.hashCode();
-        result = 31 * result + toState.hashCode();
+        int result = fromState != null ? fromState.hashCode() : 0;
+        result = 31 * result + (toState != null ? toState.hashCode() : 0);
+        result = 31 * result + (action != null ? action.hashCode() : 0);
+        result = 31 * result + (guard != null ? guard.hashCode() : 0);
         return result;
-    }
-
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder("TransitionAdapter [");
-        sb.append("fromState=").append(fromState);
-        sb.append(", toState=").append(toState);
-        sb.append(']');
-        return sb.toString();
     }
 }
