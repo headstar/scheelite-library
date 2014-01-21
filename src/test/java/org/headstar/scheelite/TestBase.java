@@ -135,30 +135,8 @@ public class TestBase {
 
         @Override
         public String toString() {
-            final StringBuilder sb = new StringBuilder("TestEventX [");
-            sb.append(']');
+            final StringBuilder sb = new StringBuilder("TestEventX");
             return sb.toString();
         }
     }
-
-    protected class TestEventY {
-
-        @Override
-        public String toString() {
-            final StringBuilder sb = new StringBuilder("TestEventY [");
-            sb.append(']');
-            return sb.toString();
-        }
-    }
-
-    protected class TestEventZ {
-        @Override
-        public String toString() {
-            final StringBuilder sb = new StringBuilder("TestEventZ [");
-            sb.append(']');
-            return sb.toString();
-        }
-
-    }
-
 }
