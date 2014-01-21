@@ -34,6 +34,14 @@ public class TestBase {
         public void setStateIdentifier(TestEntity entity, StateId identifier) {
             this.state = identifier;
         }
+
+        @Override
+        public String toString() {
+            final StringBuilder sb = new StringBuilder("TestEntity [");
+            sb.append("state=").append(state);
+            sb.append(']');
+            return sb.toString();
+        }
     }
 
     protected StateMachineBuilder<TestEntity, StateId> builder;
@@ -48,6 +56,13 @@ public class TestBase {
         @Override
         public void execute(TestEntity entity, Object event) {
 
+        }
+
+        @Override
+        public String toString() {
+            final StringBuilder sb = new StringBuilder("TestAction [");
+            sb.append(']');
+            return sb.toString();
         }
     }
 
@@ -65,6 +80,14 @@ public class TestBase {
         @Override
         public boolean accept(TestEntity entity, Object event) {
             return accept;
+        }
+
+        @Override
+        public String toString() {
+            final StringBuilder sb = new StringBuilder("TestGuard [");
+            sb.append("accept=").append(accept);
+            sb.append(']');
+            return sb.toString();
         }
     }
 
@@ -107,6 +130,17 @@ public class TestBase {
         public Guard<TestEntity> getGuard() {
             return guard;
         }
+
+        @Override
+        public String toString() {
+            final StringBuilder sb = new StringBuilder("TestTransition [");
+            sb.append("inputStateId=").append(inputStateId);
+            sb.append(", outputStateId=").append(outputStateId);
+            sb.append(", action=").append(action);
+            sb.append(", guard=").append(guard);
+            sb.append(']');
+            return sb.toString();
+        }
     }
 
     protected class TestState extends StateAdapter<TestEntity, StateId> {
@@ -126,7 +160,7 @@ public class TestBase {
         public String toString() {
             return "TestState{" +
                     "id=" + id +
-                    "} " + super.toString();
+                    "} ";
         }
 
         @Override
@@ -148,12 +182,33 @@ public class TestBase {
     }
 
     protected class TestEventX {
+
+        @Override
+        public String toString() {
+            final StringBuilder sb = new StringBuilder("TestEventX [");
+            sb.append(']');
+            return sb.toString();
+        }
     }
 
     protected class TestEventY {
+
+        @Override
+        public String toString() {
+            final StringBuilder sb = new StringBuilder("TestEventY [");
+            sb.append(']');
+            return sb.toString();
+        }
     }
 
     protected class TestEventZ {
+        @Override
+        public String toString() {
+            final StringBuilder sb = new StringBuilder("TestEventZ [");
+            sb.append(']');
+            return sb.toString();
+        }
+
     }
 
 }

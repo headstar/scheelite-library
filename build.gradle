@@ -10,6 +10,8 @@ targetCompatibility = 1.7
 ext.guavaVersion = '15.0'
 ext.testngVersion = '6.8.7'
 ext.mockitoVersion = '1.9.5'
+ext.slf4jApiVersion = '1.7.5'
+ext.logbackClassicVersion = '1.0.13'
 
 test {
     useTestNG()
@@ -26,6 +28,9 @@ tasks.withType(Compile) {
 
 dependencies {
     compile "com.google.guava:guava:$guavaVersion",
-            "org.mockito:mockito-all:$mockitoVersion"
+            "org.mockito:mockito-all:$mockitoVersion",
+            "org.slf4j:slf4j-api:$slf4jApiVersion"
+
     testCompile "org.testng:testng:$testngVersion"
+    testRuntime "ch.qos.logback:logback-classic:$logbackClassicVersion"
 }

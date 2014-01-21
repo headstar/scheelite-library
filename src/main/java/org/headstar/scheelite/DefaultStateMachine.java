@@ -3,6 +3,8 @@ package org.headstar.scheelite;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Map;
@@ -11,6 +13,8 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class DefaultStateMachine<T, U> implements StateMachine<T> {
+
+    private static final Logger logger = LoggerFactory.getLogger(DefaultStateMachine.class);
 
     private final ImmutableMap<U, State<T, U>> states;  // state id -> state
     private final ImmutableSet<Transition<T, U>> transitions;
@@ -43,33 +47,38 @@ public class DefaultStateMachine<T, U> implements StateMachine<T> {
         }
 
         // handle event
+        logger.debug("handling event: entity={}, event={}", entity, event);
         currentState.onEvent(entity, event);
 
         // process triggered transition (if any)
         Optional<Transition<T, U>> triggeredTransitionOpt = getTriggeredTransition(stateIdentifier, entity, event);
         if (triggeredTransitionOpt.isPresent()) {
             Transition<T, U> triggeredTransition = triggeredTransitionOpt.get();
+            logger.debug("transition triggered: entity={}, transition={}", entity, triggeredTransition);
 
             // get next state
             State<T, U> nextState = states.get(triggeredTransition.getToState());
             if (nextState == null) {
-                throw new IllegalStateException(String.format("next state unknown: stateIdentifier=%s", stateIdentifier));
+                throw new IllegalStateException(String.format("next state unknown: stateId=%s", triggeredTransition.getToState()));
             }
 
             // execute action (if any)
             Optional<? extends Action<T>> actionOpt = triggeredTransition.getAction();
             if (actionOpt.isPresent()) {
                 Action<T> action = actionOpt.get();
+                logger.debug("executing action: entity={}, action={}", entity, action);
                 action.execute(entity, event);
             }
 
             // exit current state
+            logger.debug("exiting state: entity={}, stateId={}", entity, currentState);
             currentState.onExit(entity);
 
             // update entity
             entityMutator.setStateIdentifier(entity, nextState.getIdentifier());
 
             // enter next state
+            logger.debug("entering state: entity={}, stateId={}", entity, nextState);
             nextState.onEntry(entity);
         }
     }
