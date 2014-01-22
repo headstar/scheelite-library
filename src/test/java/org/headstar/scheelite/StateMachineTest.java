@@ -4,13 +4,45 @@ import com.google.common.base.Optional;
 import org.mockito.InOrder;
 import org.testng.annotations.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 /**
  * Created by Per on 2014-01-16.
  */
 public class StateMachineTest extends TestBase {
+
+    @Test
+    public void testThrowExceptionResolver() {
+        // given
+        TestEntity e = spy(new TestEntity(StateId.A));
+        TestState a = spy(new TestState(StateId.A));
+        TestEventX event = new TestEventX();
+        MultipleTransitionsTriggeredResolver<TestEntity, StateId> resolver = spy(new ThrowExceptionResolver<TestEntity, StateId>());
+
+        StateMachine<TestEntity> stateMachine = builder
+                .withStartState(a)
+                .withState(new TestState(StateId.B))
+                .withMultipleTransitionsTriggerPolicy(resolver)
+                .withTransition(new TestTransition(StateId.A, StateId.B, Optional.<Action<TestEntity>>absent(), Optional.of(new TestGuard(true))))
+                .withTransition(new TestTransition(StateId.A, StateId.B, Optional.<Action<TestEntity>>absent(), Optional.of(new TestGuard(true))))
+                .build();
+
+        // when
+        try {
+            stateMachine.process(e, event);
+        } catch(IllegalStateException ex) {
+            // expected
+            assertThat(ex.getMessage(), containsString("multiple transitions triggered"));
+        }
+
+        // then ... exception should be thrown
+        verify(a).onEvent(e, event);
+    }
+
 
     @Test
     public void testSimpleTransition() {
