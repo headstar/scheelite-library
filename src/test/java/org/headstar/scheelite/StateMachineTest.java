@@ -9,6 +9,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 /**
  * Created by Per on 2014-01-16.
@@ -34,6 +35,7 @@ public class StateMachineTest extends TestBase {
         // when
         try {
             stateMachine.process(e, event);
+            fail("should have thrown");
         } catch(IllegalStateException ex) {
             // expected
             assertThat(ex.getMessage(), containsString("multiple transitions triggered"));
