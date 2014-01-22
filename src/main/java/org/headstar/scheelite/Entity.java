@@ -4,7 +4,7 @@ public interface Entity<U> {
 
     Object getId();
 
-    U getStateId();
-    void setStateId(U id);
+    U getState();
+    void setState(U id);
 
 }

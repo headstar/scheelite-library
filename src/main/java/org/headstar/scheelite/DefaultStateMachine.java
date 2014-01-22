@@ -34,7 +34,7 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
         checkNotNull(event);
 
         // get current state
-        U stateIdentifier = entity.getStateId();
+        U stateIdentifier = entity.getState();
         if (stateIdentifier == null) {
             throw new IllegalStateException(String.format("stateIdentifier is null"));
         }
@@ -73,7 +73,7 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
             currentState.onExit(entity);
 
             // update entity
-            entity.setStateId(nextState.getId());
+            entity.setState(nextState.getId());
 
             // enter next state
             logger.debug("entering state: entity={}, state={}", entity.getId(), nextState.getId());

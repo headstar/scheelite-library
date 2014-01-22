@@ -21,22 +21,18 @@ public class TestBase {
             this.state = state;
         }
 
-        public StateId getState() {
-            return state;
-        }
-
         @Override
         public Object getId() {
             return 17L;
         }
 
         @Override
-        public StateId getStateId() {
+        public StateId getState() {
             return state;
         }
 
         @Override
-        public void setStateId(StateId identifier) {
+        public void setState(StateId identifier) {
             this.state = identifier;
         }
 

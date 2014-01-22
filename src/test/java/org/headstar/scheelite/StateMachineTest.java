@@ -75,7 +75,7 @@ public class StateMachineTest extends TestBase {
         inOrder.verify(guard).accept(e, event);
         inOrder.verify(action).execute(e, event);
         inOrder.verify(a).onExit(e);
-        inOrder.verify(e).setStateId(StateId.B);
+        inOrder.verify(e).setState(StateId.B);
         inOrder.verify(b).onEntry(e);
     }
 
@@ -140,7 +140,7 @@ public class StateMachineTest extends TestBase {
         inOrder.verify(guard).accept(e, event);
         inOrder.verify(action).execute(e, event);
         inOrder.verify(a).onExit(e);
-        inOrder.verify(e).setStateId(StateId.A);
+        inOrder.verify(e).setState(StateId.A);
         inOrder.verify(a).onEntry(e);
     }
 
@@ -170,7 +170,7 @@ public class StateMachineTest extends TestBase {
 
         verify(action, never()).execute(e, event);
         verify(a, never()).onExit(e);
-        verify(e, never()).setStateId(StateId.A);
+        verify(e, never()).setState(StateId.A);
         verify(a, never()).onEntry(e);
     }
 }
