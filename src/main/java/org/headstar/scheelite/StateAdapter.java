@@ -1,6 +1,6 @@
 package org.headstar.scheelite;
 
-public abstract class StateAdapter<T, U> implements State<T, U> {
+public abstract class StateAdapter<T, U> extends AbstractState<T, U> {
 
     @Override
     public void onEntry(T entity) {
