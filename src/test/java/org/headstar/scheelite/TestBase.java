@@ -96,17 +96,23 @@ public class TestBase {
         }
     }
 
-    protected class TestState extends StateAdapter<TestEntity, StateId> {
+    protected class TestState extends AbstractState<TestEntity, StateId> {
 
         private StateId id;
 
         TestState(StateId id) {
+            super(Optional.<StateId>absent());
             this.id = id;
         }
 
         @Override
         public StateId getId() {
             return id;
+        }
+
+        @Override
+        public Optional<InitialTransition<TestEntity, StateId>> getInitialTransition() {
+            return Optional.absent();
         }
 
         @Override

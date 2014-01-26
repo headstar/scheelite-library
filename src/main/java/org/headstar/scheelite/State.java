@@ -9,9 +9,9 @@ public interface State<T, U> {
 
     U getId();
 
-    Optional<? extends State<T, U>> getSuperState();
+    Optional<U> getSuperState();
 
-    ImmutableCollection<? extends State<T, U>> getSubStates();
+    Optional<InitialTransition<T, U>> getInitialTransition();
 
     void onEntry(T entity);
 

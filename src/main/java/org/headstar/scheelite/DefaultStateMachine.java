@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -16,6 +17,7 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultStateMachine.class);
 
+    private final Optional<State<T, U>> STATE_ABSENT = Optional.<State<T, U>>absent();
     private final ImmutableMap<U, State<T, U>> states;  // state id -> state
     private final ImmutableSet<Transition<T, U>> transitions;
     private final ImmutableMultimap<U, Transition<T, U>> transitionsFromState; // state id -> transitions from state
@@ -39,14 +41,11 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
             throw new IllegalStateException(String.format("stateIdentifier is null"));
         }
 
-        State<T, U> currentState = states.get(stateIdentifier);
-        if (currentState == null) {
-            throw new IllegalStateException(String.format("state unknown: stateIdentifier=%s", stateIdentifier));
-        }
+        State<T, U> sourceState = getState(stateIdentifier);
 
         // handle event
-        logger.debug("handling event: entity={}, event={}, state={}", entity.getId(), event, currentState.getId());
-        currentState.onEvent(entity, event);
+        logger.debug("handling event: entity={}, event={}, state={}", entity.getId(), event, sourceState.getId());
+        sourceState.onEvent(entity, event);
 
         // process triggered transition (if any)
         Optional<Transition<T, U>> triggeredTransitionOpt = getTriggeredTransition(stateIdentifier, entity, event);
@@ -54,13 +53,25 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
             Transition<T, U> triggeredTransition = triggeredTransitionOpt.get();
             logger.debug("transition triggered: entity={}, transition={}", entity.getId(), triggeredTransition.getName());
 
-            // get next state
-            State<T, U> nextState = states.get(triggeredTransition.getToState());
-            if (nextState == null) {
-                throw new IllegalStateException(String.format("next state unknown: state=%s", triggeredTransition.getToState()));
+            // get target state
+            State<T, U> targetState = states.get(triggeredTransition.getToState());
+            if (targetState == null) {
+                throw new IllegalStateException(String.format("target state unknown: state=%s", triggeredTransition.getToState()));
             }
 
-            // execute action (if any)
+            // get lowest common ancestor (LCA) between current state and next state
+            Optional<State<T, U>> lowestCommonAncestor = getLowestCommonAncestor(sourceState, targetState);
+
+            // exit states up until, but not including LCA
+            Optional<State<T, U>> exitStateOpt = Optional.of(sourceState);
+            do {
+                State<T, U> exitState = exitStateOpt.get();
+                logger.debug("exiting state: entity={}, state={}", entity.getId(), exitState.getId());
+                exitState.onExit(entity);
+                exitStateOpt = exitState.getSuperState().isPresent() ? Optional.of(getState(exitState.getSuperState().get())) : STATE_ABSENT;
+            } while(!exitStateOpt.equals(lowestCommonAncestor));
+
+            // execute transition action (if any)
             Optional<? extends Action<T>> actionOpt = triggeredTransition.getAction();
             if (actionOpt.isPresent()) {
                 Action<T> action = actionOpt.get();
@@ -68,17 +79,74 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
                 action.execute(entity, event);
             }
 
-            // exit current state
-            logger.debug("exiting state: entity={}, state={}", entity.getId(), currentState.getId());
-            currentState.onExit(entity);
+            // enter target state
+            List<State<T, U>> statesToEnter = getPathFromSuperState(lowestCommonAncestor, targetState);
+            for(State<T, U> s : statesToEnter) {
+                logger.debug("entering state: entity={}, state={}", entity.getId(), targetState.getId());
+                s.onEntry(entity);
+            }
 
-            // update entity
-            entity.setState(nextState.getId());
+            Optional<InitialTransition<T, U>> initialTransition = targetState.getInitialTransition();
+            State<T, U> endState = null;
+            while(initialTransition.isPresent()) {
+                InitialTransition<T, U> it = initialTransition.get();
+                if(it.getAction().isPresent()) {
+                    InitialAction<T> action = it.getAction().get();
+                    action.equals(entity);
+                }
+                endState = getState(it.getToState());
+                endState.onEntry(entity);
+                initialTransition = endState.getInitialTransition();
+            }
 
-            // enter next state
-            logger.debug("entering state: entity={}, state={}", entity.getId(), nextState.getId());
-            nextState.onEntry(entity);
+            if(endState != null) {
+                // update entity
+                entity.setState(endState.getId());
+            } else {
+                entity.setState(targetState.getId());
+            }
+       }
+    }
+
+    protected State<T, U> getState(U stateId) {
+        State<T, U> state = states.get(stateId);
+        if(state ==  null) {
+            throw new IllegalStateException(String.format("state unknown: state=%s", stateId));
         }
+        return state;
+    }
+
+    protected Optional<State<T, U>> getLowestCommonAncestor(State<T, U> stateA, State<T, U>  stateB) {
+        List<U> pathToRootA = Lists.newArrayList();
+        pathToRootA.add(stateA.getId());
+        while(stateA.getSuperState().isPresent()) {
+            State<T, U> state = getState(stateA.getSuperState().get());
+            pathToRootA.add(state.getId());
+        }
+
+        State<T, U> state = stateB;
+        do {
+            if(pathToRootA.contains(state.getId())) {
+                return Optional.of(state);
+            }
+            Optional<U> superState = stateB.getSuperState();
+            if(!superState.isPresent()) {
+                throw new IllegalStateException(String.format("no lowest common ancestor found: stateA=%s, stateB=%s", stateA.getId(), stateB.getId()));
+            }
+            state = getState(superState.get());
+        } while(true);
+    }
+
+    protected List<State<T, U>> getPathFromSuperState(Optional<State<T, U>> superState, State<T, U> subState) {
+        List<State<T, U>> res = Lists.newArrayList();
+        Optional<State<T, U>> state = Optional.of(subState);
+        do {
+            res.add(0, state.get());
+            Optional<U> next = state.get().getSuperState();
+            state = next.isPresent() ? Optional.of(getState(next.get())) : STATE_ABSENT;
+        } while(!state.equals(superState));
+
+        return res;
     }
 
     protected ImmutableMap<U, State<T, U>> createStatesMap(Set<State<T, U>> states) {
