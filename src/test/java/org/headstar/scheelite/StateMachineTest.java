@@ -73,10 +73,10 @@ public class StateMachineTest extends TestBase {
         InOrder inOrder = inOrder(a, b, guard, action, e);
         inOrder.verify(a).onEvent(e, event);
         inOrder.verify(guard).accept(e, event);
-        inOrder.verify(action).execute(e, event);
         inOrder.verify(a).onExit(e);
-        inOrder.verify(e).setState(StateId.B);
+        inOrder.verify(action).execute(e, event);
         inOrder.verify(b).onEntry(e);
+        inOrder.verify(e).setState(StateId.B);
     }
 
     @Test
@@ -138,10 +138,10 @@ public class StateMachineTest extends TestBase {
         InOrder inOrder = inOrder(a, guard, action, e);
         inOrder.verify(a).onEvent(e, event);
         inOrder.verify(guard).accept(e, event);
-        inOrder.verify(action).execute(e, event);
         inOrder.verify(a).onExit(e);
-        inOrder.verify(e).setState(StateId.A);
+        inOrder.verify(action).execute(e, event);
         inOrder.verify(a).onEntry(e);
+        inOrder.verify(e).setState(StateId.A);
     }
 
     @Test

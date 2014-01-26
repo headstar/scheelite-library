@@ -6,10 +6,7 @@ import com.google.common.collect.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -117,24 +114,21 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
     }
 
     protected Optional<State<T, U>> getLowestCommonAncestor(State<T, U> stateA, State<T, U>  stateB) {
-        List<U> pathToRootA = Lists.newArrayList();
-        pathToRootA.add(stateA.getId());
-        while(stateA.getSuperState().isPresent()) {
-            State<T, U> state = getState(stateA.getSuperState().get());
-            pathToRootA.add(state.getId());
-        }
+        List<State<T, U>> fromAToRoot = getPathFromSuperState(STATE_ABSENT, stateA);
+        Collections.reverse(fromAToRoot);
+        List<State<T, U>> fromBToRoot = getPathFromSuperState(STATE_ABSENT, stateB);
+        Collections.reverse(fromBToRoot);
 
-        State<T, U> state = stateB;
-        do {
-            if(pathToRootA.contains(state.getId())) {
-                return Optional.of(state);
+        Optional<State<T, U>> result = STATE_ABSENT;
+        Iterator<State<T, U>> iter = fromBToRoot.iterator();
+        while(iter.hasNext()) {
+            if(fromAToRoot.contains(iter.next())) {
+                if(iter.hasNext()) {
+                    result = Optional.of(iter.next());
+                }
             }
-            Optional<U> superState = stateB.getSuperState();
-            if(!superState.isPresent()) {
-                throw new IllegalStateException(String.format("no lowest common ancestor found: stateA=%s, stateB=%s", stateA.getId(), stateB.getId()));
-            }
-            state = getState(superState.get());
-        } while(true);
+        }
+        return result;
     }
 
     protected List<State<T, U>> getPathFromSuperState(Optional<State<T, U>> superState, State<T, U> subState) {
