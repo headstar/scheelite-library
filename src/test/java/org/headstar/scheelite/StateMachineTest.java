@@ -173,4 +173,29 @@ public class StateMachineTest extends TestBase {
         verify(e, never()).setState(StateId.A);
         verify(a, never()).onEntry(e);
     }
+
+    @Test
+    public void testEventHandledBySuperState() {
+        // given
+        TestEntity e = spy(new TestEntity(StateId.B));
+        TestState a = spy(new TestState(StateId.A));
+        TestState b = spy(new TestState(StateId.B, StateId.A, HandleEvent.NO));
+        TestTransition transition = new TestTransition(StateId.A, StateId.B);
+
+        TestEventX event = new TestEventX();
+
+        StateMachine<TestEntity> stateMachine = builder
+                .withStartState(a)
+                .withState(b)
+                .withTransition(transition)
+                .build();
+
+        // when
+        stateMachine.process(e, event);
+
+        // then
+        InOrder inOrder = inOrder(a, b);
+        inOrder.verify(b).onEvent(e, event);
+        inOrder.verify(a).onEvent(e, event);
+    }
 }

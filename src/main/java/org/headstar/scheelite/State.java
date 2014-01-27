@@ -17,5 +17,5 @@ public interface State<T, U> {
 
     void onExit(T entity);
 
-    void onEvent(T entity, Object event);
+    boolean onEvent(T entity, Object event);
 }

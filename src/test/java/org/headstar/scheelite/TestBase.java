@@ -96,13 +96,33 @@ public class TestBase {
         }
     }
 
+    enum HandleEvent { YES, NO };
+
     protected class TestState extends AbstractState<TestEntity, StateId> {
 
         private StateId id;
+        private HandleEvent handleEvent = TestBase.HandleEvent.YES;
 
         TestState(StateId id) {
             super(Optional.<StateId>absent());
             this.id = id;
+        }
+
+        TestState(StateId id, StateId parentId) {
+            super(Optional.<StateId>of(parentId));
+            this.id = id;
+        }
+
+        TestState(StateId id, StateId parentId, HandleEvent handleEvent) {
+            super(Optional.<StateId>of(parentId));
+            this.id = id;
+            this.handleEvent = handleEvent;
+        }
+
+
+        @Override
+        public boolean onEvent(TestEntity entity, Object event) {
+            return handleEvent.equals(HandleEvent.YES);
         }
 
         @Override

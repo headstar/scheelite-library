@@ -27,6 +27,16 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
         this.multipleTransitionsTriggeredResolver = builder.getMultipleTransitionsTriggeredResolver();
     }
 
+    private void handleEvent(State<T, U> sourceState, T entity, Object event) {
+        boolean eventHandled = false;
+        Optional<State<T, U>> state = Optional.of(sourceState);
+        do {
+            logger.debug("handling event: entity={}, event={}, state={}", entity.getId(), event, state.get().getId());
+            eventHandled = state.get().onEvent(entity, event);
+            state = getState(state.get().getSuperState());
+        } while(!eventHandled && state.isPresent());
+    }
+
     @Override
     public void process(T entity, Object event) {
         checkNotNull(entity);
@@ -41,8 +51,7 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
         State<T, U> sourceState = getState(stateIdentifier);
 
         // handle event
-        logger.debug("handling event: entity={}, event={}, state={}", entity.getId(), event, sourceState.getId());
-        sourceState.onEvent(entity, event);
+        handleEvent(sourceState, entity, event);
 
         // process triggered transition (if any)
         Optional<Transition<T, U>> triggeredTransitionOpt = getTriggeredTransition(stateIdentifier, entity, event);
@@ -109,6 +118,11 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
         }
         return state;
     }
+
+    protected Optional<State<T, U>> getState(Optional<U> stateId) {
+        return stateId.isPresent() ? Optional.of(getState(stateId.get())) : STATE_ABSENT;
+    }
+
 
     protected Optional<State<T, U>> getLowestCommonAncestor(State<T, U> stateA, State<T, U>  stateB) {
         List<State<T, U>> fromAToRoot = getPathFromSuperState(STATE_ABSENT, stateA);
