@@ -53,7 +53,7 @@ public class TestBase {
         }
 
         @Override
-        public void execute(TestEntity entity, Object event) {
+        public void execute(TestEntity entity, Optional<?> event) {
 
         }
 
@@ -76,7 +76,7 @@ public class TestBase {
         }
 
         @Override
-        public boolean accept(TestEntity entity, Object event) {
+        public boolean accept(TestEntity entity, Optional<?> event) {
             return accept;
         }
 

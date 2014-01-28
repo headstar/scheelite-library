@@ -29,21 +29,23 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
         this.multipleTransitionsTriggeredResolver = builder.getMultipleTransitionsTriggeredResolver();
     }
 
-    private void handleEvent(State<T, U> sourceState, T entity, Object event) {
-        boolean eventHandled = false;
-        Optional<State<T, U>> stateOpt = Optional.of(sourceState);
-        do {
-            State<T, U> state = stateOpt.get();
-            logger.debug("handling event: entity={}, event={}, state={}", entity.getId(), event, state.getId());
-            eventHandled = state.onEvent(entity, event);
-            stateOpt = getState(state.getSuperState());
-        } while(!eventHandled && stateOpt.isPresent());
+    private void handleEvent(State<T, U> sourceState, T entity, Optional<?> eventOpt) {
+        if (eventOpt.isPresent()) {
+            Object event = eventOpt.get();
+            boolean eventHandled = false;
+            Optional<State<T, U>> stateOpt = Optional.of(sourceState);
+            do {
+                State<T, U> state = stateOpt.get();
+                logger.debug("handling event: entity={}, event={}, state={}", entity.getId(), event, state.getId());
+                eventHandled = state.onEvent(entity, event);
+                stateOpt = getState(state.getSuperState());
+            } while (!eventHandled && stateOpt.isPresent());
+        }
     }
 
-    @Override
-    public void process(T entity, Object event) {
+    private void process(T entity, Optional<?> eventOpt) {
         checkNotNull(entity);
-        checkNotNull(event);
+        checkNotNull(eventOpt);
 
         // get current state
         U stateIdentifier = entity.getState();
@@ -54,10 +56,10 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
         State<T, U> sourceState = getState(stateIdentifier);
 
         // handle event
-        handleEvent(sourceState, entity, event);
+        handleEvent(sourceState, entity, eventOpt);
 
         // process triggered transition (if any)
-        Optional<Transition<T, U>> triggeredTransitionOpt = getTriggeredTransition(stateIdentifier, entity, event);
+        Optional<Transition<T, U>> triggeredTransitionOpt = getTriggeredTransition(stateIdentifier, entity, eventOpt);
         if (triggeredTransitionOpt.isPresent()) {
             Transition<T, U> triggeredTransition = triggeredTransitionOpt.get();
             logger.debug("transition triggered: entity={}, transition={}", entity.getId(), triggeredTransition.getName());
@@ -85,7 +87,7 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
             if (actionOpt.isPresent()) {
                 Action<T> action = actionOpt.get();
                 logger.debug("executing action: entity={}, action={}", entity.getId(), action.getName());
-                action.execute(entity, event);
+                action.execute(entity, eventOpt);
             }
 
             // enter target state
@@ -111,7 +113,16 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
 
             // update entity
             entity.setState(endState.getId());
-       }
+        }
+
+    }
+
+    @Override
+    public void process(T entity, Object event) {
+        checkNotNull(entity);
+        checkNotNull(event);
+
+        process(entity, Optional.of(event));
     }
 
     protected State<T, U> getState(U stateId) {
@@ -172,7 +183,7 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
         return new ImmutableMultimap.Builder<U, Transition<T, U>>().putAll(map).build();
     }
 
-    protected Optional<Transition<T, U>> getTriggeredTransition(U stateIdentifier, T entity, Object event) {
+    protected Optional<Transition<T, U>> getTriggeredTransition(U stateIdentifier, T entity, Optional<?> event) {
         Collection<Transition<T, U>> transitionsFromCurrentState = transitionsFromState.get(stateIdentifier);
 
         Collection<Transition<T, U>> triggeredTransitions = Lists.newArrayList(Iterables.filter(transitionsFromCurrentState,
@@ -190,9 +201,9 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
     private static class GuardIsAccepting<T, U> implements Predicate<Transition<T, U>> {
 
         private final T entity;
-        private final Object event;
+        private final Optional<?> event;
 
-        private GuardIsAccepting(T entity, Object event) {
+        private GuardIsAccepting(T entity, Optional<?> event) {
             this.entity = entity;
             this.event = event;
         }

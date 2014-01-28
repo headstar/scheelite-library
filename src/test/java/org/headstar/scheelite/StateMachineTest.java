@@ -72,9 +72,9 @@ public class StateMachineTest extends TestBase {
 
         InOrder inOrder = inOrder(a, b, guard, action, e);
         inOrder.verify(a).onEvent(e, event);
-        inOrder.verify(guard).accept(e, event);
+        inOrder.verify(guard).accept(e, Optional.of(event));
         inOrder.verify(a).onExit(e);
-        inOrder.verify(action).execute(e, event);
+        inOrder.verify(action).execute(e, Optional.of(event));
         inOrder.verify(b).onEntry(e);
         inOrder.verify(e).setState(StateId.B);
     }
@@ -137,9 +137,9 @@ public class StateMachineTest extends TestBase {
         // then
         InOrder inOrder = inOrder(a, guard, action, e);
         inOrder.verify(a).onEvent(e, event);
-        inOrder.verify(guard).accept(e, event);
+        inOrder.verify(guard).accept(e, Optional.of(event));
         inOrder.verify(a).onExit(e);
-        inOrder.verify(action).execute(e, event);
+        inOrder.verify(action).execute(e, Optional.of(event));
         inOrder.verify(a).onEntry(e);
         inOrder.verify(e).setState(StateId.A);
     }
@@ -166,9 +166,9 @@ public class StateMachineTest extends TestBase {
         // then
         InOrder inOrder = inOrder(a, guard, action, e);
         inOrder.verify(a).onEvent(e, event);
-        inOrder.verify(guard).accept(e, event);
+        inOrder.verify(guard).accept(e, Optional.of(event));
 
-        verify(action, never()).execute(e, event);
+        verify(action, never()).execute(e, Optional.of(event));
         verify(a, never()).onExit(e);
         verify(e, never()).setState(StateId.A);
         verify(a, never()).onEntry(e);
