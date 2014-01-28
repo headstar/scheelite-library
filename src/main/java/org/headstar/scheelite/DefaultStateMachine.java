@@ -104,7 +104,8 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
                 InitialTransition<T, U> it = initialTransition.get();
                 if(it.getAction().isPresent()) {
                     InitialAction<T> action = it.getAction().get();
-                    action.equals(entity);
+                    logger.debug("executing initial action: entity={}, action={}", entity.getId(), action.getName());
+                    action.execute(entity);
                 }
                 endState = getState(it.getToState());
                 endState.onEntry(entity);
