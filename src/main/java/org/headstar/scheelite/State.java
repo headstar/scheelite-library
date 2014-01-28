@@ -11,8 +11,6 @@ public interface State<T, U> {
 
     Optional<U> getSuperState();
 
-    Optional<InitialTransition<T, U>> getInitialTransition();
-
     void onEntry(T entity);
 
     void onExit(T entity);

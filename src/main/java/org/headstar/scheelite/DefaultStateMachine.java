@@ -99,7 +99,7 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
 
             // 'drill' down to sub states
             State<T, U> endState = targetState;
-            Optional<InitialTransition<T, U>> initialTransition = targetState.getInitialTransition();
+            Optional<? extends InitialTransition<T, U>> initialTransition = targetState.getInitialTransition();
             while (initialTransition.isPresent()) {
                 InitialTransition<T, U> it = initialTransition.get();
                 if (it.getAction().isPresent()) {

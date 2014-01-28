@@ -139,6 +139,31 @@ public class StateMachineBuilderTest extends TestBase {
         // then ...no exception should be thrown
     }
 
+    @Test(expectedExceptions = IllegalStateException.class)
+    public void testCompositeStatesNoInitialTransition() {
+        // given
+
+        // when
+        builder.withStartState(new TestState(StateId.A))
+                .withState(new TestState(StateId.B, StateId.A))
+                .build();
+
+        // then ...exception should be thrown
+    }
+
+    @Test
+    public void testCompositeStatesWithInitialTransition() {
+        // given
+
+        // when
+        builder.withStartState(new TestState(StateId.A, Optional.of(new TestInitialTransition(StateId.B))))
+                .withState(new TestState(StateId.B, StateId.A))
+                .build();
+
+        // then ... no exception should be thrown
+    }
+
+
     @Test
     public void testStartOnly() {
         // given
@@ -151,7 +176,7 @@ public class StateMachineBuilderTest extends TestBase {
     }
 
     @Test
-    public void testTwoStates() {
+    public void testTwoSimpleStates() {
         // given
 
         // when
@@ -164,6 +189,8 @@ public class StateMachineBuilderTest extends TestBase {
         // then ...no exception should be thrown
 
     }
+
+
 
 
 }

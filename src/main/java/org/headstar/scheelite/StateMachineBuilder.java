@@ -14,6 +14,9 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
     private State<T, U> startState;
     private final Set<State<T, U>> states;
     private final Set<Transition<T, U>> transitions;
+    private final Set<InitialTransition<T, U>> initialTransitions;
+    private final Set<U> initialTransitionsFromState;
+
     private MultipleTransitionsTriggeredResolver<T, U> multipleTransitionsTriggeredResolver;
 
     public static <T extends Entity<U>, U> StateMachineBuilder<T, U> newBuilder() {
@@ -23,6 +26,8 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
     private StateMachineBuilder() {
         states = Sets.newHashSet();
         transitions = Sets.newHashSet();
+        initialTransitions = Sets.newHashSet();
+        initialTransitionsFromState = Sets.newHashSet();
         multipleTransitionsTriggeredResolver = new ThrowExceptionResolver<T, U>();
     }
 
@@ -54,6 +59,18 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
         transitions.add(transition);
         return this;
     }
+
+    public StateMachineBuilder<T, U> withInitialTransition(InitialTransition<T, U> initialTransition) {
+        Preconditions.checkNotNull(initialTransition);
+        validateInitialTransition(initialTransition);
+        Preconditions.checkState(!initialTransitionsFromState.contains(initialTransition.getFromState()),
+                "initial transition from %s already added %s", initialTransition.getFromState(), initialTransition);
+
+        initialTransitionsFromState.add(initialTransition.getFromState());
+        initialTransitions.add(initialTransition);
+        return this;
+    }
+
 
     public StateMachineBuilder<T, U> withMultipleTransitionsTriggerPolicy(
             MultipleTransitionsTriggeredResolver<T, U> multipleTransitionsTriggeredResolver) {
@@ -109,6 +126,20 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
         }
 
     }
+
+    protected void validateInitialTransition(InitialTransition<T, U> initialTransition) {
+        if (initialTransition.getAction() == null) {
+            throw new IllegalStateException(String.format("initial transition action cannot be null: transition=[%s]", initialTransition));
+        }
+        if (initialTransition.getFromState() == null) {
+            throw new IllegalStateException(String.format("initial transition fromState cannot be null: transition=[%s]", initialTransition));
+        }
+        if (initialTransition.getToState() == null) {
+            throw new IllegalStateException(String.format("initial transition toState cannot be null: transition=[%s]", initialTransition));
+        }
+
+    }
+
 
     protected void validateState(State<T, U> state) {
         if (state.getId() == null) {
