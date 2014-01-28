@@ -15,6 +15,8 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
     private static final Logger logger = LoggerFactory.getLogger(DefaultStateMachine.class);
 
     private final Optional<State<T, U>> STATE_ABSENT = Optional.<State<T, U>>absent();
+    private final Optional<State<T, U>> ROOT_STATE = STATE_ABSENT;
+
     private final ImmutableMap<U, State<T, U>> states;  // state id -> state
     private final ImmutableSet<Transition<T, U>> transitions;
     private final ImmutableMultimap<U, Transition<T, U>> transitionsFromState; // state id -> transitions from state
@@ -29,12 +31,13 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
 
     private void handleEvent(State<T, U> sourceState, T entity, Object event) {
         boolean eventHandled = false;
-        Optional<State<T, U>> state = Optional.of(sourceState);
+        Optional<State<T, U>> stateOpt = Optional.of(sourceState);
         do {
-            logger.debug("handling event: entity={}, event={}, state={}", entity.getId(), event, state.get().getId());
-            eventHandled = state.get().onEvent(entity, event);
-            state = getState(state.get().getSuperState());
-        } while(!eventHandled && state.isPresent());
+            State<T, U> state = stateOpt.get();
+            logger.debug("handling event: entity={}, event={}, state={}", entity.getId(), event, state.getId());
+            eventHandled = state.onEvent(entity, event);
+            stateOpt = getState(state.getSuperState());
+        } while(!eventHandled && stateOpt.isPresent());
     }
 
     @Override
@@ -74,7 +77,7 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
                 State<T, U> exitState = exitStateOpt.get();
                 logger.debug("exiting state: entity={}, state={}", entity.getId(), exitState.getId());
                 exitState.onExit(entity);
-                exitStateOpt = exitState.getSuperState().isPresent() ? Optional.of(getState(exitState.getSuperState().get())) : STATE_ABSENT;
+                exitStateOpt = getState(exitState.getSuperState());
             } while(!exitStateOpt.equals(lowestCommonAncestor));
 
             // execute transition action (if any)
@@ -123,14 +126,13 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
         return stateId.isPresent() ? Optional.of(getState(stateId.get())) : STATE_ABSENT;
     }
 
-
     protected Optional<State<T, U>> getLowestCommonAncestor(State<T, U> stateA, State<T, U>  stateB) {
-        List<State<T, U>> fromAToRoot = getPathFromSuperState(STATE_ABSENT, stateA);
+        List<State<T, U>> fromAToRoot = getPathFromSuperState(ROOT_STATE, stateA);
         Collections.reverse(fromAToRoot);
-        List<State<T, U>> fromBToRoot = getPathFromSuperState(STATE_ABSENT, stateB);
+        List<State<T, U>> fromBToRoot = getPathFromSuperState(ROOT_STATE, stateB);
         Collections.reverse(fromBToRoot);
 
-        Optional<State<T, U>> result = STATE_ABSENT;
+        Optional<State<T, U>> result = ROOT_STATE;
         Iterator<State<T, U>> iter = fromBToRoot.iterator();
         while(iter.hasNext()) {
             if(fromAToRoot.contains(iter.next())) {
@@ -144,12 +146,12 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
 
     protected List<State<T, U>> getPathFromSuperState(Optional<State<T, U>> superState, State<T, U> subState) {
         List<State<T, U>> res = Lists.newArrayList();
-        Optional<State<T, U>> state = Optional.of(subState);
+        Optional<State<T, U>> stateOpt = Optional.of(subState);
         do {
-            res.add(0, state.get());
-            Optional<U> next = state.get().getSuperState();
-            state = next.isPresent() ? Optional.of(getState(next.get())) : STATE_ABSENT;
-        } while(!state.equals(superState));
+            State<T, U> state = stateOpt.get();
+            res.add(0, state);
+            stateOpt = getState(state.getSuperState());
+        } while(!stateOpt.equals(superState));
 
         return res;
     }
