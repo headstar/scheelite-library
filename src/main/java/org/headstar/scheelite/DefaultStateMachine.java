@@ -80,7 +80,7 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
                 logger.debug("exiting state: entity={}, state={}", entity.getId(), exitState.getId());
                 exitState.onExit(entity);
                 exitStateOpt = getState(exitState.getSuperState());
-            } while(!exitStateOpt.equals(lowestCommonAncestor));
+            } while (!exitStateOpt.equals(lowestCommonAncestor));
 
             // execute transition action (if any)
             Optional<? extends Action<T>> actionOpt = triggeredTransition.getAction();
@@ -92,7 +92,7 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
 
             // enter target state
             List<State<T, U>> statesToEnter = getPathFromSuperState(lowestCommonAncestor, targetState);
-            for(State<T, U> s : statesToEnter) {
+            for (State<T, U> s : statesToEnter) {
                 logger.debug("entering state: entity={}, state={}", entity.getId(), targetState.getId());
                 s.onEntry(entity);
             }
@@ -100,9 +100,9 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
             // 'drill' down to sub states
             State<T, U> endState = targetState;
             Optional<InitialTransition<T, U>> initialTransition = targetState.getInitialTransition();
-            while(initialTransition.isPresent()) {
+            while (initialTransition.isPresent()) {
                 InitialTransition<T, U> it = initialTransition.get();
-                if(it.getAction().isPresent()) {
+                if (it.getAction().isPresent()) {
                     InitialAction<T> action = it.getAction().get();
                     logger.debug("executing initial action: entity={}, action={}", entity.getId(), action.getName());
                     action.execute(entity);
@@ -128,7 +128,7 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
 
     protected State<T, U> getState(U stateId) {
         State<T, U> state = states.get(stateId);
-        if(state ==  null) {
+        if (state == null) {
             throw new IllegalStateException(String.format("state unknown: state=%s", stateId));
         }
         return state;
@@ -138,17 +138,15 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
         return stateId.isPresent() ? Optional.of(getState(stateId.get())) : STATE_ABSENT;
     }
 
-    protected Optional<State<T, U>> getLowestCommonAncestor(State<T, U> stateA, State<T, U>  stateB) {
-        List<State<T, U>> fromAToRoot = getPathFromSuperState(ROOT_STATE, stateA);
-        Collections.reverse(fromAToRoot);
-        List<State<T, U>> fromBToRoot = getPathFromSuperState(ROOT_STATE, stateB);
-        Collections.reverse(fromBToRoot);
+    protected Optional<State<T, U>> getLowestCommonAncestor(State<T, U> stateA, State<T, U> stateB) {
+        List<State<T, U>> fromAToRoot = getPathFromSubState(stateA, ROOT_STATE);
+        List<State<T, U>> fromBToRoot = getPathFromSubState(stateB, ROOT_STATE);
 
         Optional<State<T, U>> result = ROOT_STATE;
         Iterator<State<T, U>> iter = fromBToRoot.iterator();
-        while(iter.hasNext()) {
-            if(fromAToRoot.contains(iter.next())) {
-                if(iter.hasNext()) {
+        while (iter.hasNext()) {
+            if (fromAToRoot.contains(iter.next())) {
+                if (iter.hasNext()) {
                     result = Optional.of(iter.next());
                 }
             }
@@ -157,13 +155,20 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
     }
 
     protected List<State<T, U>> getPathFromSuperState(Optional<State<T, U>> superState, State<T, U> subState) {
+        List<State<T, U>> res = getPathFromSubState(subState, superState);
+        Collections.reverse(res);
+        return res;
+    }
+
+
+    protected List<State<T, U>> getPathFromSubState(State<T, U> subState, Optional<State<T, U>> superState) {
         List<State<T, U>> res = Lists.newArrayList();
         Optional<State<T, U>> stateOpt = Optional.of(subState);
         do {
             State<T, U> state = stateOpt.get();
-            res.add(0, state);
+            res.add(state);
             stateOpt = getState(state.getSuperState());
-        } while(!stateOpt.equals(superState));
+        } while (!stateOpt.equals(superState));
 
         return res;
     }
@@ -211,7 +216,7 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
 
         @Override
         public boolean apply(Transition<T, U> input) {
-            if(input.getGuard().isPresent()) {
+            if (input.getGuard().isPresent()) {
                 return input.getGuard().get().accept(entity, event);
             } else {
                 return true;
