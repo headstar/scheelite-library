@@ -108,6 +108,7 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
                     action.execute(entity);
                 }
                 endState = getState(it.getToState());
+                logger.debug("entering state: entity={}, state={}", entity.getId(), endState.getId());
                 endState.onEntry(entity);
                 initialTransition = endState.getInitialTransition();
             }
