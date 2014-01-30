@@ -91,10 +91,10 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
         checkStateEquals(states);
 
         // check transitions are valid
-        checkTransitionsToAndFromStates(states, transitions);
+        checkTransitionsToAndFromStates(states, transitions, initialTransitions);
 
         // check all states are reachable from the start state
-        checkAllStatesAreReachableFromStartState(startState, states, transitions);
+        checkAllStatesAreReachableFromStartState(startState, states, transitions, initialTransitions);
 
         return new DefaultStateMachine<T, U>(this);
     }
@@ -106,6 +106,8 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
     Set<Transition<T, U>> getTransitions() {
         return transitions;
     }
+
+    Set<InitialTransition<T, U>> getInitialTransitions() { return initialTransitions; }
 
     MultipleTransitionsTriggeredResolver<T, U> getMultipleTransitionsTriggeredResolver() {
         return multipleTransitionsTriggeredResolver;
@@ -157,7 +159,7 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
         }
     }
 
-    protected void checkTransitionsToAndFromStates(Set<State<T, U>> states, Set<Transition<T, U>> transitions) {
+    protected void checkTransitionsToAndFromStates(Set<State<T, U>> states, Set<Transition<T, U>> transitions, Set<InitialTransition<T, U>> initialTransitions) {
 
         Set<Object> stateIdentifiers = collectStateIdentifiers(states);
 
@@ -169,6 +171,16 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
                 throw new IllegalStateException(String.format("transition toState unknown: toState=[%s]", transition.getToState()));
             }
         }
+
+        for (InitialTransition<T, U> transition : initialTransitions) {
+            if (!stateIdentifiers.contains(transition.getFromState())) {
+                throw new IllegalStateException(String.format("initial transition fromState unknown: fromState=[%s]", transition.getFromState()));
+            }
+            if (!stateIdentifiers.contains(transition.getToState())) {
+                throw new IllegalStateException(String.format("initial transition toState unknown: toState=[%s]", transition.getToState()));
+            }
+        }
+
     }
 
     protected Set<Object> collectStateIdentifiers(Set<State<T, U>> states) {
@@ -180,7 +192,7 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
         return identifiers;
     }
 
-    protected void checkAllStatesAreReachableFromStartState(State<T, U> startState, Set<State<T, U>> allStates, Set<Transition<T, U>> transitions) {
+    protected void checkAllStatesAreReachableFromStartState(State<T, U> startState, Set<State<T, U>> allStates, Set<Transition<T, U>> transitions, Set<InitialTransition<T, U>> initialTransitions) {
 
         Set<Object> visited = Sets.newHashSet();
 
@@ -188,7 +200,7 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
         queue.add(startState.getId());
         visited.add(startState.getId());
 
-        Multimap<Object, Object> edges = getEdges(transitions);
+        Multimap<Object, Object> edges = getEdges(transitions, initialTransitions);
 
         while (!queue.isEmpty()) {
             Object w = queue.remove();
@@ -211,11 +223,16 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
         }
     }
 
-    protected Multimap<Object, Object> getEdges(Set<Transition<T, U>> transitions) {
+    protected Multimap<Object, Object> getEdges(Set<Transition<T, U>> transitions, Set<InitialTransition<T, U>> initialTransitions) {
         Multimap<Object, Object> edges = HashMultimap.create();
         for (Transition<T, U> transition : transitions) {
             edges.put(transition.getFromState(), transition.getToState());
         }
+
+        for (InitialTransition<T, U> transition : initialTransitions) {
+            edges.put(transition.getFromState(), transition.getToState());
+        }
+
         return edges;
     }
 

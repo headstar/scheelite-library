@@ -97,6 +97,7 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
                 s.onEntry(entity);
             }
 
+            /*
             // 'drill' down to sub states
             State<T, U> endState = targetState;
             Optional<? extends InitialTransition<T, U>> initialTransition = targetState.getInitialTransition();
@@ -112,9 +113,10 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
                 endState.onEntry(entity);
                 initialTransition = endState.getInitialTransition();
             }
+            */
 
             // update entity
-            entity.setState(endState.getId());
+            //entity.setState(endState.getId());
         }
 
     }

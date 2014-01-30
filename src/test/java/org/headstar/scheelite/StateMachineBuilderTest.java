@@ -156,8 +156,9 @@ public class StateMachineBuilderTest extends TestBase {
         // given
 
         // when
-        builder.withStartState(new TestState(StateId.A, Optional.of(new TestInitialTransition(StateId.B))))
+        builder.withStartState(new TestState(StateId.A))
                 .withState(new TestState(StateId.B, StateId.A))
+                .withInitialTransition(new TestInitialTransition(StateId.A, StateId.B))
                 .build();
 
         // then ... no exception should be thrown

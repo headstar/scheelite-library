@@ -101,12 +101,12 @@ public class TestBase {
     protected class TestInitialTransition extends InitialTransition<TestEntity, StateId> {
 
 
-        public TestInitialTransition(StateId toState, Optional<? extends InitialAction<TestEntity>> action) {
-            super(toState, action);
+        public TestInitialTransition(StateId fromState, StateId toState, Optional<? extends InitialAction<TestEntity>> action) {
+            super(fromState, toState, action);
         }
 
-        public TestInitialTransition(StateId toState) {
-            super(toState);
+        public TestInitialTransition(StateId fromState,StateId toState) {
+            super(fromState, toState);
         }
 
 
@@ -116,43 +116,29 @@ public class TestBase {
 
         private final StateId id;
         private final HandleEvent handleEvent;
-        private final Optional<? extends InitialTransition<TestEntity, StateId>> initialTransitionOpt;
 
         TestState(StateId id) {
-            this(id, Optional.<StateId>absent(), Optional.<InitialTransition<TestEntity, StateId>>absent(), HandleEvent.YES);
+            this(id, Optional.<StateId>absent(), HandleEvent.YES);
         }
 
-        TestState(StateId id, Optional<? extends InitialTransition<TestEntity, StateId>> initialTransitionOpt) {
-            this(id, Optional.<StateId>absent(), initialTransitionOpt, HandleEvent.YES);
+        TestState(StateId id, StateId parentId) {
+            this(id, Optional.<StateId>of(parentId), HandleEvent.YES);
         }
 
 
         TestState(StateId id, HandleEvent handleEvent) {
-            this(id, Optional.<StateId>absent(), Optional.<InitialTransition<TestEntity, StateId>>absent(), handleEvent);
+            this(id, Optional.<StateId>absent(), handleEvent);
         }
 
         TestState(StateId id, StateId parentId, HandleEvent handleEvent) {
-            this(id, Optional.<StateId>of(parentId),
-                    Optional.<InitialTransition<TestEntity, StateId>>absent(), handleEvent);
+            this(id, Optional.<StateId>of(parentId), handleEvent);
         }
 
 
-        TestState(StateId id, StateId parentId) {
-            this(id, Optional.<StateId>of(parentId),
-                    Optional.<InitialTransition<TestEntity, StateId>>absent());
-        }
-
-        TestState(StateId id, Optional<StateId> parentId, Optional<? extends InitialTransition<TestEntity, StateId>> initialTransitionOpt) {
-            this(id, parentId, initialTransitionOpt, HandleEvent.YES);
-        }
-
-
-        TestState(StateId id, Optional<StateId> parentId, Optional<? extends InitialTransition<TestEntity, StateId>> initialTransitionOpt,
-                  HandleEvent handleEvent) {
+        TestState(StateId id, Optional<StateId> parentId, HandleEvent handleEvent) {
             super(parentId);
             this.id = id;
             this.handleEvent = handleEvent;
-            this.initialTransitionOpt = initialTransitionOpt;
         }
 
 
@@ -164,11 +150,6 @@ public class TestBase {
         @Override
         public StateId getId() {
             return id;
-        }
-
-        @Override
-        public Optional<? extends InitialTransition<TestEntity, StateId>> getInitialTransition() {
-            return initialTransitionOpt;
         }
 
         @Override
