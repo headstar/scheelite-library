@@ -20,6 +20,7 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
     private final ImmutableMap<U, State<T, U>> states;  // state id -> state
     private final ImmutableSet<Transition<T, U>> transitions;
     private final ImmutableMultimap<U, Transition<T, U>> transitionsFromState; // state id -> transitions from state
+    private final ImmutableMap<State<T, U>, State<T, U>> subStateSuperStateMap;
     private final MultipleTransitionsTriggeredResolver<T, U> multipleTransitionsTriggeredResolver;
 
     protected DefaultStateMachine(StateMachineBuilder<T, U> builder) {
@@ -27,6 +28,7 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
         this.transitions = ImmutableSet.copyOf(builder.getTransitions());
         this.transitionsFromState = createTransitionsFromMap(builder.getTransitions());
         this.multipleTransitionsTriggeredResolver = builder.getMultipleTransitionsTriggeredResolver();
+        this.subStateSuperStateMap = ImmutableMap.copyOf(builder.getSubStateSuperStateMap());
     }
 
     private void handleEvent(State<T, U> sourceState, T entity, Optional<?> eventOpt) {

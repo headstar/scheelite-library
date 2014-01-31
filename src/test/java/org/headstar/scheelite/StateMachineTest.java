@@ -26,7 +26,7 @@ public class StateMachineTest extends TestBase {
 
         StateMachine<TestEntity> stateMachine = builder
                 .withStartState(a)
-                .withState(new TestState(StateId.B))
+                .withSimpleState(new TestState(StateId.B))
                 .withMultipleTransitionsTriggerPolicy(resolver)
                 .withTransition(new TestTransition(StateId.A, StateId.B, Optional.<Action<TestEntity>>absent(), Optional.of(new TestGuard(true))))
                 .withTransition(new TestTransition(StateId.A, StateId.B, Optional.<Action<TestEntity>>absent(), Optional.of(new TestGuard(true))))
@@ -60,7 +60,7 @@ public class StateMachineTest extends TestBase {
 
         StateMachine<TestEntity> stateMachine = builder
                 .withStartState(a)
-                .withState(b)
+                .withSimpleState(b)
                 .withTransition(transition)
                 .build();
 
@@ -85,7 +85,7 @@ public class StateMachineTest extends TestBase {
         TestEntity e = new TestEntity(StateId.A);
         StateMachine<TestEntity> stateMachine = builder
                 .withStartState(new TestState(StateId.A))
-                .withState(new TestState(StateId.B))
+                .withSimpleState(new TestState(StateId.B))
                 .withTransition(new TestTransition(StateId.A, StateId.B, Optional.<TestAction>absent(), Optional.of(new TestGuard(false))))
                 .build();
 
@@ -99,13 +99,16 @@ public class StateMachineTest extends TestBase {
     @Test
     public void testMultipleTransitionsOneGuardAccept() {
         // given
+        TestState a = new TestState(StateId.A);
+        TestState b = new TestState(StateId.B);
+
         TestEntity e = new TestEntity(StateId.A);
         StateMachine<TestEntity> stateMachine = builder
-                .withStartState(new TestState(StateId.A))
-                .withState(new TestState(StateId.B))
-                .withTransition(new TestTransition(StateId.A, StateId.B, Optional.<TestAction>absent(), Optional.of(new TestGuard(false))))
-                .withTransition(new TestTransition(StateId.A, StateId.B, Optional.<TestAction>absent(), Optional.of(new TestGuard(false))))
-                .withTransition(new TestTransition(StateId.A, StateId.B, Optional.<TestAction>absent(), Optional.of(new TestGuard(true))))
+                .withStartState(a)
+                .withSimpleState(b)
+                .withTransition(a, b, new TestGuard(false))
+                .withTransition(a, b, new TestGuard(false))
+                .withTransition(a, b, new TestGuard(true))
                 .build();
 
         // when
@@ -186,7 +189,7 @@ public class StateMachineTest extends TestBase {
 
         StateMachine<TestEntity> stateMachine = builder
                 .withStartState(a)
-                .withState(b)
+                .withSimpleState(b)
                 .withTransition(transition)
                 .build();
 

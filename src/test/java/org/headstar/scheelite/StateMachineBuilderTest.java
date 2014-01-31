@@ -1,7 +1,5 @@
 package org.headstar.scheelite;
 
-import com.google.common.base.Optional;
-import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
@@ -44,7 +42,7 @@ public class StateMachineBuilderTest extends TestBase {
 
         // when
         builder.withStartState(new TestState(StateId.A))
-                .withState(null);
+                .withSimpleState(null);
 
         // then ...exception should be thrown
     }
@@ -55,39 +53,10 @@ public class StateMachineBuilderTest extends TestBase {
 
         // when
         builder.withStartState(new TestState(StateId.A))
-                .withState(new TestState(null));
+                .withSimpleState(new TestState(null));
 
         // then ...exception should be thrown
     }
-
-    @Test(expectedExceptions = IllegalStateException.class)
-    public void testStartStateAndOtherStateEquals() {
-        // given
-        TestState a1 = new TestState(StateId.A);
-        TestState a2 = new TestState(StateId.A);
-        assertEquals(a1, a2);
-
-        // when
-        builder .withState(a2)
-                .withStartState(a1);
-
-        // then ...exception should be thrown
-    }
-
-    @Test(expectedExceptions = IllegalStateException.class)
-    public void testOtherStateAndStartStateAndEquals() {
-        // given
-        TestState a1 = new TestState(StateId.A);
-        TestState a2 = new TestState(StateId.A);
-        assertEquals(a1, a2);
-
-        // when
-        builder.withStartState(a1)
-                .withState(a2);
-
-        // then ...exception should be thrown
-    }
-
 
     @Test(expectedExceptions = IllegalStateException.class)
     public void testUnreachableState1() {
@@ -95,7 +64,7 @@ public class StateMachineBuilderTest extends TestBase {
 
         // when
         builder.withStartState(new TestState(StateId.A))
-                .withState(new TestState(StateId.B))
+                .withSimpleState(new TestState(StateId.B))
                 .build();
 
         // then ...exception should be thrown
@@ -107,8 +76,8 @@ public class StateMachineBuilderTest extends TestBase {
 
         // when
         builder.withStartState(new TestState(StateId.A))
-                .withState(new TestState(StateId.B))
-                .withState(new TestState(StateId.C))  // not reachable
+                .withSimpleState(new TestState(StateId.B))
+                .withSimpleState(new TestState(StateId.C))  // not reachable
                 .withTransition(new TestTransition(StateId.A, StateId.B))
                 .build();
 
@@ -145,7 +114,7 @@ public class StateMachineBuilderTest extends TestBase {
 
         // when
         builder.withStartState(new TestState(StateId.A))
-                .withState(new TestState(StateId.B, StateId.A))
+                .withSimpleState(new TestState(StateId.B, StateId.A))
                 .build();
 
         // then ...exception should be thrown
@@ -154,11 +123,16 @@ public class StateMachineBuilderTest extends TestBase {
     @Test
     public void testCompositeStatesWithInitialTransition() {
         // given
+        TestState a = new TestState(StateId.A);
+        TestState b = new TestState(StateId.B);
+        TestState c = new TestState(StateId.C);
+        TestState d = new TestState(StateId.D);
 
         // when
-        builder.withStartState(new TestState(StateId.A))
-                .withState(new TestState(StateId.B, StateId.A))
-                .withInitialTransition(new TestInitialTransition(StateId.A, StateId.B))
+        builder.withStartState(a)
+                .withCompositeState(b, c, d)
+                .withTransition(a, b)
+                .withTransition(c, d)
                 .build();
 
         // then ... no exception should be thrown
@@ -182,7 +156,7 @@ public class StateMachineBuilderTest extends TestBase {
 
         // when
         builder.withStartState(new TestState(StateId.A))
-                .withState(new TestState(StateId.B))
+                .withSimpleState(new TestState(StateId.B))
                 .withTransition(new TestTransition(StateId.A, StateId.B))
                 .withTransition(new TestTransition(StateId.B, StateId.A))
                 .build();

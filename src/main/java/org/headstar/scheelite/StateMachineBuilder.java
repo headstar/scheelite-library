@@ -1,7 +1,9 @@
 package org.headstar.scheelite;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 
@@ -12,10 +14,13 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class StateMachineBuilder<T extends Entity<U>, U> {
 
     private State<T, U> startState;
-    private final Set<State<T, U>> states;
+    private Set<State<T, U>> states;
+    private final Set<State<T, U>> simpleStates;
+    private final Set<State<T, U>> superStates;
+    private final Set<State<T, U>> subStates;
     private final Set<Transition<T, U>> transitions;
     private final Set<InitialTransition<T, U>> initialTransitions;
-    private final Set<U> initialTransitionsFromState;
+    private final Map<State<T, U>, State<T, U>> subStateSuperStateMap; // sub state -> super state
 
     private MultipleTransitionsTriggeredResolver<T, U> multipleTransitionsTriggeredResolver;
 
@@ -25,30 +30,94 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
 
     private StateMachineBuilder() {
         states = Sets.newHashSet();
+        simpleStates = Sets.newHashSet();
+        superStates = Sets.newHashSet();
+        subStates = Sets.newHashSet();
+        subStateSuperStateMap = Maps.newHashMap();
         transitions = Sets.newHashSet();
         initialTransitions = Sets.newHashSet();
-        initialTransitionsFromState = Sets.newHashSet();
         multipleTransitionsTriggeredResolver = new ThrowExceptionResolver<T, U>();
     }
 
     public StateMachineBuilder<T, U> withStartState(State<T, U> state) {
         Preconditions.checkState(this.startState == null, "start state was already set to %s", this.startState);
-        Preconditions.checkState(!states.contains(state), "state already added %s", state);
+        Preconditions.checkState(!subStateSuperStateMap.containsKey(state), "state already added as sub state: %s", state);
         this.startState = Preconditions.checkNotNull(state);
 
         validateState(state);
         this.startState = state;
-        states.add(state);
         return this;
     }
 
-    public StateMachineBuilder<T, U> withState(State<T, U> state) {
+    public StateMachineBuilder<T, U> withSimpleState(State<T, U> state) {
         Preconditions.checkNotNull(state);
-        Preconditions.checkState(!states.contains(state), "state already added %s", state);
+        Preconditions.checkState(!simpleStates.contains(state), "state already added as simple state: %s", state);
+        Preconditions.checkState(!superStates.contains(state), "state already added as super state: %s", state);
 
         validateState(state);
-        states.add(state);
+        simpleStates.add(state);
         return this;
+    }
+
+    public StateMachineBuilder<T, U> withCompositeState(State<T, U> state, InitialAction<T> initialAction,
+                                                        State<T, U> defaultSubState, State<T, U>... subStates) {
+       Preconditions.checkNotNull(initialAction);
+       return withCompositeState(state, Optional.of(initialAction), defaultSubState, subStates);
+    }
+
+    public StateMachineBuilder<T, U> withCompositeState(State<T, U> state, State<T, U> defaultSubState, State<T, U>... subStates) {
+        return withCompositeState(state, Optional.<InitialAction<T>>absent(), defaultSubState, subStates);
+    }
+
+    private StateMachineBuilder<T, U> withCompositeState(State<T, U> superState, Optional<? extends InitialAction<T>> initialAction,
+                                                        State<T, U> defaultSubState, State<T, U>... subStates) {
+        Preconditions.checkNotNull(superState);
+        Preconditions.checkNotNull(initialAction);
+        Preconditions.checkNotNull(defaultSubState);
+        Preconditions.checkState(!subStateSuperStateMap.containsKey(defaultSubState), "state already added as sub state: %s", defaultSubState);
+        for(State<T, U> state : subStates) {
+            Preconditions.checkNotNull(state);
+            Preconditions.checkState(!subStateSuperStateMap.containsKey(state), "state already added as sub state: %s", state);
+        }
+        Preconditions.checkState(!superStates.contains(superState), "state already added as super state: %s", superState);
+        Preconditions.checkState(!simpleStates.contains(superState), "state already added as simple state: %s", superState);
+
+        validateState(superState);
+        validateState(defaultSubState);
+        for(State<T, U> state : subStates) {
+            validateState(state);
+        }
+
+        superStates.add(superState);
+        this.subStates.add(defaultSubState);
+        subStateSuperStateMap.put(defaultSubState, superState);
+        for(State<T, U> state : subStates) {
+            this.subStates.add(state);
+            subStateSuperStateMap.put(state, superState);
+        }
+
+        initialTransitions.add(new InitialTransition<T, U>(superState.getId(), defaultSubState.getId(), initialAction));
+
+        return this;
+    }
+
+    public StateMachineBuilder<T, U> withTransition(State<T, U> fromState, State<T, U> toState, Guard<T> guard) {
+        checkNotNull(guard);
+        return withTransition(fromState, toState, Optional.<Action<T>>absent(), Optional.<Guard<T>>of(guard));
+    }
+
+    public StateMachineBuilder<T, U> withTransition(State<T, U> fromState, State<T, U> toState, Action<T> action) {
+        checkNotNull(action);
+        return withTransition(fromState, toState, Optional.<Action<T>>of(action), Optional.<Guard<T>>absent());
+    }
+
+    public StateMachineBuilder<T, U> withTransition(State<T, U> fromState, State<T, U> toState) {
+        return withTransition(fromState, toState, Optional.<Action<T>>absent(), Optional.<Guard<T>>absent());
+    }
+
+    public StateMachineBuilder<T, U> withTransition(State<T, U> fromState, State<T, U> toState,
+                                                    Optional<? extends Action<T>> action, Optional<? extends Guard<T>> guard) {
+        return withTransition(new Transition<T, U>(fromState.getId(), toState.getId(), action, guard));
     }
 
     public StateMachineBuilder<T, U> withTransition(Transition<T, U> transition) {
@@ -60,6 +129,7 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
         return this;
     }
 
+    /*
     public StateMachineBuilder<T, U> withInitialTransition(InitialTransition<T, U> initialTransition) {
         Preconditions.checkNotNull(initialTransition);
         validateInitialTransition(initialTransition);
@@ -70,7 +140,7 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
         initialTransitions.add(initialTransition);
         return this;
     }
-
+      */
 
     public StateMachineBuilder<T, U> withMultipleTransitionsTriggerPolicy(
             MultipleTransitionsTriggeredResolver<T, U> multipleTransitionsTriggeredResolver) {
@@ -86,6 +156,9 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
         if (startState == null) {
             throw new IllegalStateException("no start state added");
         }
+
+        states = Sets.newHashSet(Sets.newHashSet(Sets.union(simpleStates, Sets.union(superStates, subStates))));
+        states.add(startState);
 
         // check state id equals and state equals relation
         checkStateEquals(states);
@@ -105,6 +178,10 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
 
     Set<Transition<T, U>> getTransitions() {
         return transitions;
+    }
+
+    Map<State<T, U>, State<T, U>> getSubStateSuperStateMap() {
+        return subStateSuperStateMap;
     }
 
     Set<InitialTransition<T, U>> getInitialTransitions() { return initialTransitions; }
@@ -185,10 +262,9 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
 
     protected Set<Object> collectStateIdentifiers(Set<State<T, U>> states) {
         Set<Object> identifiers = Sets.newHashSet();
-        for (State<T, U> state : this.states) {
+        for (State<T, U> state : states) {
             identifiers.add(state.getId());
         }
-
         return identifiers;
     }
 
@@ -219,7 +295,8 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
         }
         Set<Object> notVisited = Sets.difference(allStateIdentifiers, visited);
         if (!notVisited.isEmpty()) {
-            throw new IllegalStateException(String.format("states unreachable from start state: states=[%s]", notVisited));
+            throw new IllegalStateException(String.format("states unreachable from start state: startState=[%s] states=[%s]", startState,
+                    notVisited));
         }
     }
 
