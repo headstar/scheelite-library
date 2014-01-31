@@ -9,11 +9,7 @@ public interface State<T, U> {
 
     U getId();
 
-    Optional<U> getSuperState();
-
     void onEntry(T entity);
-
     void onExit(T entity);
-
     boolean onEvent(T entity, Object event);
 }

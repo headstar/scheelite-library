@@ -19,7 +19,9 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
 
     private final ImmutableMap<U, State<T, U>> states;  // state id -> state
     private final ImmutableSet<Transition<T, U>> transitions;
-    private final ImmutableMultimap<U, Transition<T, U>> transitionsFromState; // state id -> transitions from state
+    private final ImmutableMultimap<State<T, U>, Transition<T, U>> transitionsFromState; // state -> transitions from state
+    private final ImmutableMap<State<T, U>, InitialTransition<T, U>> initialTransitionsFromState; // state -> transitions from state
+
     private final ImmutableMap<State<T, U>, State<T, U>> subStateSuperStateMap;
     private final MultipleTransitionsTriggeredResolver<T, U> multipleTransitionsTriggeredResolver;
 
@@ -27,6 +29,7 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
         this.states = createStatesMap(builder.getStates());
         this.transitions = ImmutableSet.copyOf(builder.getTransitions());
         this.transitionsFromState = createTransitionsFromMap(builder.getTransitions());
+        this.initialTransitionsFromState = createInitialTransitionsFromMap(builder.getInitialTransitions());
         this.multipleTransitionsTriggeredResolver = builder.getMultipleTransitionsTriggeredResolver();
         this.subStateSuperStateMap = ImmutableMap.copyOf(builder.getSubStateSuperStateMap());
     }
@@ -40,7 +43,7 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
                 State<T, U> state = stateOpt.get();
                 logger.debug("handling event: entity={}, event={}, state={}", entity.getId(), event, state.getId());
                 eventHandled = state.onEvent(entity, event);
-                stateOpt = getState(state.getSuperState());
+                stateOpt = getSuperState(state);
             } while (!eventHandled && stateOpt.isPresent());
         }
     }
@@ -61,13 +64,13 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
         handleEvent(sourceState, entity, eventOpt);
 
         // process triggered transition (if any)
-        Optional<Transition<T, U>> triggeredTransitionOpt = getTriggeredTransition(stateIdentifier, entity, eventOpt);
+        Optional<Transition<T, U>> triggeredTransitionOpt = getTriggeredTransition(sourceState, entity, eventOpt);
         if (triggeredTransitionOpt.isPresent()) {
             Transition<T, U> triggeredTransition = triggeredTransitionOpt.get();
             logger.debug("transition triggered: entity={}, transition={}", entity.getId(), triggeredTransition.getName());
 
             // get target state
-            State<T, U> targetState = states.get(triggeredTransition.getToState());
+            State<T, U> targetState = triggeredTransition.getToState();
             if (targetState == null) {
                 throw new IllegalStateException(String.format("target state unknown: state=%s", triggeredTransition.getToState()));
             }
@@ -81,7 +84,7 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
                 State<T, U> exitState = exitStateOpt.get();
                 logger.debug("exiting state: entity={}, state={}", entity.getId(), exitState.getId());
                 exitState.onExit(entity);
-                exitStateOpt = getState(exitState.getSuperState());
+                exitStateOpt = getSuperState(exitState);
             } while (!exitStateOpt.equals(lowestCommonAncestor));
 
             // execute transition action (if any)
@@ -99,26 +102,24 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
                 s.onEntry(entity);
             }
 
-            /*
             // 'drill' down to sub states
             State<T, U> endState = targetState;
-            Optional<? extends InitialTransition<T, U>> initialTransition = targetState.getInitialTransition();
-            while (initialTransition.isPresent()) {
-                InitialTransition<T, U> it = initialTransition.get();
+            Optional<? extends InitialTransition<T, U>> initialTransitionOpt = getInitialTransition(endState);
+            while (initialTransitionOpt.isPresent()) {
+                InitialTransition<T, U> it = initialTransitionOpt.get();
                 if (it.getAction().isPresent()) {
                     InitialAction<T> action = it.getAction().get();
                     logger.debug("executing initial action: entity={}, action={}", entity.getId(), action.getName());
                     action.execute(entity);
                 }
-                endState = getState(it.getToState());
+                endState = it.getToState();
                 logger.debug("entering state: entity={}, state={}", entity.getId(), endState.getId());
                 endState.onEntry(entity);
-                initialTransition = endState.getInitialTransition();
+                initialTransitionOpt = getInitialTransition(endState);
             }
-            */
 
             // update entity
-            //entity.setState(endState.getId());
+            entity.setState(endState.getId());
         }
 
     }
@@ -137,10 +138,6 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
             throw new IllegalStateException(String.format("state unknown: state=%s", stateId));
         }
         return state;
-    }
-
-    protected Optional<State<T, U>> getState(Optional<U> stateId) {
-        return stateId.isPresent() ? Optional.of(getState(stateId.get())) : STATE_ABSENT;
     }
 
     protected Optional<State<T, U>> getLowestCommonAncestor(State<T, U> stateA, State<T, U> stateB) {
@@ -172,11 +169,22 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
         do {
             State<T, U> state = stateOpt.get();
             res.add(state);
-            stateOpt = getState(state.getSuperState());
+            stateOpt = getSuperState(state);
         } while (!stateOpt.equals(superState));
 
         return res;
     }
+
+    protected Optional<State<T, U>> getSuperState(State<T, U> state) {
+        State<T, U> superState = subStateSuperStateMap.get(state);
+        return Optional.<State<T, U>>fromNullable(superState);
+    }
+
+    protected Optional<InitialTransition<T, U>> getInitialTransition(State<T, U> state) {
+        InitialTransition<T, U> transition = initialTransitionsFromState.get(state);
+        return Optional.<InitialTransition<T, U>>fromNullable(transition);
+    }
+
 
     protected ImmutableMap<U, State<T, U>> createStatesMap(Set<State<T, U>> states) {
         Map<U, State<T, U>> map = Maps.newHashMap();
@@ -186,16 +194,25 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
         return new ImmutableMap.Builder<U, State<T, U>>().putAll(map).build();
     }
 
-    protected ImmutableMultimap<U, Transition<T, U>> createTransitionsFromMap(Set<Transition<T, U>> transitions) {
-        Multimap<U, Transition<T, U>> map = ArrayListMultimap.create();
+    protected ImmutableMultimap<State<T, U>, Transition<T, U>> createTransitionsFromMap(Set<Transition<T, U>> transitions) {
+        Multimap<State<T, U>, Transition<T, U>> map = ArrayListMultimap.create();
         for (Transition<T, U> transition : transitions) {
             map.put(transition.getFromState(), transition);
         }
-        return new ImmutableMultimap.Builder<U, Transition<T, U>>().putAll(map).build();
+        return new ImmutableMultimap.Builder<State<T, U>, Transition<T, U>>().putAll(map).build();
     }
 
-    protected Optional<Transition<T, U>> getTriggeredTransition(U stateIdentifier, T entity, Optional<?> event) {
-        Collection<Transition<T, U>> transitionsFromCurrentState = transitionsFromState.get(stateIdentifier);
+    protected ImmutableMap<State<T, U>, InitialTransition<T, U>> createInitialTransitionsFromMap(Set<InitialTransition<T, U>> transitions) {
+        Map<State<T, U>, InitialTransition<T, U>> map = Maps.newHashMap();
+        for (InitialTransition<T, U> transition : transitions) {
+            map.put(transition.getFromState(), transition);
+        }
+        return new ImmutableMap.Builder<State<T, U>, InitialTransition<T, U>>().putAll(map).build();
+    }
+
+
+    protected Optional<Transition<T, U>> getTriggeredTransition(State<T, U> state, T entity, Optional<?> event) {
+        Collection<Transition<T, U>> transitionsFromCurrentState = transitionsFromState.get(state);
 
         Collection<Transition<T, U>> triggeredTransitions = Lists.newArrayList(Iterables.filter(transitionsFromCurrentState,
                 new GuardIsAccepting<T, U>(entity, event)));

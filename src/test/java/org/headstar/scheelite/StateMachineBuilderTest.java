@@ -39,9 +39,10 @@ public class StateMachineBuilderTest extends TestBase {
     @Test(expectedExceptions = NullPointerException.class)
     public void testOtherStateNull() {
         // given
+        TestState a = new TestState(StateId.A);
 
         // when
-        builder.withStartState(new TestState(StateId.A))
+        builder.withStartState(a)
                 .withSimpleState(null);
 
         // then ...exception should be thrown
@@ -50,21 +51,40 @@ public class StateMachineBuilderTest extends TestBase {
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void testNullOtherStateId() {
         // given
+        TestState a = new TestState(StateId.A);
 
         // when
-        builder.withStartState(new TestState(StateId.A))
+        builder.withStartState(a)
                 .withSimpleState(new TestState(null));
 
         // then ...exception should be thrown
     }
 
+    @Test
+    public void testSimpleReachability() {
+        // given
+        TestState a = new TestState(StateId.A);
+        TestState b = new TestState(StateId.B);
+
+        // when
+        builder.withStartState(a)
+                .withSimpleState(b)
+                .withTransition(a, b)
+                .build();
+
+        // then ... no exception should be thrown
+
+    }
+
     @Test(expectedExceptions = IllegalStateException.class)
     public void testUnreachableState1() {
         // given
+        TestState a = new TestState(StateId.A);
+        TestState b = new TestState(StateId.B);
 
         // when
-        builder.withStartState(new TestState(StateId.A))
-                .withSimpleState(new TestState(StateId.B))
+        builder.withStartState(a)
+                .withSimpleState(b)
                 .build();
 
         // then ...exception should be thrown
@@ -73,12 +93,15 @@ public class StateMachineBuilderTest extends TestBase {
     @Test(expectedExceptions = IllegalStateException.class)
     public void testUnreachableState2() {
         // given
+        TestState a = new TestState(StateId.A);
+        TestState b = new TestState(StateId.B);
+        TestState c = new TestState(StateId.C);
 
         // when
-        builder.withStartState(new TestState(StateId.A))
-                .withSimpleState(new TestState(StateId.B))
-                .withSimpleState(new TestState(StateId.C))  // not reachable
-                .withTransition(new TestTransition(StateId.A, StateId.B))
+        builder.withStartState(a)
+                .withSimpleState(b)
+                .withSimpleState(c)  // not reachable
+                .withTransition(a, b)
                 .build();
 
         // then ...exception should be thrown
@@ -87,10 +110,13 @@ public class StateMachineBuilderTest extends TestBase {
     @Test(expectedExceptions = IllegalStateException.class)
     public void testTransitionFromUnknownState() {
         // given
+        TestState a = new TestState(StateId.A);
+        TestState b = new TestState(StateId.B);
+        TestState c = new TestState(StateId.C);
 
         // when
-        builder.withStartState(new TestState(StateId.A))
-                .withTransition(new TestTransition(StateId.C, StateId.A))
+        builder.withStartState(a)
+                .withTransition(c, a)
                 .build();
 
         // then ...no exception should be thrown
@@ -99,25 +125,15 @@ public class StateMachineBuilderTest extends TestBase {
     @Test(expectedExceptions = IllegalStateException.class)
     public void testTransitionToUnknownState() {
         // given
+        TestState a = new TestState(StateId.A);
+        TestState b = new TestState(StateId.B);
 
         // when
-        builder.withStartState(new TestState(StateId.A))
-                .withTransition(new TestTransition(StateId.A, StateId.B))
+        builder.withStartState(a)
+                .withTransition(a, b)
                 .build();
 
         // then ...no exception should be thrown
-    }
-
-    @Test(expectedExceptions = IllegalStateException.class)
-    public void testCompositeStatesNoInitialTransition() {
-        // given
-
-        // when
-        builder.withStartState(new TestState(StateId.A))
-                .withSimpleState(new TestState(StateId.B, StateId.A))
-                .build();
-
-        // then ...exception should be thrown
     }
 
     @Test
@@ -148,21 +164,6 @@ public class StateMachineBuilderTest extends TestBase {
                 .build();
 
         // then ...no exception should be thrown
-    }
-
-    @Test
-    public void testTwoSimpleStates() {
-        // given
-
-        // when
-        builder.withStartState(new TestState(StateId.A))
-                .withSimpleState(new TestState(StateId.B))
-                .withTransition(new TestTransition(StateId.A, StateId.B))
-                .withTransition(new TestTransition(StateId.B, StateId.A))
-                .build();
-
-        // then ...no exception should be thrown
-
     }
 
 

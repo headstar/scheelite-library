@@ -6,24 +6,24 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public class Transition<T, U> {
 
-    private final U fromState;
-    private final U toState;
+    private final State<T, U> fromState;
+    private final State<T, U> toState;
     private final Optional<? extends Action<T>> action;
     private final Optional<? extends Guard<T>> guard;
     private final String name;
 
-    public Transition(U fromState, U toState, Optional<? extends Action<T>> action, Optional<? extends Guard<T>> guard) {
+    public Transition(State<T, U> fromState, State<T, U> toState, Optional<? extends Action<T>> action, Optional<? extends Guard<T>> guard) {
         this.fromState = checkNotNull(fromState);
         this.toState = checkNotNull(toState);
         this.action = checkNotNull(action);
         this.guard = checkNotNull(guard);
         this.name = createName();
     }
-    public Transition(U fromState, U toState, Optional<? extends Action<T>> action) {
+    public Transition(State<T, U> fromState, State<T, U> toState, Optional<? extends Action<T>> action) {
         this(fromState, toState, action, Optional.<Guard<T>>absent());
     }
 
-    public Transition(U fromState, U toState) {
+    public Transition(State<T, U> fromState, State<T, U> toState) {
         this(fromState, toState, Optional.<Action<T>>absent(), Optional.<Guard<T>>absent());
     }
 
@@ -33,18 +33,18 @@ public class Transition<T, U> {
 
     protected String createName() {
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("%s-TO-%s", fromState, toState));
+        sb.append(String.format("%s-TO-%s", fromState.getId(), toState.getId()));
         if(guard.isPresent()) {
             sb.append(String.format("[%s]", guard.get().getName()));
         }
         return sb.toString();
     }
 
-    public U getFromState() {
+    public State<T, U> getFromState() {
         return fromState;
     }
 
-    public U getToState() {
+    public State<T, U> getToState() {
         return toState;
     }
 

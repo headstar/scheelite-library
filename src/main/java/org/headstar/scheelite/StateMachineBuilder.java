@@ -96,12 +96,16 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
             subStateSuperStateMap.put(state, superState);
         }
 
-        initialTransitions.add(new InitialTransition<T, U>(superState.getId(), defaultSubState.getId(), initialAction));
+        initialTransitions.add(new InitialTransition<T, U>(superState, defaultSubState, initialAction));
 
         return this;
     }
 
-    public StateMachineBuilder<T, U> withTransition(State<T, U> fromState, State<T, U> toState, Guard<T> guard) {
+    public StateMachineBuilder<T, U> withTransition(State<T, U> fromState, State<T, U> toState, Action<T> action, Guard<T> guard) {
+        return withTransition(fromState, toState, Optional.<Action<T>>of(action), Optional.<Guard<T>>of(guard));
+    }
+
+        public StateMachineBuilder<T, U> withTransition(State<T, U> fromState, State<T, U> toState, Guard<T> guard) {
         checkNotNull(guard);
         return withTransition(fromState, toState, Optional.<Action<T>>absent(), Optional.<Guard<T>>of(guard));
     }
@@ -117,7 +121,7 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
 
     public StateMachineBuilder<T, U> withTransition(State<T, U> fromState, State<T, U> toState,
                                                     Optional<? extends Action<T>> action, Optional<? extends Guard<T>> guard) {
-        return withTransition(new Transition<T, U>(fromState.getId(), toState.getId(), action, guard));
+        return withTransition(new Transition<T, U>(fromState, toState, action, guard));
     }
 
     public StateMachineBuilder<T, U> withTransition(Transition<T, U> transition) {
@@ -238,34 +242,23 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
 
     protected void checkTransitionsToAndFromStates(Set<State<T, U>> states, Set<Transition<T, U>> transitions, Set<InitialTransition<T, U>> initialTransitions) {
 
-        Set<Object> stateIdentifiers = collectStateIdentifiers(states);
-
         for (Transition<T, U> transition : transitions) {
-            if (!stateIdentifiers.contains(transition.getFromState())) {
+            if (!states.contains(transition.getFromState())) {
                 throw new IllegalStateException(String.format("transition fromState unknown: fromState=[%s]", transition.getFromState()));
             }
-            if (!stateIdentifiers.contains(transition.getToState())) {
+            if (!states.contains(transition.getToState())) {
                 throw new IllegalStateException(String.format("transition toState unknown: toState=[%s]", transition.getToState()));
             }
         }
 
         for (InitialTransition<T, U> transition : initialTransitions) {
-            if (!stateIdentifiers.contains(transition.getFromState())) {
+            if (!states.contains(transition.getFromState())) {
                 throw new IllegalStateException(String.format("initial transition fromState unknown: fromState=[%s]", transition.getFromState()));
             }
-            if (!stateIdentifiers.contains(transition.getToState())) {
+            if (!states.contains(transition.getToState())) {
                 throw new IllegalStateException(String.format("initial transition toState unknown: toState=[%s]", transition.getToState()));
             }
         }
-
-    }
-
-    protected Set<Object> collectStateIdentifiers(Set<State<T, U>> states) {
-        Set<Object> identifiers = Sets.newHashSet();
-        for (State<T, U> state : states) {
-            identifiers.add(state.getId());
-        }
-        return identifiers;
     }
 
     protected void checkAllStatesAreReachableFromStartState(State<T, U> startState, Set<State<T, U>> allStates, Set<Transition<T, U>> transitions, Set<InitialTransition<T, U>> initialTransitions) {
@@ -273,8 +266,8 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
         Set<Object> visited = Sets.newHashSet();
 
         Queue<Object> queue = new ArrayDeque<Object>();
-        queue.add(startState.getId());
-        visited.add(startState.getId());
+        queue.add(startState);
+        visited.add(startState);
 
         Multimap<Object, Object> edges = getEdges(transitions, initialTransitions);
 
@@ -289,11 +282,7 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
             }
         }
 
-        Set<Object> allStateIdentifiers = Sets.newHashSet();
-        for (State<T, U> state : allStates) {
-            allStateIdentifiers.add(state.getId());
-        }
-        Set<Object> notVisited = Sets.difference(allStateIdentifiers, visited);
+        Set<State<T, U>> notVisited = Sets.difference(allStates, visited);
         if (!notVisited.isEmpty()) {
             throw new IllegalStateException(String.format("states unreachable from start state: startState=[%s] states=[%s]", startState,
                     notVisited));

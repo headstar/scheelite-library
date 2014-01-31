@@ -9,18 +9,18 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class InitialTransition<T, U> {
 
-    private final U fromState;
-    private final U toState;
+    private final State<T, U> fromState;
+    private final State<T, U> toState;
     private final Optional<? extends InitialAction<T>> action;
     private final String name;
 
-    public InitialTransition(U fromState, U toState, Optional<? extends InitialAction<T>> action) {
+    public InitialTransition(State<T, U> fromState, State<T, U> toState, Optional<? extends InitialAction<T>> action) {
         this.fromState = checkNotNull(fromState);
         this.toState = checkNotNull(toState);
         this.action = checkNotNull(action);
         this.name = createName();
     }
-    public InitialTransition(U fromState, U toState) {
+    public InitialTransition(State<T, U> fromState, State<T, U> toState) {
         this(fromState, toState, Optional.<InitialAction<T>>absent());
     }
 
@@ -30,15 +30,15 @@ public class InitialTransition<T, U> {
 
     protected String createName() {
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("%s-TO-%s", fromState, toState));
+        sb.append(String.format("%s-TO-%s", fromState.getId(), toState.getId()));
         return sb.toString();
     }
 
-    public U getToState() {
+    public State<T, U> getToState() {
         return toState;
     }
 
-    public U getFromState() {
+    public State<T, U> getFromState() {
         return fromState;
     }
 

@@ -82,65 +82,21 @@ public class TestBase {
 
     }
 
-    protected class TestTransition extends Transition<TestEntity, StateId> {
-        public TestTransition(StateId fromState, StateId toState, Optional<? extends Action<TestEntity>> action, Optional<? extends Guard<TestEntity>> guard) {
-            super(fromState, toState, action, guard);
-        }
-
-        public TestTransition(StateId fromState, StateId toState, Optional<? extends Action<TestEntity>> action) {
-            super(fromState, toState, action);
-        }
-
-        public TestTransition(StateId fromState, StateId toState) {
-            super(fromState, toState);
-        }
-    }
-
     enum HandleEvent { YES, NO };
 
-    protected class TestInitialTransition extends InitialTransition<TestEntity, StateId> {
-
-
-        public TestInitialTransition(StateId fromState, StateId toState, Optional<? extends InitialAction<TestEntity>> action) {
-            super(fromState, toState, action);
-        }
-
-        public TestInitialTransition(StateId fromState,StateId toState) {
-            super(fromState, toState);
-        }
-
-
-    }
-
-    protected class TestState extends AbstractState<TestEntity, StateId> {
+    protected class TestState extends StateAdapter<TestEntity, StateId> {
 
         private final StateId id;
         private final HandleEvent handleEvent;
 
         TestState(StateId id) {
-            this(id, Optional.<StateId>absent(), HandleEvent.YES);
+            this(id, HandleEvent.YES);
         }
-
-        TestState(StateId id, StateId parentId) {
-            this(id, Optional.<StateId>of(parentId), HandleEvent.YES);
-        }
-
 
         TestState(StateId id, HandleEvent handleEvent) {
-            this(id, Optional.<StateId>absent(), handleEvent);
-        }
-
-        TestState(StateId id, StateId parentId, HandleEvent handleEvent) {
-            this(id, Optional.<StateId>of(parentId), handleEvent);
-        }
-
-
-        TestState(StateId id, Optional<StateId> parentId, HandleEvent handleEvent) {
-            super(parentId);
             this.id = id;
             this.handleEvent = handleEvent;
         }
-
 
         @Override
         public boolean onEvent(TestEntity entity, Object event) {
@@ -173,7 +129,7 @@ public class TestBase {
         public String toString() {
             return "TestState{" +
                     "id=" + id +
-                    "} " + super.toString();
+                    "}";
         }
 
 
