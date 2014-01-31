@@ -77,7 +77,10 @@ public class TestBase {
 
         @Override
         public boolean accept(TestEntity entity, Optional<?> event) {
-            return accept;
+            if(event.isPresent()) {
+                return accept;
+            }
+            return false;
         }
 
     }

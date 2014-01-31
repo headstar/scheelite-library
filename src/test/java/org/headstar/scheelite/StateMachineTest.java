@@ -148,6 +148,45 @@ public class StateMachineTest extends TestBase {
     }
 
     @Test
+    public void testTriggerlessTransition() {
+        // given
+        TestEntity e = spy(new TestEntity(StateId.A));
+        TestState a = spy(new TestState(StateId.A));
+        TestState b = spy(new TestState(StateId.B));
+        TestState c = spy(new TestState(StateId.C));
+        TestState d = spy(new TestState(StateId.D));
+        TestGuard guard = spy(new TestGuard(true));
+        TestAction action = spy(new TestAction());
+        TestEventX event = new TestEventX();
+
+        StateMachine<TestEntity> stateMachine = builder
+                .withStartState(a)
+                .withSimpleState(b)
+                .withSimpleState(c)
+                .withSimpleState(d)
+                .withTransition(a, b, action, guard)
+                .withTransition(b, c, new TestGuard(false))
+                .withTransition(b, d)
+                .build();
+
+        // when
+        stateMachine.process(e, event);
+
+        // then
+        InOrder inOrder = inOrder(a, b, c, d, guard, action, e);
+        inOrder.verify(a).onEvent(e, event);
+        inOrder.verify(guard).accept(e, Optional.of(event));
+        inOrder.verify(a).onExit(e);
+        inOrder.verify(action).execute(e, Optional.of(event));
+        inOrder.verify(b).onEntry(e);
+        inOrder.verify(e).setState(StateId.B);
+
+        inOrder.verify(b).onExit(e);
+        inOrder.verify(d).onEntry(e);
+    }
+
+
+    @Test
     public void testInternalTransition() {
         // given
         TestEntity e = spy(new TestEntity(StateId.A));

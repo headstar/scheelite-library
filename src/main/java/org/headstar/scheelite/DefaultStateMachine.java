@@ -120,6 +120,8 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
 
             // update entity
             entity.setState(endState.getId());
+
+            process(entity, Optional.absent());
         }
 
     }
