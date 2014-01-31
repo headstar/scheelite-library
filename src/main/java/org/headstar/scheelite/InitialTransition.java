@@ -7,42 +7,42 @@ import static com.google.common.base.Preconditions.checkNotNull;
 /**
  * Created by Per on 2014-01-24.
  */
-public class InitialTransition<T, U> {
+class InitialTransition<T, U> {
 
     private final State<T, U> fromState;
     private final State<T, U> toState;
     private final Optional<? extends InitialAction<T>> action;
     private final String name;
 
-    public InitialTransition(State<T, U> fromState, State<T, U> toState, Optional<? extends InitialAction<T>> action) {
+    InitialTransition(State<T, U> fromState, State<T, U> toState, Optional<? extends InitialAction<T>> action) {
         this.fromState = checkNotNull(fromState);
         this.toState = checkNotNull(toState);
         this.action = checkNotNull(action);
         this.name = createName();
     }
-    public InitialTransition(State<T, U> fromState, State<T, U> toState) {
+    InitialTransition(State<T, U> fromState, State<T, U> toState) {
         this(fromState, toState, Optional.<InitialAction<T>>absent());
     }
 
-    public String getName() {
+    String getName() {
         return name;
     }
 
-    protected String createName() {
+    String createName() {
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("%s-TO-%s", fromState.getId(), toState.getId()));
         return sb.toString();
     }
 
-    public State<T, U> getToState() {
+    State<T, U> getToState() {
         return toState;
     }
 
-    public State<T, U> getFromState() {
+    State<T, U> getFromState() {
         return fromState;
     }
 
-    public Optional<? extends InitialAction<T>> getAction() {
+    Optional<? extends InitialAction<T>> getAction() {
         return action;
     }
 
