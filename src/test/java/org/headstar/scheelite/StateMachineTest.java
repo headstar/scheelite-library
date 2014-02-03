@@ -183,6 +183,7 @@ public class StateMachineTest extends TestBase {
 
         inOrder.verify(b).onExit(e);
         inOrder.verify(d).onEntry(e);
+        inOrder.verify(e).setState(StateId.D);
     }
 
 
