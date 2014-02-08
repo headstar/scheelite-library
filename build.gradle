@@ -2,6 +2,16 @@ apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'eclipse'
 
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "net.saliman:gradle-cobertura-plugin:2.2.2"
+    }
+}
+apply plugin: 'cobertura'
+
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
