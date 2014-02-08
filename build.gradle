@@ -16,7 +16,6 @@ ext.hamcrestVersion = '1.3'
 
 test {
     useTestNG()
-    testLogging.showStandardStreams = true
 }
 
 repositories {
