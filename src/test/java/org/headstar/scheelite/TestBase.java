@@ -59,6 +59,22 @@ public class TestBase {
 
     }
 
+    protected class AlwaysAcceptTestGuard extends TestGuard {
+
+        public AlwaysAcceptTestGuard() {
+            super(false);
+        }
+
+    }
+
+    protected class AlwaysDenyTestGuard extends TestGuard {
+
+        public AlwaysDenyTestGuard() {
+            super(false);
+        }
+
+    }
+
     protected class TestGuard implements Guard<TestEntity> {
         private final boolean accept;
 

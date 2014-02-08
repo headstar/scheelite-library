@@ -148,6 +148,133 @@ public class StateMachineTest extends TestBase {
     }
 
     @Test
+    public void testExternalTransitionToSuperState() {
+        // given
+        TestEntity e = spy(new TestEntity(StateId.C));
+        TestState a = spy(new TestState(StateId.A));
+        TestState b = spy(new TestState(StateId.B));
+        TestState c = spy(new TestState(StateId.C));
+        TestAction action = spy(new TestAction());
+        TestEventX event = new TestEventX();
+
+        StateMachine<TestEntity> stateMachine = builder
+                .withStartState(a)
+                .withCompositeState(a, b, c)
+                .withTransition(b, c, new AlwaysDenyTestGuard())
+                .withTransition(c, a, action)
+                .build();
+
+        // when
+        stateMachine.process(e, event);
+
+        // then
+        InOrder inOrder = inOrder(a, b, c, action, e);
+        inOrder.verify(c).onEvent(e, event);
+        inOrder.verify(c).onExit(e);
+        inOrder.verify(a).onExit(e);
+        inOrder.verify(action).execute(e, Optional.of(event));
+        inOrder.verify(a).onEntry(e);
+        inOrder.verify(b).onEntry(e);
+        inOrder.verify(e).setState(StateId.B);
+    }
+
+    @Test
+    public void testLocalTransitionToSuperState() {
+        // given
+        TestEntity e = spy(new TestEntity(StateId.C));
+        TestState a = spy(new TestState(StateId.A));
+        TestState b = spy(new TestState(StateId.B));
+        TestState c = spy(new TestState(StateId.C));
+        TestAction action = spy(new TestAction());
+        TestEventX event = new TestEventX();
+
+        StateMachine<TestEntity> stateMachine = builder
+                .withStartState(a)
+                .withCompositeState(a, b, c)
+                .withTransition(b, c, new AlwaysDenyTestGuard())
+                .withTransition(c, a, action)
+                .build();
+
+        // when
+        stateMachine.process(e, event);
+
+        // then
+        InOrder inOrder = inOrder(a, b, c, action, e);
+        inOrder.verify(e).getState();
+        inOrder.verify(c).onEvent(e, event);
+        inOrder.verify(c).onExit(e);
+        inOrder.verify(action).execute(e, Optional.of(event));
+        inOrder.verify(b).onEntry(e);
+        inOrder.verify(e).setState(StateId.B);
+        inOrder.verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void testExternalTransitionToSubState() {
+        // given
+        TestEntity e = spy(new TestEntity(StateId.B));
+        TestState a = spy(new TestState(StateId.A));
+        TestState b = spy(new TestState(StateId.B, HandleEvent.NO));
+        TestState c = spy(new TestState(StateId.C));
+        TestAction action = spy(new TestAction());
+        TestEventX event = new TestEventX();
+
+        StateMachine<TestEntity> stateMachine = builder
+                .withStartState(a)
+                .withCompositeState(a, b, c)
+                .withTransition(b, c, new AlwaysDenyTestGuard())
+                .withTransition(a, c, action)
+                .build();
+
+        // when
+        stateMachine.process(e, event);
+
+        // then
+        InOrder inOrder = inOrder(a, b, c, action, e);
+        inOrder.verify(e).getState();
+        inOrder.verify(b).onEvent(e, event);
+        inOrder.verify(a).onEvent(e, event);
+        inOrder.verify(a).onExit(e);
+        inOrder.verify(action).execute(e, Optional.of(event));
+        inOrder.verify(a).onEntry(e);
+        inOrder.verify(c).onEntry(e);
+        inOrder.verify(e).setState(StateId.C);
+        inOrder.verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void testLocalTransitionToSubState() {
+        // given
+        TestEntity e = spy(new TestEntity(StateId.B));
+        TestState a = spy(new TestState(StateId.A));
+        TestState b = spy(new TestState(StateId.B, HandleEvent.NO));
+        TestState c = spy(new TestState(StateId.C));
+        TestAction action = spy(new TestAction());
+        TestEventX event = new TestEventX();
+
+        StateMachine<TestEntity> stateMachine = builder
+                .withStartState(a)
+                .withCompositeState(a, b, c)
+                .withTransition(b, c, new AlwaysDenyTestGuard())
+                .withTransition(a, c, action)
+                .build();
+
+        // when
+        stateMachine.process(e, event);
+
+        // then
+        InOrder inOrder = inOrder(a, b, c, action, e);
+        inOrder.verify(e).getState();
+        inOrder.verify(b).onEvent(e, event);
+        inOrder.verify(a).onEvent(e, event);
+        inOrder.verify(b).onExit(e);
+        inOrder.verify(action).execute(e, Optional.of(event));
+        inOrder.verify(c).onEntry(e);
+        inOrder.verify(e).setState(StateId.C);
+        inOrder.verifyNoMoreInteractions();
+    }
+
+    @Test
     public void testTriggerlessTransition() {
         // given
         TestEntity e = spy(new TestEntity(StateId.A));

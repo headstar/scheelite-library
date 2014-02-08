@@ -58,28 +58,25 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
             throw new IllegalStateException(String.format("stateIdentifier is null"));
         }
 
-        State<T, U> sourceState = getState(stateIdentifier);
+        State<T, U> currentState = getState(stateIdentifier);
 
         // handle event
-        handleEvent(sourceState, entity, eventOpt);
+        handleEvent(currentState, entity, eventOpt);
 
         // process triggered transition (if any)
-        Optional<Transition<T, U>> triggeredTransitionOpt = getTriggeredTransition(sourceState, entity, eventOpt);
+        Optional<Transition<T, U>> triggeredTransitionOpt = getTriggeredTransition(currentState, entity, eventOpt);
         if (triggeredTransitionOpt.isPresent()) {
             Transition<T, U> triggeredTransition = triggeredTransitionOpt.get();
             logger.debug("transition triggered: entity={}, transition={}", entity.getId(), triggeredTransition.getName());
 
-            // get target state
-            State<T, U> targetState = triggeredTransition.getToState();
-            if (targetState == null) {
-                throw new IllegalStateException(String.format("target state unknown: state=%s", triggeredTransition.getToState()));
-            }
+            State<T, U> mainSourceState = triggeredTransition.getFromState();
+            State<T, U> mainTargetState = triggeredTransition.getToState();
 
-            // get lowest common ancestor (LCA) between current state and next state
-            Optional<State<T, U>> lowestCommonAncestor = getLowestCommonAncestor(sourceState, targetState);
+            // get lowest common ancestor (LCA) for main source state and main target state
+            Optional<State<T, U>> lowestCommonAncestor = getLowestCommonAncestor(mainSourceState, mainTargetState);
 
             // exit states up until, but not including LCA
-            Optional<State<T, U>> exitStateOpt = Optional.of(sourceState);
+            Optional<State<T, U>> exitStateOpt = Optional.of(currentState);
             do {
                 State<T, U> exitState = exitStateOpt.get();
                 logger.debug("exiting state: entity={}, state={}", entity.getId(), exitState.getId());
@@ -96,14 +93,14 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
             }
 
             // enter target state
-            List<State<T, U>> statesToEnter = getPathFromSuperState(lowestCommonAncestor, targetState);
+            List<State<T, U>> statesToEnter = getPathFromSuperState(lowestCommonAncestor, mainTargetState);
             for (State<T, U> s : statesToEnter) {
-                logger.debug("entering state: entity={}, state={}", entity.getId(), targetState.getId());
+                logger.debug("entering state: entity={}, state={}", entity.getId(), mainTargetState.getId());
                 s.onEntry(entity);
             }
 
             // 'drill' down to sub states
-            State<T, U> endState = targetState;
+            State<T, U> endState = mainTargetState;
             Optional<? extends InitialTransition<T, U>> initialTransitionOpt = getInitialTransition(endState);
             while (initialTransitionOpt.isPresent()) {
                 InitialTransition<T, U> it = initialTransitionOpt.get();
@@ -149,10 +146,9 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
         Optional<State<T, U>> result = ROOT_STATE;
         Iterator<State<T, U>> iter = fromBToRoot.iterator();
         while (iter.hasNext()) {
-            if (fromAToRoot.contains(iter.next())) {
-                if (iter.hasNext()) {
-                    result = Optional.of(iter.next());
-                }
+            State<T, U> nextState = iter.next();
+            if (fromAToRoot.contains(nextState)) {
+                result = Optional.of(nextState);
             }
         }
         return result;
