@@ -10,9 +10,11 @@ class Transition<T, U> {
     private final State<T, U> toState;
     private final Optional<? extends Action<T>> action;
     private final Optional<? extends Guard<T>> guard;
+    private final TransitionType transitionType;
     private final String name;
 
-    Transition(State<T, U> fromState, State<T, U> toState, Optional<? extends Action<T>> action, Optional<? extends Guard<T>> guard) {
+    Transition(State<T, U> fromState, State<T, U> toState, Optional<? extends Action<T>> action, Optional<? extends Guard<T>> guard, TransitionType transitionType) {
+        this.transitionType = checkNotNull(transitionType);
         this.fromState = checkNotNull(fromState);
         this.toState = checkNotNull(toState);
         this.action = checkNotNull(action);
@@ -20,12 +22,12 @@ class Transition<T, U> {
         this.name = createName();
     }
 
-    Transition(State<T, U> fromState, State<T, U> toState, Optional<? extends Action<T>> action) {
-        this(fromState, toState, action, Optional.<Guard<T>>absent());
+    Transition(State<T, U> fromState, State<T, U> toState, Optional<? extends Action<T>> action, TransitionType transitionType) {
+        this(fromState, toState, action, Optional.<Guard<T>>absent(), transitionType);
     }
 
-    Transition(State<T, U> fromState, State<T, U> toState) {
-        this(fromState, toState, Optional.<Action<T>>absent(), Optional.<Guard<T>>absent());
+    Transition(State<T, U> fromState, State<T, U> toState, TransitionType transitionType) {
+        this(fromState, toState, Optional.<Action<T>>absent(), Optional.<Guard<T>>absent(), transitionType);
     }
 
     String getName() {
@@ -39,6 +41,10 @@ class Transition<T, U> {
             sb.append(String.format("[%s]", guard.get().getName()));
         }
         return sb.toString();
+    }
+
+    TransitionType getTransitionType() {
+        return transitionType;
     }
 
     State<T, U> getFromState() {

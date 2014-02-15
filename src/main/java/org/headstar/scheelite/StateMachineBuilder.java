@@ -2,10 +2,7 @@ package org.headstar.scheelite;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 
 import java.util.*;
 
@@ -61,8 +58,8 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
 
     public StateMachineBuilder<T, U> withCompositeState(State<T, U> state, InitialAction<T> initialAction,
                                                         State<T, U> defaultSubState, State<T, U>... subStates) {
-       Preconditions.checkNotNull(initialAction);
-       return withCompositeState(state, Optional.of(initialAction), defaultSubState, subStates);
+        Preconditions.checkNotNull(initialAction);
+        return withCompositeState(state, Optional.of(initialAction), defaultSubState, subStates);
     }
 
     public StateMachineBuilder<T, U> withCompositeState(State<T, U> state, State<T, U> defaultSubState, State<T, U>... subStates) {
@@ -70,12 +67,12 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
     }
 
     private StateMachineBuilder<T, U> withCompositeState(State<T, U> superState, Optional<? extends InitialAction<T>> initialAction,
-                                                        State<T, U> defaultSubState, State<T, U>... subStates) {
+                                                         State<T, U> defaultSubState, State<T, U>... subStates) {
         Preconditions.checkNotNull(superState);
         Preconditions.checkNotNull(initialAction);
         Preconditions.checkNotNull(defaultSubState);
         Preconditions.checkState(!subStateSuperStateMap.containsKey(defaultSubState), "state already added as sub state: %s", defaultSubState);
-        for(State<T, U> state : subStates) {
+        for (State<T, U> state : subStates) {
             Preconditions.checkNotNull(state);
             Preconditions.checkState(!subStateSuperStateMap.containsKey(state), "state already added as sub state: %s", state);
         }
@@ -84,14 +81,14 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
 
         validateState(superState);
         validateState(defaultSubState);
-        for(State<T, U> state : subStates) {
+        for (State<T, U> state : subStates) {
             validateState(state);
         }
 
         superStates.add(superState);
         this.subStates.add(defaultSubState);
         subStateSuperStateMap.put(defaultSubState, superState);
-        for(State<T, U> state : subStates) {
+        for (State<T, U> state : subStates) {
             this.subStates.add(state);
             subStateSuperStateMap.put(state, superState);
         }
@@ -101,28 +98,38 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
         return this;
     }
 
-    public StateMachineBuilder<T, U> withTransition(State<T, U> fromState, State<T, U> toState, Action<T> action, Guard<T> guard) {
-        return withTransition(fromState, toState, Optional.<Action<T>>of(action), Optional.<Guard<T>>of(guard));
+    public StateMachineBuilder<T, U> withTransition(State<T, U> fromState, State<T, U> toState, Guard<T> guard, Action<T> action) {
+        return withTransition(fromState, toState, Optional.<Guard<T>>of(guard), Optional.<Action<T>>of(action));
     }
 
-        public StateMachineBuilder<T, U> withTransition(State<T, U> fromState, State<T, U> toState, Guard<T> guard) {
+    public StateMachineBuilder<T, U> withTransition(State<T, U> fromState, State<T, U> toState, Guard<T> guard) {
         checkNotNull(guard);
-        return withTransition(fromState, toState, Optional.<Action<T>>absent(), Optional.<Guard<T>>of(guard));
+        return withTransition(fromState, toState, Optional.<Guard<T>>of(guard), Optional.<Action<T>>absent());
     }
 
     public StateMachineBuilder<T, U> withTransition(State<T, U> fromState, State<T, U> toState, Action<T> action) {
         checkNotNull(action);
-        return withTransition(fromState, toState, Optional.<Action<T>>of(action), Optional.<Guard<T>>absent());
+        return withTransition(fromState, toState, Optional.<Guard<T>>absent(), Optional.<Action<T>>of(action));
     }
 
     public StateMachineBuilder<T, U> withTransition(State<T, U> fromState, State<T, U> toState) {
-        return withTransition(fromState, toState, Optional.<Action<T>>absent(), Optional.<Guard<T>>absent());
+        return withTransition(fromState, toState, Optional.<Guard<T>>absent(), Optional.<Action<T>>absent());
     }
 
     public StateMachineBuilder<T, U> withTransition(State<T, U> fromState, State<T, U> toState,
-                                                    Optional<? extends Action<T>> action, Optional<? extends Guard<T>> guard) {
-        return withTransition(new Transition<T, U>(fromState, toState, action, guard));
+                                                    Optional<? extends Guard<T>> guard, Optional<? extends Action<T>> action) {
+        return withTransition(new Transition<T, U>(fromState, toState, action, guard, TransitionType.EXTERNAL));
     }
+
+    public StateMachineBuilder<T, U> withLocalTransition(State<T, U> fromState, State<T, U> toState, Guard<T> guard, Action<T> action) {
+        return withLocalTransition(fromState, toState, Optional.<Guard<T>>of(guard), Optional.<Action<T>>of(action));
+    }
+
+    public StateMachineBuilder<T, U> withLocalTransition(State<T, U> fromState, State<T, U> toState,
+                                                         Optional<? extends Guard<T>> guard, Optional<? extends Action<T>> action) {
+        return withTransition(new Transition<T, U>(fromState, toState, action, guard, TransitionType.LOCAL));
+    }
+
 
     public StateMachineBuilder<T, U> withTransition(Transition<T, U> transition) {
         Preconditions.checkState(!transitions.contains(transition), "transition already added %s", transition);
@@ -132,6 +139,8 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
         transitions.add(transition);
         return this;
     }
+
+
 
     /*
     public StateMachineBuilder<T, U> withInitialTransition(InitialTransition<T, U> initialTransition) {
@@ -188,7 +197,9 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
         return subStateSuperStateMap;
     }
 
-    Set<InitialTransition<T, U>> getInitialTransitions() { return initialTransitions; }
+    Set<InitialTransition<T, U>> getInitialTransitions() {
+        return initialTransitions;
+    }
 
     MultipleTransitionsTriggeredResolver<T, U> getMultipleTransitionsTriggeredResolver() {
         return multipleTransitionsTriggeredResolver;
@@ -207,7 +218,9 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
         if (transition.getToState() == null) {
             throw new IllegalStateException(String.format("transition toState cannot be null: transition=[%s]", transition));
         }
-
+        if (transition.getTransitionType() == null) {
+            throw new IllegalStateException(String.format("transition type cannot be null: transition=[%s]", transition));
+        }
     }
 
     protected void validateInitialTransition(InitialTransition<T, U> initialTransition) {
@@ -234,7 +247,7 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
         for (State<T, U> outer : this.states) {
             for (State<T, U> inner : this.states) {
                 if (!(outer.getId().equals(inner.getId()) == outer.equals(inner))) {
-                    throw new IllegalStateException(String.format("states equals not valid: states=[]", outer, inner));
+                    throw new IllegalStateException(String.format("states equals not valid: states=[]", states));
                 }
             }
         }
@@ -249,16 +262,40 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
             if (!states.contains(transition.getToState())) {
                 throw new IllegalStateException(String.format("transition toState unknown: toState=[%s]", transition.getToState()));
             }
+            // if transition is local, source state and target state must be descendants
+            if(transition.getTransitionType().equals(TransitionType.LOCAL)
+                    && !isRelated(transition.getFromState(), transition.getToState())) {
+                throw new IllegalStateException(String.format("states must be related in local transition: fromState=[%s], toState=[%s]", transition.getFromState(), transition.getToState()));
+            }
         }
 
-        for (InitialTransition<T, U> transition : initialTransitions) {
-            if (!states.contains(transition.getFromState())) {
-                throw new IllegalStateException(String.format("initial transition fromState unknown: fromState=[%s]", transition.getFromState()));
+        for (InitialTransition<T, U> initialTransition : initialTransitions) {
+            if (!states.contains(initialTransition.getFromState())) {
+                throw new IllegalStateException(String.format("initial transition fromState unknown: fromState=[%s]", initialTransition.getFromState()));
             }
-            if (!states.contains(transition.getToState())) {
-                throw new IllegalStateException(String.format("initial transition toState unknown: toState=[%s]", transition.getToState()));
+            if (!states.contains(initialTransition.getToState())) {
+                throw new IllegalStateException(String.format("initial transition toState unknown: toState=[%s]", initialTransition.getToState()));
             }
         }
+    }
+
+    private boolean isRelated(State<T, U> a, State<T, U> b) {
+        Set<State<T, U>> aToRoot = getPathToRoot(a);
+        Set<State<T, U>> bToRoot = getPathToRoot(b);
+        return aToRoot.contains(b) || bToRoot.contains(a);
+    }
+
+    private Set<State<T, U>> getPathToRoot(State<T,U> a) {
+        checkNotNull(a);
+
+        Set<State<T, U>> res = Sets.newHashSet();
+        Optional<State<T, U>> stateOpt = Optional.of(a);
+        do {
+            State<T, U> state = stateOpt.get();
+            res.add(state);
+            stateOpt = Optional.fromNullable(subStateSuperStateMap.get(state));
+        } while (stateOpt.isPresent());
+        return res;
     }
 
     protected void checkAllStatesAreReachableFromStartState(State<T, U> startState, Set<State<T, U>> allStates, Set<Transition<T, U>> transitions, Set<InitialTransition<T, U>> initialTransitions) {

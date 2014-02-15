@@ -62,7 +62,7 @@ public class TestBase {
     protected class AlwaysAcceptTestGuard extends TestGuard {
 
         public AlwaysAcceptTestGuard() {
-            super(false);
+            super(true);
         }
 
     }

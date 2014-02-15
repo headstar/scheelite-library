@@ -2,6 +2,7 @@ package org.headstar.scheelite;
 
 import com.google.common.base.Optional;
 import org.mockito.InOrder;
+import org.mockito.Mockito;
 import org.testng.annotations.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -61,7 +62,7 @@ public class StateMachineTest extends TestBase {
         StateMachine<TestEntity> stateMachine = builder
                 .withStartState(a)
                 .withSimpleState(b)
-                .withTransition(a, b, action, guard)
+                .withTransition(a, b, guard, action)
                 .build();
 
         // when
@@ -131,7 +132,7 @@ public class StateMachineTest extends TestBase {
 
         StateMachine<TestEntity> stateMachine = builder
                 .withStartState(a)
-                .withTransition(a, a, action, guard)
+                .withTransition(a, a, guard, action)
                 .build();
 
         // when
@@ -148,7 +149,7 @@ public class StateMachineTest extends TestBase {
     }
 
     @Test
-    public void testExternalTransitionToSuperState() {
+    public void testExternalTransitionWithTargetStateSuperStateOfSourceState() {
         // given
         TestEntity e = spy(new TestEntity(StateId.C));
         TestState a = spy(new TestState(StateId.A));
@@ -175,7 +176,12 @@ public class StateMachineTest extends TestBase {
         inOrder.verify(action).execute(e, Optional.of(event));
         inOrder.verify(a).onEntry(e);
         inOrder.verify(b).onEntry(e);
-        inOrder.verify(e).setState(StateId.B);
+
+        assertEquals(e.getState(), StateId.B);
+
+        verifyStateInteraction(a, TestEntity.class, onEntry(1), onExit(1), onEvent(0));
+        verifyStateInteraction(b, TestEntity.class, onEntry(1), onExit(0), onEvent(0));
+        verifyStateInteraction(c, TestEntity.class, onEntry(0), onExit(1), onEvent(1));
     }
 
     @Test
@@ -200,17 +206,21 @@ public class StateMachineTest extends TestBase {
 
         // then
         InOrder inOrder = inOrder(a, b, c, action, e);
-        inOrder.verify(e).getState();
+
         inOrder.verify(c).onEvent(e, event);
         inOrder.verify(c).onExit(e);
         inOrder.verify(action).execute(e, Optional.of(event));
         inOrder.verify(b).onEntry(e);
-        inOrder.verify(e).setState(StateId.B);
-        inOrder.verifyNoMoreInteractions();
+
+        assertEquals(e.getState(), StateId.B);
+
+        verifyStateInteraction(a, TestEntity.class, onEntry(1), onExit(1), onEvent(0));
+        verifyStateInteraction(b, TestEntity.class, onEntry(1), onExit(0), onEvent(0));
+        verifyStateInteraction(c, TestEntity.class, onEntry(0), onExit(1), onEvent(1));
     }
 
     @Test
-    public void testExternalTransitionToSubState() {
+    public void testExternalTransitionWithSourceStateSuperStateOfTargetState() {
         // given
         TestEntity e = spy(new TestEntity(StateId.B));
         TestState a = spy(new TestState(StateId.A));
@@ -222,8 +232,7 @@ public class StateMachineTest extends TestBase {
         StateMachine<TestEntity> stateMachine = builder
                 .withStartState(a)
                 .withCompositeState(a, b, c)
-                .withTransition(b, c, new AlwaysDenyTestGuard())
-                .withTransition(a, c, action)
+                .withTransition(a, c, new AlwaysAcceptTestGuard(), action)
                 .build();
 
         // when
@@ -231,16 +240,80 @@ public class StateMachineTest extends TestBase {
 
         // then
         InOrder inOrder = inOrder(a, b, c, action, e);
-        inOrder.verify(e).getState();
         inOrder.verify(b).onEvent(e, event);
         inOrder.verify(a).onEvent(e, event);
+        inOrder.verify(b).onExit(e);
         inOrder.verify(a).onExit(e);
         inOrder.verify(action).execute(e, Optional.of(event));
         inOrder.verify(a).onEntry(e);
         inOrder.verify(c).onEntry(e);
-        inOrder.verify(e).setState(StateId.C);
-        inOrder.verifyNoMoreInteractions();
+
+        assertEquals(e.getState(), StateId.C);
+
+        verifyStateInteraction(a, TestEntity.class, onEntry(1), onExit(1), onEvent(1));
+        verifyStateInteraction(b, TestEntity.class, onEntry(0), onExit(1), onEvent(1));
+        verifyStateInteraction(c, TestEntity.class, onEntry(1), onExit(0), onEvent(0));
     }
+
+    private <T,U> void verifyStateInteraction(State<T, U> state, Class<T> clazz, OnEntry onEntry, OnExit onExit, OnEvent onEvent) {
+            verify(state, times(onEntry.times)).onEntry(Mockito.<T>any(clazz));
+            verify(state, times(onExit.times)).onExit(Mockito.<T>any(clazz));
+            verify(state, times(onEvent.times)).onEvent(Mockito.<T>any(clazz), Mockito.anyObject());
+    }
+
+    static class StateInteraction {
+
+        final int times;
+
+        StateInteraction(int times) {
+            this.times = times;
+        }
+    }
+
+    static OnEntry onEntry() {
+        return new OnEntry(1);
+    }
+
+    static OnExit onExit() {
+        return new OnExit(1);
+    }
+
+    static OnEvent onEvent() {
+        return new OnEvent(1);
+    }
+
+
+    static OnEntry onEntry(int times) {
+        return new OnEntry(times);
+    }
+
+    static OnExit onExit(int times) {
+        return new OnExit(times);
+    }
+
+    static OnEvent onEvent(int times) {
+        return new OnEvent(times);
+    }
+
+
+    static class OnEntry extends StateInteraction {
+        OnEntry(int times) {
+            super(times);
+        }
+    }
+
+    static class OnExit extends StateInteraction {
+        OnExit(int times) {
+            super(times);
+        }
+    }
+
+    static class OnEvent extends StateInteraction {
+        OnEvent(int times) {
+            super(times);
+        }
+    }
+
 
     @Test
     public void testLocalTransitionToSubState() {
@@ -255,8 +328,7 @@ public class StateMachineTest extends TestBase {
         StateMachine<TestEntity> stateMachine = builder
                 .withStartState(a)
                 .withCompositeState(a, b, c)
-                .withTransition(b, c, new AlwaysDenyTestGuard())
-                .withTransition(a, c, action)
+                .withLocalTransition(a, c, new AlwaysAcceptTestGuard(), action)
                 .build();
 
         // when
@@ -264,14 +336,17 @@ public class StateMachineTest extends TestBase {
 
         // then
         InOrder inOrder = inOrder(a, b, c, action, e);
-        inOrder.verify(e).getState();
         inOrder.verify(b).onEvent(e, event);
         inOrder.verify(a).onEvent(e, event);
         inOrder.verify(b).onExit(e);
         inOrder.verify(action).execute(e, Optional.of(event));
         inOrder.verify(c).onEntry(e);
-        inOrder.verify(e).setState(StateId.C);
-        inOrder.verifyNoMoreInteractions();
+
+        assertEquals(e.getState(), StateId.C);
+
+        verifyStateInteraction(a, TestEntity.class, onEntry(0), onExit(0), onEvent(1));
+        verifyStateInteraction(b, TestEntity.class, onEntry(0), onExit(1), onEvent(1));
+        verifyStateInteraction(c, TestEntity.class, onEntry(1), onExit(0), onEvent(0));
     }
 
     @Test
@@ -291,7 +366,7 @@ public class StateMachineTest extends TestBase {
                 .withSimpleState(b)
                 .withSimpleState(c)
                 .withSimpleState(d)
-                .withTransition(a, b, action, guard)
+                .withTransition(a, b, guard, action)
                 .withTransition(b, c, new TestGuard(false))
                 .withTransition(b, d)
                 .build();
