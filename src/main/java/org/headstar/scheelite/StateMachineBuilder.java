@@ -56,17 +56,20 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
         return this;
     }
 
-    public StateMachineBuilder<T, U> withCompositeState(State<T, U> state, InitialAction<T> initialAction,
+    @SafeVarargs
+    public final StateMachineBuilder<T, U> withCompositeState(State<T, U> state, InitialAction<T> initialAction,
                                                         State<T, U> defaultSubState, State<T, U>... subStates) {
         Preconditions.checkNotNull(initialAction);
         return withCompositeState(state, Optional.of(initialAction), defaultSubState, subStates);
     }
 
-    public StateMachineBuilder<T, U> withCompositeState(State<T, U> state, State<T, U> defaultSubState, State<T, U>... subStates) {
+    @SafeVarargs
+    public final StateMachineBuilder<T, U> withCompositeState(State<T, U> state, State<T, U> defaultSubState, State<T, U>... subStates) {
         return withCompositeState(state, Optional.<InitialAction<T>>absent(), defaultSubState, subStates);
     }
 
-    private StateMachineBuilder<T, U> withCompositeState(State<T, U> superState, Optional<? extends InitialAction<T>> initialAction,
+    @SafeVarargs
+    private final StateMachineBuilder<T, U> withCompositeState(State<T, U> superState, Optional<? extends InitialAction<T>> initialAction,
                                                          State<T, U> defaultSubState, State<T, U>... subStates) {
         Preconditions.checkNotNull(superState);
         Preconditions.checkNotNull(initialAction);
