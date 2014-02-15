@@ -14,11 +14,7 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultStateMachine.class);
 
-    private final Optional<State<T, U>> STATE_ABSENT = Optional.<State<T, U>>absent();
-    private final Optional<State<T, U>> ROOT_STATE = STATE_ABSENT;
-
     private final ImmutableMap<U, State<T, U>> states;  // state id -> state
-    private final ImmutableSet<Transition<T, U>> transitions;
     private final ImmutableMultimap<State<T, U>, Transition<T, U>> transitionsFromState; // state -> transitions from state
     private final ImmutableMap<State<T, U>, InitialTransition<T, U>> initialTransitionsFromState; // state -> transitions from state
 
@@ -28,7 +24,6 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
 
     protected DefaultStateMachine(StateMachineBuilder<T, U> builder) {
         this.states = createStatesMap(builder.getStates());
-        this.transitions = ImmutableSet.copyOf(builder.getTransitions());
         this.transitionsFromState = createTransitionsFromMap(builder.getTransitions());
         this.initialTransitionsFromState = createInitialTransitionsFromMap(builder.getInitialTransitions());
         this.multipleTransitionsTriggeredResolver = builder.getMultipleTransitionsTriggeredResolver();
