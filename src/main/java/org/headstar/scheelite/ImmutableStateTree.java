@@ -1,6 +1,7 @@
 package org.headstar.scheelite;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 
 import java.util.Map;
 
@@ -9,10 +10,10 @@ import java.util.Map;
  */
 public class ImmutableStateTree<T, U> extends StateTree<T, U> {
 
-    private final ImmutableMap<State<T, U>, State<T, U>> map;
+    private final Map<State<T, U>, State<T, U>> map;
 
     public ImmutableStateTree(Map<State<T, U>, State<T, U>> map) {
-        this.map = ImmutableMap.copyOf(map);
+        this.map = Maps.newHashMap(map);
     }
 
     @Override

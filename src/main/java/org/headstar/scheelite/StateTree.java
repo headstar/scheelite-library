@@ -6,48 +6,85 @@ import com.google.common.collect.Lists;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Created by per on 15/02/14.
  */
 public abstract class StateTree<T, U>  {
 
+    protected final State<T, U> NO_PARENT = null;
     private final Optional<State<T, U>> ROOT_STATE = Optional.absent();
 
     protected abstract Map<State<T, U>, State<T, U>> getMap();
 
+    public Set<State<T, U>> getStates() {
+        return getMap().keySet();
+    }
+
+    public State<T, U> getState(U id) {
+        checkNotNull(id);
+        for(State<T, U> state : getStates()) {
+            if(state.getId().equals(id)) {
+                return state;
+            }
+        }
+        throw new IllegalArgumentException(String.format("unknown state: id=%s", id));
+    }
+
+    public boolean exists(State<T, U> a) {
+        checkNotNull(a);
+        Map<State<T, U>, State<T, U>> map = getMap();
+        return map.containsKey(a);
+    }
+
     public boolean isChild(State<T, U> a) {
+        checkNotNull(a);
         return getParent(a).isPresent();
     }
 
     public Optional<State<T,U>> getParent(State<T, U> a) {
+        checkNotNull(a);
         Map<State<T, U>, State<T, U>> map = getMap();
         State<T, U> value = map.get(a);
         return Optional.fromNullable(value);
     }
 
     public boolean isChildOf(State<T, U> a, State<T, U> b) {
+        checkNotNull(a);
+        checkNotNull(b);
         Map<State<T, U>, State<T, U>> map = getMap();
         State<T, U> value = map.get(a);
         return value != null && value.equals(b);
     }
 
     public boolean isParentOf(State<T, U> a, State<T, U> b) {
+        checkNotNull(a);
+        checkNotNull(b);
         return isChildOf(b, a);
     }
 
     public boolean isAncestorOf(State<T, U> a, State<T, U> b) {
+        checkNotNull(a);
+        checkNotNull(b);
         List<State<T, U>> bToRoot = getPathToRootState(b);
         return bToRoot.contains(a);
     }
 
     public boolean isDescendantOf(State<T, U> a, State<T, U> b) {
+        checkNotNull(a);
+        checkNotNull(b);
         List<State<T, U>> aToRoot = getPathToRootState(a);
         return aToRoot.contains(b);
     }
 
 
     public Optional<State<T, U>> getLowestCommonAncestor(State<T, U> a, State<T, U> b) {
+        checkNotNull(a);
+        checkNotNull(b);
         List<State<T, U>> aToRoot = getPathToRootState(a);
         List<State<T, U>> bToRoot = getPathToRootState(b);
 
@@ -63,6 +100,9 @@ public abstract class StateTree<T, U>  {
     }
 
     public List<State<T, U>> getPathBetween(State<T, U> a, Optional<State<T, U>> bOpt) {
+        checkNotNull(a);
+        checkNotNull(bOpt);
+
         List<State<T, U>> aToRoot = getPathToRootState(a);
         if(bOpt.equals(ROOT_STATE)) {
             return aToRoot;
@@ -79,6 +119,8 @@ public abstract class StateTree<T, U>  {
     }
 
     public List<State<T, U>> getPathToRootState(State<T, U> state) {
+        checkNotNull(state);
+
         List<State<T, U>> res = Lists.newArrayList();
         Optional<State<T, U>> stateOpt = Optional.of(state);
         do {

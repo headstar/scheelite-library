@@ -14,7 +14,6 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultStateMachine.class);
 
-    private final ImmutableMap<U, State<T, U>> states;  // state id -> state
     private final ImmutableMultimap<State<T, U>, Transition<T, U>> transitionsFromState; // state -> transitions from state
     private final ImmutableMap<State<T, U>, InitialTransition<T, U>> initialTransitionsFromState; // state -> transitions from state
 
@@ -23,11 +22,10 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
     private final MultipleTransitionsTriggeredResolver<T, U> multipleTransitionsTriggeredResolver;
 
     protected DefaultStateMachine(StateMachineBuilder<T, U> builder) {
-        this.states = createStatesMap(builder.getStates());
         this.transitionsFromState = createTransitionsFromMap(builder.getTransitions());
         this.initialTransitionsFromState = createInitialTransitionsFromMap(builder.getInitialTransitions());
         this.multipleTransitionsTriggeredResolver = builder.getMultipleTransitionsTriggeredResolver();
-        this.stateTree = new ImmutableStateTree<>(builder.getSubStateSuperStateMap());
+        this.stateTree = new ImmutableStateTree<>(builder.getStateTree().getMap());
     }
 
     private void handleEvent(State<T, U> sourceState, T entity, Optional<?> eventOpt) {
@@ -54,7 +52,7 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
             throw new IllegalStateException(String.format("stateIdentifier is null"));
         }
 
-        State<T, U> currentState = getState(stateIdentifier);
+        State<T, U> currentState = stateTree.getState(stateIdentifier);
 
         // handle event
         handleEvent(currentState, entity, eventOpt);
@@ -150,15 +148,6 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
         }
         Collections.reverse(res);
         return res;
-    }
-
-
-    protected State<T, U> getState(U stateId) {
-        State<T, U> state = states.get(stateId);
-        if (state == null) {
-            throw new IllegalStateException(String.format("state unknown: state=%s", stateId));
-        }
-        return state;
     }
 
     protected Optional<InitialTransition<T, U>> getInitialTransition(State<T, U> state) {

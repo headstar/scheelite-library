@@ -28,7 +28,6 @@ public class StateMachineTest extends TestBase {
 
         StateMachine<TestEntity> stateMachine = builder
                 .withStartState(a)
-                .withSimpleState(b)
                 .withMultipleTransitionsTriggerPolicy(resolver)
                 .withTransition(a, b, new TestGuard(true))
                 .withTransition(a, b, new TestGuard(true))
@@ -61,7 +60,6 @@ public class StateMachineTest extends TestBase {
 
         StateMachine<TestEntity> stateMachine = builder
                 .withStartState(a)
-                .withSimpleState(b)
                 .withTransition(a, b, guard, action)
                 .build();
 
@@ -88,7 +86,6 @@ public class StateMachineTest extends TestBase {
         TestState b = new TestState(StateId.B);
         StateMachine<TestEntity> stateMachine = builder
                 .withStartState(a)
-                .withSimpleState(b)
                 .withTransition(a, b, new TestGuard(false))
                 .build();
 
@@ -108,7 +105,6 @@ public class StateMachineTest extends TestBase {
         TestEntity e = new TestEntity(StateId.A);
         StateMachine<TestEntity> stateMachine = builder
                 .withStartState(a)
-                .withSimpleState(b)
                 .withTransition(a, b, new TestGuard(false))
                 .withTransition(a, b, new TestGuard(false))
                 .withTransition(a, b, new TestGuard(true))
@@ -363,9 +359,6 @@ public class StateMachineTest extends TestBase {
 
         StateMachine<TestEntity> stateMachine = builder
                 .withStartState(a)
-                .withSimpleState(b)
-                .withSimpleState(c)
-                .withSimpleState(d)
                 .withTransition(a, b, guard, action)
                 .withTransition(b, c, new TestGuard(false))
                 .withTransition(b, d)
