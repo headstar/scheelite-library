@@ -198,7 +198,7 @@ public class StateMachineTest extends TestBase {
                 .withStartState(a)
                 .withCompositeState(a, b, c)
                 .withTransition(b, c, new AlwaysDenyTestGuard())
-                .withTransition(c, a, action)
+                .withLocalTransition(c, a, new AlwaysAcceptTestGuard(), action)
                 .build();
 
         // when
@@ -214,7 +214,7 @@ public class StateMachineTest extends TestBase {
 
         assertEquals(e.getState(), StateId.B);
 
-        verifyStateInteraction(a, TestEntity.class, onEntry(1), onExit(1), onEvent(0));
+        verifyStateInteraction(a, TestEntity.class, onEntry(0), onExit(0), onEvent(0));
         verifyStateInteraction(b, TestEntity.class, onEntry(1), onExit(0), onEvent(0));
         verifyStateInteraction(c, TestEntity.class, onEntry(0), onExit(1), onEvent(1));
     }
