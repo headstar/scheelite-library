@@ -27,12 +27,12 @@ public class TestBase {
         }
 
         @Override
-        public StateId getState() {
+        public StateId getStateId() {
             return state;
         }
 
         @Override
-        public void setState(StateId identifier) {
+        public void setStateId(StateId identifier) {
             this.state = identifier;
         }
 

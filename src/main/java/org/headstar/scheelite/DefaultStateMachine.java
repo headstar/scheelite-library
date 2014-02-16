@@ -47,7 +47,7 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
         checkNotNull(eventOpt);
 
         // get current state
-        U stateIdentifier = entity.getState();
+        U stateIdentifier = entity.getStateId();
         if (stateIdentifier == null) {
             throw new InvalidStateIdException(String.format("stateId is null: entity=%s", entity.getId()));
         }
@@ -112,7 +112,7 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
             }
 
             // update entity
-            entity.setState(endState.getId());
+            entity.setStateId(endState.getId());
 
             process(entity, Optional.absent());
         }

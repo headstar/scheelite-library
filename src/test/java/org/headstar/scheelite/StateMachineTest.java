@@ -102,7 +102,7 @@ public class StateMachineTest extends TestBase {
         stateMachine.process(e, event);
 
         // then
-        assertEquals(e.getState(), StateId.B);
+        assertEquals(e.getStateId(), StateId.B);
 
         InOrder inOrder = inOrder(a, b, guard, action, e);
         inOrder.verify(a).onEvent(e, event);
@@ -110,7 +110,7 @@ public class StateMachineTest extends TestBase {
         inOrder.verify(a).onExit(e);
         inOrder.verify(action).execute(e, Optional.of(event));
         inOrder.verify(b).onEntry(e);
-        inOrder.verify(e).setState(StateId.B);
+        inOrder.verify(e).setStateId(StateId.B);
     }
 
     @Test
@@ -128,7 +128,7 @@ public class StateMachineTest extends TestBase {
         stateMachine.process(e, new TestEventX());
 
         // then
-        assertEquals(e.getState(), StateId.A);
+        assertEquals(e.getStateId(), StateId.A);
     }
 
     @Test
@@ -149,7 +149,7 @@ public class StateMachineTest extends TestBase {
         stateMachine.process(e, new TestEventX());
 
         // then
-        assertEquals(e.getState(), StateId.B);
+        assertEquals(e.getStateId(), StateId.B);
     }
 
     @Test
@@ -176,7 +176,7 @@ public class StateMachineTest extends TestBase {
         inOrder.verify(a).onExit(e);
         inOrder.verify(action).execute(e, Optional.of(event));
         inOrder.verify(a).onEntry(e);
-        inOrder.verify(e).setState(StateId.A);
+        inOrder.verify(e).setStateId(StateId.A);
     }
 
     @Test
@@ -208,7 +208,7 @@ public class StateMachineTest extends TestBase {
         inOrder.verify(a).onEntry(e);
         inOrder.verify(b).onEntry(e);
 
-        assertEquals(e.getState(), StateId.B);
+        assertEquals(e.getStateId(), StateId.B);
 
         verifyStateInteraction(a, TestEntity.class, onEntry(1), onExit(1), onEvent(0));
         verifyStateInteraction(b, TestEntity.class, onEntry(1), onExit(0), onEvent(0));
@@ -243,7 +243,7 @@ public class StateMachineTest extends TestBase {
         inOrder.verify(action).execute(e, Optional.of(event));
         inOrder.verify(b).onEntry(e);
 
-        assertEquals(e.getState(), StateId.B);
+        assertEquals(e.getStateId(), StateId.B);
 
         verifyStateInteraction(a, TestEntity.class, onEntry(0), onExit(0), onEvent(0));
         verifyStateInteraction(b, TestEntity.class, onEntry(1), onExit(0), onEvent(0));
@@ -279,7 +279,7 @@ public class StateMachineTest extends TestBase {
         inOrder.verify(a).onEntry(e);
         inOrder.verify(c).onEntry(e);
 
-        assertEquals(e.getState(), StateId.C);
+        assertEquals(e.getStateId(), StateId.C);
 
         verifyStateInteraction(a, TestEntity.class, onEntry(1), onExit(1), onEvent(1));
         verifyStateInteraction(b, TestEntity.class, onEntry(0), onExit(1), onEvent(1));
@@ -373,7 +373,7 @@ public class StateMachineTest extends TestBase {
         inOrder.verify(action).execute(e, Optional.of(event));
         inOrder.verify(c).onEntry(e);
 
-        assertEquals(e.getState(), StateId.C);
+        assertEquals(e.getStateId(), StateId.C);
 
         verifyStateInteraction(a, TestEntity.class, onEntry(0), onExit(0), onEvent(1));
         verifyStateInteraction(b, TestEntity.class, onEntry(0), onExit(1), onEvent(1));
@@ -409,11 +409,11 @@ public class StateMachineTest extends TestBase {
         inOrder.verify(a).onExit(e);
         inOrder.verify(action).execute(e, Optional.of(event));
         inOrder.verify(b).onEntry(e);
-        inOrder.verify(e).setState(StateId.B);
+        inOrder.verify(e).setStateId(StateId.B);
 
         inOrder.verify(b).onExit(e);
         inOrder.verify(d).onEntry(e);
-        inOrder.verify(e).setState(StateId.D);
+        inOrder.verify(e).setStateId(StateId.D);
     }
 
 
@@ -437,7 +437,7 @@ public class StateMachineTest extends TestBase {
         inOrder.verify(a).onEvent(e, event);
 
         verify(a, never()).onExit(e);
-        verify(e, never()).setState(StateId.A);
+        verify(e, never()).setStateId(StateId.A);
         verify(a, never()).onEntry(e);
     }
 
