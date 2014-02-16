@@ -22,14 +22,6 @@ class Transition<T, U> {
         this.name = createName();
     }
 
-    Transition(State<T, U> fromState, State<T, U> toState, Optional<? extends Action<T>> action, TransitionType transitionType) {
-        this(fromState, toState, action, Optional.<Guard<T>>absent(), transitionType);
-    }
-
-    Transition(State<T, U> fromState, State<T, U> toState, TransitionType transitionType) {
-        this(fromState, toState, Optional.<Action<T>>absent(), Optional.<Guard<T>>absent(), transitionType);
-    }
-
     String getName() {
         return name;
     }
