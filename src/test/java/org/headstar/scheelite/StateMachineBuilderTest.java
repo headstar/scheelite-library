@@ -21,7 +21,7 @@ public class StateMachineBuilderTest extends TestBase {
         // given
 
         // when
-        builder.withStartState(null);
+        builder.withInitialTransition(null);
 
         // then ...exception should be thrown
     }
@@ -31,7 +31,7 @@ public class StateMachineBuilderTest extends TestBase {
         // given
 
         // when
-        builder.withStartState(new TestState(null));
+        builder.withInitialTransition(new TestState(null));
 
         // then ...exception should be thrown
     }
@@ -43,7 +43,7 @@ public class StateMachineBuilderTest extends TestBase {
         TestState b = new TestState(StateId.B);
 
         // when
-        builder.withStartState(a)
+        builder.withInitialTransition(a)
                 .withTransition(a, b)
                 .build();
 
@@ -59,7 +59,7 @@ public class StateMachineBuilderTest extends TestBase {
         TestState c = new TestState(StateId.C);
 
         // when
-        builder.withStartState(a)
+        builder.withInitialTransition(a)
                 .withTransition(b, c)
                 .build();
 
@@ -75,7 +75,7 @@ public class StateMachineBuilderTest extends TestBase {
         TestState d = new TestState(StateId.D);
 
         // when
-        builder.withStartState(a)
+        builder.withInitialTransition(a)
                 .withTransition(a, b)
                 .withTransition(c, d)
                 .build();
@@ -92,7 +92,7 @@ public class StateMachineBuilderTest extends TestBase {
         TestState d = new TestState(StateId.D);
 
         // when
-        builder.withStartState(a)
+        builder.withInitialTransition(a)
                 .withCompositeState(b, c, d)
                 .withTransition(a, b)
                 .withTransition(c, d)
@@ -107,7 +107,7 @@ public class StateMachineBuilderTest extends TestBase {
         // given
 
         // when
-        builder.withStartState(new TestState(StateId.A))
+        builder.withInitialTransition(new TestState(StateId.A))
                 .build();
 
         // then ...no exception should be thrown

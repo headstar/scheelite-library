@@ -9,28 +9,29 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 class InitialTransition<T, U> {
 
-    private final State<T, U> fromState;
+    private final Optional<State<T, U>> fromState;
     private final State<T, U> toState;
     private final Optional<? extends InitialAction<T>> action;
     private final String name;
 
-    InitialTransition(State<T, U> fromState, State<T, U> toState, Optional<? extends InitialAction<T>> action) {
+    InitialTransition(Optional<State<T, U>> fromState, State<T, U> toState, Optional<? extends InitialAction<T>> action) {
         this.fromState = checkNotNull(fromState);
         this.toState = checkNotNull(toState);
         this.action = checkNotNull(action);
         this.name = createName();
-    }
-    InitialTransition(State<T, U> fromState, State<T, U> toState) {
-        this(fromState, toState, Optional.<InitialAction<T>>absent());
     }
 
     String getName() {
         return name;
     }
 
-    String createName() {
+    private String createName() {
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("%s-TO-%s", fromState.getId(), toState.getId()));
+        if(fromState.isPresent()) {
+            sb.append(String.format("%s-TO-%s", fromState.get().getId(), toState.getId()));
+        } else {
+            sb.append(String.format("TO-%s", toState.getId()));
+        }
         return sb.toString();
     }
 
@@ -38,7 +39,7 @@ class InitialTransition<T, U> {
         return toState;
     }
 
-    State<T, U> getFromState() {
+    Optional<State<T, U>> getFromState() {
         return fromState;
     }
 

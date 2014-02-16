@@ -27,7 +27,7 @@ public class StateMachineTest extends TestBase {
         MultipleTransitionsTriggeredResolver<TestEntity, StateId> resolver = spy(new ThrowExceptionResolver<TestEntity, StateId>());
 
         StateMachine<TestEntity> stateMachine = builder
-                .withStartState(a)
+                .withInitialTransition(a)
                 .withMultipleTransitionsTriggerPolicy(resolver)
                 .withTransition(a, b, new TestGuard(true))
                 .withTransition(a, b, new TestGuard(true))
@@ -54,7 +54,7 @@ public class StateMachineTest extends TestBase {
         TestEventX event = new TestEventX();
 
         StateMachine<TestEntity> stateMachine = builder
-                .withStartState(a)
+                .withInitialTransition(a)
                 .build();
 
         // when
@@ -72,7 +72,7 @@ public class StateMachineTest extends TestBase {
         TestEventX event = new TestEventX();
 
         StateMachine<TestEntity> stateMachine = builder
-                .withStartState(a)
+                .withInitialTransition(a)
                 .build();
 
         // when
@@ -94,7 +94,7 @@ public class StateMachineTest extends TestBase {
         TestEventX event = new TestEventX();
 
         StateMachine<TestEntity> stateMachine = builder
-                .withStartState(a)
+                .withInitialTransition(a)
                 .withTransition(a, b, guard, action)
                 .build();
 
@@ -120,7 +120,7 @@ public class StateMachineTest extends TestBase {
         TestState a = new TestState(StateId.A);
         TestState b = new TestState(StateId.B);
         StateMachine<TestEntity> stateMachine = builder
-                .withStartState(a)
+                .withInitialTransition(a)
                 .withTransition(a, b, new TestGuard(false))
                 .build();
 
@@ -139,7 +139,7 @@ public class StateMachineTest extends TestBase {
 
         TestEntity e = new TestEntity(StateId.A);
         StateMachine<TestEntity> stateMachine = builder
-                .withStartState(a)
+                .withInitialTransition(a)
                 .withTransition(a, b, new TestGuard(false))
                 .withTransition(a, b, new TestGuard(false))
                 .withTransition(a, b, new TestGuard(true))
@@ -162,7 +162,7 @@ public class StateMachineTest extends TestBase {
         TestEventX event = new TestEventX();
 
         StateMachine<TestEntity> stateMachine = builder
-                .withStartState(a)
+                .withInitialTransition(a)
                 .withTransition(a, a, guard, action)
                 .build();
 
@@ -192,7 +192,7 @@ public class StateMachineTest extends TestBase {
         TestEventX event = new TestEventX();
 
         StateMachine<TestEntity> stateMachine = builder
-                .withStartState(a)
+                .withInitialTransition(a)
                 .withLocalTransition(a, a, guard, action)
                 .build();
 
@@ -219,7 +219,7 @@ public class StateMachineTest extends TestBase {
         TestEventX event = new TestEventX();
 
         StateMachine<TestEntity> stateMachine = builder
-                .withStartState(a)
+                .withInitialTransition(a)
                 .build();
 
         // when
@@ -242,7 +242,7 @@ public class StateMachineTest extends TestBase {
         TestEventX event = new TestEventX();
 
         StateMachine<TestEntity> stateMachine = builder
-                .withStartState(a)
+                .withInitialTransition(a)
                 .withCompositeState(a, b, c)
                 .withTransition(b, c, new AlwaysDenyTestGuard())
                 .withTransition(c, a, action)
@@ -276,7 +276,7 @@ public class StateMachineTest extends TestBase {
         TestEventX event = new TestEventX();
 
         StateMachine<TestEntity> stateMachine = builder
-                .withStartState(a)
+                .withInitialTransition(a)
                 .withCompositeState(a, b, c)
                 .withTransition(b, c, new AlwaysDenyTestGuard())
                 .withLocalTransition(c, a, new AlwaysAcceptTestGuard(), action)
@@ -311,7 +311,7 @@ public class StateMachineTest extends TestBase {
         TestEventX event = new TestEventX();
 
         StateMachine<TestEntity> stateMachine = builder
-                .withStartState(a)
+                .withInitialTransition(a)
                 .withCompositeState(a, b, c)
                 .withTransition(a, c, new AlwaysAcceptTestGuard(), action)
                 .build();
@@ -347,7 +347,7 @@ public class StateMachineTest extends TestBase {
         TestEventX event = new TestEventX();
 
         StateMachine<TestEntity> stateMachine = builder
-                .withStartState(a)
+                .withInitialTransition(a)
                 .withCompositeState(a, b, c)
                 .withLocalTransition(a, c, new AlwaysAcceptTestGuard(), action)
                 .build();
@@ -383,7 +383,7 @@ public class StateMachineTest extends TestBase {
         TestEventX event = new TestEventX();
 
         StateMachine<TestEntity> stateMachine = builder
-                .withStartState(a)
+                .withInitialTransition(a)
                 .withTransition(a, b, guard, action)
                 .withTransition(b, c, new TestGuard(false))
                 .withTransition(b, d)
@@ -416,7 +416,7 @@ public class StateMachineTest extends TestBase {
         TestEventX event = new TestEventX();
 
         StateMachine<TestEntity> stateMachine = builder
-                .withStartState(a)
+                .withInitialTransition(a)
                 .withCompositeState(a, b)
                 .build();
 

@@ -14,11 +14,10 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultStateMachine.class);
 
+    private final StateTree<T, U> stateTree;
     private final ImmutableMultimap<State<T, U>, Transition<T, U>> transitionsFromState; // state -> transitions from state
     private final ImmutableMap<State<T, U>, InitialTransition<T, U>> initialTransitionsFromState; // state -> transitions from state
-
-
-    private final StateTree<T, U> stateTree;
+    private final InitialTransition<T, U> topLevelInitialTransition;
     private final MultipleTransitionsTriggeredResolver<T, U> multipleTransitionsTriggeredResolver;
 
     protected DefaultStateMachine(StateMachineBuilder<T, U> builder) {
@@ -26,6 +25,7 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
         this.initialTransitionsFromState = createInitialTransitionsFromMap(builder.getInitialTransitions());
         this.multipleTransitionsTriggeredResolver = builder.getMultipleTransitionsTriggeredResolver();
         this.stateTree = new ImmutableStateTree<>(builder.getStateTree().getMap());
+        this.topLevelInitialTransition = getTopLevelInitialTransition(builder.getInitialTransitions());
     }
 
     private void handleEvent(State<T, U> sourceState, T entity, Optional<?> eventOpt) {
@@ -53,7 +53,7 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
         }
 
         Optional<State<T, U>> currentStateOpt = stateTree.getState(stateIdentifier);
-        if(!currentStateOpt.isPresent()) {
+        if (!currentStateOpt.isPresent()) {
             throw new InvalidStateIdException(String.format("not state found for stateId: stateId=%s", stateIdentifier));
         }
         State<T, U> currentState = currentStateOpt.get();
@@ -75,7 +75,7 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
 
             // exit sources states
             List<State<T, U>> sourceStates = getSourceStates(currentState, mainSourceState, mainTargetState, lowestCommonAncestor, triggeredTransition.getTransitionType());
-            for(State<T,U> state : sourceStates) {
+            for (State<T, U> state : sourceStates) {
                 logger.debug("exiting state: entity={}, state={}", entity.getEntityId(), state.getId());
                 state.onExit(entity);
             }
@@ -95,21 +95,8 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
                 state.onEntry(entity);
             }
 
-            // 'drill' down to sub states
-            State<T, U> endState = mainTargetState;
-            Optional<? extends InitialTransition<T, U>> initialTransitionOpt = getInitialTransition(endState);
-            while (initialTransitionOpt.isPresent()) {
-                InitialTransition<T, U> it = initialTransitionOpt.get();
-                if (it.getAction().isPresent()) {
-                    InitialAction<T> action = it.getAction().get();
-                    logger.debug("executing initial action: entity={}, action={}", entity.getEntityId(), action.getName());
-                    action.execute(entity);
-                }
-                endState = it.getToState();
-                logger.debug("entering state: entity={}, state={}", entity.getEntityId(), endState.getId());
-                endState.onEntry(entity);
-                initialTransitionOpt = getInitialTransition(endState);
-            }
+            // initial transitions
+            State<T, U> endState = executeInitialTransitions(Optional.of(mainTargetState), entity);
 
             // update entity
             entity.setStateId(endState.getId());
@@ -120,6 +107,11 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
     }
 
     @Override
+    public void initialTransition(T entity) {
+        executeTopLevelInitialTransition(entity);
+    }
+
+    @Override
     public void process(T entity, Object event) {
         checkNotNull(entity);
         checkNotNull(event);
@@ -127,12 +119,41 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
         process(entity, Optional.of(event));
     }
 
-    private List<State<T,U>> getSourceStates(State<T,U> currentState, State<T,U> mainSourceState, State<T,U> mainTargetState,
-                                             Optional<State<T, U>> lowestCommonAncestorOpt, TransitionType transitionType) {
+    private State<T, U> executeTopLevelInitialTransition(T entity) {
+        return executeInitialTransitions(Optional.<State<T, U>>absent(), entity);
+    }
+
+    private State<T, U> executeInitialTransitions(Optional<State<T, U>> startState, T entity) {
+        Optional<InitialTransition<T, U>> initialTransitionOpt;
+        State<T, U> endState = null;
+        if (startState.isPresent()) {
+            endState = startState.get();
+            initialTransitionOpt = getInitialTransition(endState);
+        } else {
+            initialTransitionOpt = Optional.of(topLevelInitialTransition);
+        }
+        while (initialTransitionOpt.isPresent()) {
+            InitialTransition<T, U> it = initialTransitionOpt.get();
+            logger.debug("initial transition: transition={}", it.getName());
+            if (it.getAction().isPresent()) {
+                InitialAction<T> action = it.getAction().get();
+                logger.debug("executing initial action: entity={}, action={}", entity.getEntityId(), action.getName());
+                action.execute(entity);
+            }
+            endState = it.getToState();
+            logger.debug("entering state: entity={}, state={}", entity.getEntityId(), endState.getId());
+            endState.onEntry(entity);
+            initialTransitionOpt = getInitialTransition(endState);
+        }
+        return endState;
+    }
+
+    private List<State<T, U>> getSourceStates(State<T, U> currentState, State<T, U> mainSourceState, State<T, U> mainTargetState,
+                                              Optional<State<T, U>> lowestCommonAncestorOpt, TransitionType transitionType) {
         List<State<T, U>> res = stateTree.getPathBetween(currentState, lowestCommonAncestorOpt);
-        if(lowestCommonAncestorOpt.isPresent()) {
-            State<T,U> lowestCommonAncestor = lowestCommonAncestorOpt.get();
-            if(TransitionType.LOCAL.equals(transitionType) &&
+        if (lowestCommonAncestorOpt.isPresent()) {
+            State<T, U> lowestCommonAncestor = lowestCommonAncestorOpt.get();
+            if (TransitionType.LOCAL.equals(transitionType) &&
                     (mainSourceState.equals(lowestCommonAncestor) || mainTargetState.equals(lowestCommonAncestor))) {
                 res.remove(lowestCommonAncestor);
             }
@@ -140,12 +161,12 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
         return res;
     }
 
-    private List<State<T,U>> getTargetStates(State<T,U> mainSourceState, State<T,U> mainTargetState,
-                                             Optional<State<T, U>> lowestCommonAncestorOpt, TransitionType transitionType) {
+    private List<State<T, U>> getTargetStates(State<T, U> mainSourceState, State<T, U> mainTargetState,
+                                              Optional<State<T, U>> lowestCommonAncestorOpt, TransitionType transitionType) {
         List<State<T, U>> res = stateTree.getPathBetween(mainTargetState, lowestCommonAncestorOpt);
-        if(lowestCommonAncestorOpt.isPresent()) {
-            State<T,U> lowestCommonAncestor = lowestCommonAncestorOpt.get();
-            if(TransitionType.LOCAL.equals(transitionType) &&
+        if (lowestCommonAncestorOpt.isPresent()) {
+            State<T, U> lowestCommonAncestor = lowestCommonAncestorOpt.get();
+            if (TransitionType.LOCAL.equals(transitionType) &&
                     (mainSourceState.equals(lowestCommonAncestor) || mainTargetState.equals(lowestCommonAncestor))) {
                 res.remove(lowestCommonAncestor);
             }
@@ -171,16 +192,28 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
     protected ImmutableMap<State<T, U>, InitialTransition<T, U>> createInitialTransitionsFromMap(Set<InitialTransition<T, U>> transitions) {
         Map<State<T, U>, InitialTransition<T, U>> map = Maps.newHashMap();
         for (InitialTransition<T, U> transition : transitions) {
-            map.put(transition.getFromState(), transition);
+            if (transition.getFromState().isPresent()) {
+                map.put(transition.getFromState().get(), transition);
+            }
         }
         return new ImmutableMap.Builder<State<T, U>, InitialTransition<T, U>>().putAll(map).build();
+    }
+
+    protected InitialTransition<T, U> getTopLevelInitialTransition(Set<InitialTransition<T, U>> transitions) {
+        Map<State<T, U>, InitialTransition<T, U>> map = Maps.newHashMap();
+        for (InitialTransition<T, U> transition : transitions) {
+            if (!transition.getFromState().isPresent()) {
+                return transition;
+            }
+        }
+        throw new IllegalStateException("no initial transition found");
     }
 
 
     protected Optional<Transition<T, U>> getTriggeredTransition(State<T, U> currentState, T entity, Optional<?> event) {
         List<State<T, U>> fromCurrentStateToRoot = stateTree.getPathToRootState(currentState);
         Collection<Transition<T, U>> transitions = Lists.newArrayList();
-        for(State<T, U> state : fromCurrentStateToRoot) {
+        for (State<T, U> state : fromCurrentStateToRoot) {
             transitions.addAll(transitionsFromState.get(state));
         }
 
