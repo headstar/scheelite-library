@@ -35,7 +35,7 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
             Optional<State<T, U>> stateOpt = Optional.of(sourceState);
             do {
                 State<T, U> state = stateOpt.get();
-                logger.debug("handling event: entity={}, event={}, state={}", entity.getId(), event, state.getId());
+                logger.debug("handling event: entity={}, state={}, event={}", entity.getEntityId(), state.getId(), event);
                 eventHandled = state.onEvent(entity, event);
                 stateOpt = stateTree.getParent(state);
             } while (!eventHandled && stateOpt.isPresent());
@@ -49,7 +49,7 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
         // get current state
         U stateIdentifier = entity.getStateId();
         if (stateIdentifier == null) {
-            throw new InvalidStateIdException(String.format("stateId is null: entity=%s", entity.getId()));
+            throw new InvalidStateIdException(String.format("stateId is null: entity=%s", entity.getEntityId()));
         }
 
         Optional<State<T, U>> currentStateOpt = stateTree.getState(stateIdentifier);
@@ -65,7 +65,7 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
         Optional<Transition<T, U>> triggeredTransitionOpt = getTriggeredTransition(currentState, entity, eventOpt);
         if (triggeredTransitionOpt.isPresent()) {
             Transition<T, U> triggeredTransition = triggeredTransitionOpt.get();
-            logger.debug("transition triggered: entity={}, transition={}, transitionType={}", entity.getId(), triggeredTransition.getName(), triggeredTransition.getTransitionType().name());
+            logger.debug("transition triggered: entity={}, state={}, transition={}, transitionType={}", entity.getEntityId(), currentState.getId(), triggeredTransition.getName(), triggeredTransition.getTransitionType().name());
 
             State<T, U> mainSourceState = triggeredTransition.getFromState();
             State<T, U> mainTargetState = triggeredTransition.getToState();
@@ -76,7 +76,7 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
             // exit sources states
             List<State<T, U>> sourceStates = getSourceStates(currentState, mainSourceState, mainTargetState, lowestCommonAncestor, triggeredTransition.getTransitionType());
             for(State<T,U> state : sourceStates) {
-                logger.debug("exiting state: entity={}, state={}", entity.getId(), state.getId());
+                logger.debug("exiting state: entity={}, state={}", entity.getEntityId(), state.getId());
                 state.onExit(entity);
             }
 
@@ -84,14 +84,14 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
             Optional<? extends Action<T>> actionOpt = triggeredTransition.getAction();
             if (actionOpt.isPresent()) {
                 Action<T> action = actionOpt.get();
-                logger.debug("executing action: entity={}, action={}", entity.getId(), action.getName());
+                logger.debug("executing action: entity={}, action={}", entity.getEntityId(), action.getName());
                 action.execute(entity, eventOpt);
             }
 
             // enter target states
             List<State<T, U>> targetStates = getTargetStates(mainSourceState, mainTargetState, lowestCommonAncestor, triggeredTransition.getTransitionType());
             for (State<T, U> state : targetStates) {
-                logger.debug("entering state: entity={}, state={}", entity.getId(), state.getId());
+                logger.debug("entering state: entity={}, state={}", entity.getEntityId(), state.getId());
                 state.onEntry(entity);
             }
 
@@ -102,11 +102,11 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
                 InitialTransition<T, U> it = initialTransitionOpt.get();
                 if (it.getAction().isPresent()) {
                     InitialAction<T> action = it.getAction().get();
-                    logger.debug("executing initial action: entity={}, action={}", entity.getId(), action.getName());
+                    logger.debug("executing initial action: entity={}, action={}", entity.getEntityId(), action.getName());
                     action.execute(entity);
                 }
                 endState = it.getToState();
-                logger.debug("entering state: entity={}, state={}", entity.getId(), endState.getId());
+                logger.debug("entering state: entity={}, state={}", entity.getEntityId(), endState.getId());
                 endState.onEntry(entity);
                 initialTransitionOpt = getInitialTransition(endState);
             }

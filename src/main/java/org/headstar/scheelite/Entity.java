@@ -2,7 +2,7 @@ package org.headstar.scheelite;
 
 public interface Entity<U> {
 
-    Object getId();
+    String getEntityId();
 
     U getStateId();
     void setStateId(U id);

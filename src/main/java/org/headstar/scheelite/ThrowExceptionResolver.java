@@ -17,6 +17,6 @@ public class ThrowExceptionResolver<T extends Entity<U>, U> implements MultipleT
             transitionNames.add(t.getName());
         }
         throw new IllegalStateException(String.format("multiple transitions triggered: " +
-                "entity=[%s], transitions=[%s]", entity.getId(), transitionNames));
+                "entity=[%s], transitions=[%s]", entity.getEntityId(), transitionNames));
     }
 }

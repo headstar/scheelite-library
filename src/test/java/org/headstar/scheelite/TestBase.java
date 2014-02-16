@@ -22,8 +22,8 @@ public class TestBase {
         }
 
         @Override
-        public Object getId() {
-            return 17L;
+        public String getEntityId() {
+            return String.valueOf(17L);
         }
 
         @Override
