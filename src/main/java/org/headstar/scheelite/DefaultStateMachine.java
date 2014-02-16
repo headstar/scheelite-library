@@ -160,14 +160,6 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
     }
 
 
-    protected ImmutableMap<U, State<T, U>> createStatesMap(Set<State<T, U>> states) {
-        Map<U, State<T, U>> map = Maps.newHashMap();
-        for (State<T, U> state : states) {
-            map.put(state.getId(), state);
-        }
-        return new ImmutableMap.Builder<U, State<T, U>>().putAll(map).build();
-    }
-
     protected ImmutableMultimap<State<T, U>, Transition<T, U>> createTransitionsFromMap(Set<Transition<T, U>> transitions) {
         Multimap<State<T, U>, Transition<T, U>> map = ArrayListMultimap.create();
         for (Transition<T, U> transition : transitions) {
