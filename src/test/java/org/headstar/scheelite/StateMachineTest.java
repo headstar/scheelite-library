@@ -153,7 +153,7 @@ public class StateMachineTest extends TestBase {
     }
 
     @Test
-    public void testSelfTransition() {
+    public void testExternalSelfTransition() {
         // given
         TestEntity e = spy(new TestEntity(StateId.A));
         TestState a = spy(new TestState(StateId.A));
@@ -176,11 +176,63 @@ public class StateMachineTest extends TestBase {
         inOrder.verify(a).onExit(e);
         inOrder.verify(action).execute(e, Optional.of(event));
         inOrder.verify(a).onEntry(e);
-        inOrder.verify(e).setStateId(StateId.A);
+
+        assertEquals(e.getStateId(), StateId.A);
+
+        verifyStateInteraction(a, TestEntity.class, onEntry(1), onExit(1), onEvent(1));
     }
 
     @Test
-    public void testExternalTransitionWithTargetStateSuperStateOfSourceState() {
+    public void testLocalSelfTransition() {
+        // given
+        TestEntity e = spy(new TestEntity(StateId.A));
+        TestState a = spy(new TestState(StateId.A));
+        TestGuard guard = spy(new TestGuard(true));
+        TestAction action = spy(new TestAction());
+        TestEventX event = new TestEventX();
+
+        StateMachine<TestEntity> stateMachine = builder
+                .withStartState(a)
+                .withLocalTransition(a, a, guard, action)
+                .build();
+
+        // when
+        stateMachine.process(e, event);
+
+        // then
+        InOrder inOrder = inOrder(a, guard, action, e);
+        inOrder.verify(a).onEvent(e, event);
+        inOrder.verify(guard).accept(e, Optional.of(event));
+        inOrder.verify(action).execute(e, Optional.of(event));
+
+        assertEquals(e.getStateId(), StateId.A);
+
+        verifyStateInteraction(a, TestEntity.class, onEntry(0), onExit(0), onEvent(1));
+    }
+
+    @Test
+    public void testInternalTransition() {
+        // given
+        TestEntity e = spy(new TestEntity(StateId.A));
+        TestState a = spy(new TestState(StateId.A));
+
+        TestEventX event = new TestEventX();
+
+        StateMachine<TestEntity> stateMachine = builder
+                .withStartState(a)
+                .build();
+
+        // when
+        stateMachine.process(e, event);
+
+        // then
+        assertEquals(e.getStateId(), StateId.A);
+
+        verifyStateInteraction(a, TestEntity.class, onEntry(0), onExit(0), onEvent(1));
+    }
+
+    @Test
+    public void testExternalTransitionToSuperState() {
         // given
         TestEntity e = spy(new TestEntity(StateId.C));
         TestState a = spy(new TestState(StateId.A));
@@ -207,8 +259,6 @@ public class StateMachineTest extends TestBase {
         inOrder.verify(action).execute(e, Optional.of(event));
         inOrder.verify(a).onEntry(e);
         inOrder.verify(b).onEntry(e);
-
-        assertEquals(e.getStateId(), StateId.B);
 
         verifyStateInteraction(a, TestEntity.class, onEntry(1), onExit(1), onEvent(0));
         verifyStateInteraction(b, TestEntity.class, onEntry(1), onExit(0), onEvent(0));
@@ -251,7 +301,7 @@ public class StateMachineTest extends TestBase {
     }
 
     @Test
-    public void testExternalTransitionWithSourceStateSuperStateOfTargetState() {
+    public void testExternalTransitionToSubState() {
         // given
         TestEntity e = spy(new TestEntity(StateId.B));
         TestState a = spy(new TestState(StateId.A));
@@ -285,66 +335,6 @@ public class StateMachineTest extends TestBase {
         verifyStateInteraction(b, TestEntity.class, onEntry(0), onExit(1), onEvent(1));
         verifyStateInteraction(c, TestEntity.class, onEntry(1), onExit(0), onEvent(0));
     }
-
-    private <T,U> void verifyStateInteraction(State<T, U> state, Class<T> clazz, OnEntry onEntry, OnExit onExit, OnEvent onEvent) {
-            verify(state, times(onEntry.times)).onEntry(Mockito.<T>any(clazz));
-            verify(state, times(onExit.times)).onExit(Mockito.<T>any(clazz));
-            verify(state, times(onEvent.times)).onEvent(Mockito.<T>any(clazz), Mockito.anyObject());
-    }
-
-    static class StateInteraction {
-
-        final int times;
-
-        StateInteraction(int times) {
-            this.times = times;
-        }
-    }
-
-    static OnEntry onEntry() {
-        return new OnEntry(1);
-    }
-
-    static OnExit onExit() {
-        return new OnExit(1);
-    }
-
-    static OnEvent onEvent() {
-        return new OnEvent(1);
-    }
-
-
-    static OnEntry onEntry(int times) {
-        return new OnEntry(times);
-    }
-
-    static OnExit onExit(int times) {
-        return new OnExit(times);
-    }
-
-    static OnEvent onEvent(int times) {
-        return new OnEvent(times);
-    }
-
-
-    static class OnEntry extends StateInteraction {
-        OnEntry(int times) {
-            super(times);
-        }
-    }
-
-    static class OnExit extends StateInteraction {
-        OnExit(int times) {
-            super(times);
-        }
-    }
-
-    static class OnEvent extends StateInteraction {
-        OnEvent(int times) {
-            super(times);
-        }
-    }
-
 
     @Test
     public void testLocalTransitionToSubState() {
@@ -416,31 +406,6 @@ public class StateMachineTest extends TestBase {
         inOrder.verify(e).setStateId(StateId.D);
     }
 
-
-    @Test
-    public void testInternalTransition() {
-        // given
-        TestEntity e = spy(new TestEntity(StateId.A));
-        TestState a = spy(new TestState(StateId.A));
-
-        TestEventX event = new TestEventX();
-
-        StateMachine<TestEntity> stateMachine = builder
-                .withStartState(a)
-                .build();
-
-        // when
-        stateMachine.process(e, event);
-
-        // then
-        InOrder inOrder = inOrder(a, e);
-        inOrder.verify(a).onEvent(e, event);
-
-        verify(a, never()).onExit(e);
-        verify(e, never()).setStateId(StateId.A);
-        verify(a, never()).onEntry(e);
-    }
-
     @Test
     public void testEventHandledBySuperState() {
         // given
@@ -463,4 +428,64 @@ public class StateMachineTest extends TestBase {
         inOrder.verify(b).onEvent(e, event);
         inOrder.verify(a).onEvent(e, event);
     }
+
+    private <T,U> void verifyStateInteraction(State<T, U> state, Class<T> clazz, OnEntry onEntry, OnExit onExit, OnEvent onEvent) {
+        verify(state, times(onEntry.times)).onEntry(Mockito.<T>any(clazz));
+        verify(state, times(onExit.times)).onExit(Mockito.<T>any(clazz));
+        verify(state, times(onEvent.times)).onEvent(Mockito.<T>any(clazz), Mockito.anyObject());
+    }
+
+    static class StateInteraction {
+
+        final int times;
+
+        StateInteraction(int times) {
+            this.times = times;
+        }
+    }
+
+    static OnEntry onEntry() {
+        return new OnEntry(1);
+    }
+
+    static OnExit onExit() {
+        return new OnExit(1);
+    }
+
+    static OnEvent onEvent() {
+        return new OnEvent(1);
+    }
+
+
+    static OnEntry onEntry(int times) {
+        return new OnEntry(times);
+    }
+
+    static OnExit onExit(int times) {
+        return new OnExit(times);
+    }
+
+    static OnEvent onEvent(int times) {
+        return new OnEvent(times);
+    }
+
+
+    static class OnEntry extends StateInteraction {
+        OnEntry(int times) {
+            super(times);
+        }
+    }
+
+    static class OnExit extends StateInteraction {
+        OnExit(int times) {
+            super(times);
+        }
+    }
+
+    static class OnEvent extends StateInteraction {
+        OnEvent(int times) {
+            super(times);
+        }
+    }
+
 }
