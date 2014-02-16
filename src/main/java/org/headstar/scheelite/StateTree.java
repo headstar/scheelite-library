@@ -25,14 +25,14 @@ public abstract class StateTree<T, U>  {
         return getMap().keySet();
     }
 
-    public State<T, U> getState(U id) {
+    public Optional<State<T, U>> getState(U id) {
         checkNotNull(id);
         for(State<T, U> state : getStates()) {
             if(state.getId().equals(id)) {
-                return state;
+                return Optional.of(state);
             }
         }
-        throw new IllegalArgumentException(String.format("unknown state: id=%s", id));
+        return Optional.absent();
     }
 
     public boolean exists(State<T, U> a) {

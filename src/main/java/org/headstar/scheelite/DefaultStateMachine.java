@@ -49,10 +49,14 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
         // get current state
         U stateIdentifier = entity.getState();
         if (stateIdentifier == null) {
-            throw new IllegalStateException(String.format("stateIdentifier is null"));
+            throw new InvalidStateIdException(String.format("stateId is null: entity=%s", entity.getId()));
         }
 
-        State<T, U> currentState = stateTree.getState(stateIdentifier);
+        Optional<State<T, U>> currentStateOpt = stateTree.getState(stateIdentifier);
+        if(!currentStateOpt.isPresent()) {
+            throw new InvalidStateIdException(String.format("not state found for stateId: stateId=%s", stateIdentifier));
+        }
+        State<T, U> currentState = currentStateOpt.get();
 
         // handle event
         handleEvent(currentState, entity, eventOpt);

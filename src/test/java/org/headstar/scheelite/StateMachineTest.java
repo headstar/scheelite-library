@@ -46,6 +46,41 @@ public class StateMachineTest extends TestBase {
         verify(a).onEvent(e, event);
     }
 
+    @Test(expectedExceptions = InvalidStateIdException.class)
+    public void testNullStateId() {
+        // given
+        TestEntity e = new TestEntity(null);
+        TestState a = new TestState(StateId.A);
+        TestEventX event = new TestEventX();
+
+        StateMachine<TestEntity> stateMachine = builder
+                .withStartState(a)
+                .build();
+
+        // when
+        stateMachine.process(e, event);
+
+        // then ... exception should be thrown
+    }
+
+
+    @Test(expectedExceptions = InvalidStateIdException.class)
+    public void testNoStateForStateId() {
+        // given
+        TestEntity e = new TestEntity(StateId.B);
+        TestState a = new TestState(StateId.A);
+        TestEventX event = new TestEventX();
+
+        StateMachine<TestEntity> stateMachine = builder
+                .withStartState(a)
+                .build();
+
+        // when
+        stateMachine.process(e, event);
+
+        // then ... exception should be thrown
+    }
+
 
     @Test
     public void testSimpleTransition() {
