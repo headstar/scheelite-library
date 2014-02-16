@@ -36,6 +36,10 @@ tasks.withType(Compile) {
     options.compilerArgs << "-Xlint"
 }
 
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.10'
+}
+
 dependencies {
     compile "com.google.guava:guava:$guavaVersion",
             "org.mockito:mockito-all:$mockitoVersion",
