@@ -54,7 +54,7 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
 
         Optional<State<T, U>> currentStateOpt = stateTree.getState(stateIdentifier);
         if (!currentStateOpt.isPresent()) {
-            throw new InvalidStateIdException(String.format("not state found for stateId: stateId=%s", stateIdentifier));
+            throw new InvalidStateIdException(String.format("no state found for stateId: stateId=%s", stateIdentifier));
         }
         State<T, U> currentState = currentStateOpt.get();
 
@@ -96,10 +96,7 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
             }
 
             // initial transitions
-            State<T, U> endState = executeInitialTransitions(Optional.of(mainTargetState), entity);
-
-            // update entity
-            entity.setStateId(endState.getId());
+            executeInitialTransitions(Optional.of(mainTargetState), entity);
 
             process(entity, Optional.absent());
         }
@@ -119,11 +116,11 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
         process(entity, Optional.of(event));
     }
 
-    private State<T, U> executeTopLevelInitialTransition(T entity) {
-        return executeInitialTransitions(Optional.<State<T, U>>absent(), entity);
+    private void executeTopLevelInitialTransition(T entity) {
+        executeInitialTransitions(Optional.<State<T, U>>absent(), entity);
     }
 
-    private State<T, U> executeInitialTransitions(Optional<State<T, U>> startState, T entity) {
+    private void executeInitialTransitions(Optional<State<T, U>> startState, T entity) {
         Optional<InitialTransition<T, U>> initialTransitionOpt;
         State<T, U> endState = null;
         if (startState.isPresent()) {
@@ -145,7 +142,9 @@ public class DefaultStateMachine<T extends Entity<U>, U> implements StateMachine
             endState.onEntry(entity);
             initialTransitionOpt = getInitialTransition(endState);
         }
-        return endState;
+
+        // update entity
+        entity.setStateId(endState.getId());
     }
 
     private List<State<T, U>> getSourceStates(State<T, U> currentState, State<T, U> mainSourceState, State<T, U> mainTargetState,

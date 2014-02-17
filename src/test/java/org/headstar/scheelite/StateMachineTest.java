@@ -81,6 +81,38 @@ public class StateMachineTest extends TestBase {
         // then ... exception should be thrown
     }
 
+    @Test
+    public void testInitialTransition() {
+        TestEntity e = spy(new TestEntity(StateId.B));
+        TestState a = spy(new TestState(StateId.A));
+        TestState b = spy(new TestState(StateId.B));
+        TestState c = spy(new TestState(StateId.C));
+        TestInitialAction initialAction1 = spy(new TestInitialAction());
+        TestInitialAction initialAction2 = spy(new TestInitialAction());
+        TestInitialAction initialAction3 = spy(new TestInitialAction());
+
+        StateMachine<TestEntity> stateMachine = builder
+                .withInitialTransition(a, initialAction1)
+                .withCompositeState(a, initialAction2, b)
+                .withCompositeState(b, initialAction3, c)
+                .build();
+
+        // when
+        stateMachine.initialTransition(e);
+
+        // then
+        assertEquals(e.getStateId(), StateId.C);
+
+        InOrder inOrder = inOrder(a, b, c, initialAction1, initialAction2, initialAction3, e);
+        inOrder.verify(initialAction1).execute(e);
+        inOrder.verify(a).onEntry(e);
+        inOrder.verify(initialAction2).execute(e);
+        inOrder.verify(b).onEntry(e);
+        inOrder.verify(initialAction3).execute(e);
+        inOrder.verify(c).onEntry(e);
+
+        assertEquals(e.getStateId(), StateId.C);
+    }
 
     @Test
     public void testSimpleTransition() {
@@ -110,7 +142,11 @@ public class StateMachineTest extends TestBase {
         inOrder.verify(a).onExit(e);
         inOrder.verify(action).execute(e, Optional.of(event));
         inOrder.verify(b).onEntry(e);
-        inOrder.verify(e).setStateId(StateId.B);
+
+        assertEquals(e.getStateId(), StateId.B);
+
+        verifyStateInteraction(a, TestEntity.class, onEntry(0), onExit(1), onEvent(1));
+        verifyStateInteraction(b, TestEntity.class, onEntry(1), onExit(0), onEvent(0));
     }
 
     @Test
