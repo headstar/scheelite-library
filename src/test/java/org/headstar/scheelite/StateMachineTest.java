@@ -443,11 +443,16 @@ public class StateMachineTest extends TestBase {
         inOrder.verify(a).onExit(e);
         inOrder.verify(action).execute(e, Optional.of(event));
         inOrder.verify(b).onEntry(e);
-        inOrder.verify(e).setStateId(StateId.B);
 
         inOrder.verify(b).onExit(e);
         inOrder.verify(d).onEntry(e);
-        inOrder.verify(e).setStateId(StateId.D);
+
+        assertEquals(e.getStateId(), StateId.D);
+
+        verifyStateInteraction(a, TestEntity.class, onEntry(0), onExit(1), onEvent(1));
+        verifyStateInteraction(b, TestEntity.class, onEntry(1), onExit(1), onEvent(0));
+        verifyStateInteraction(c, TestEntity.class, onEntry(0), onExit(0), onEvent(0));
+        verifyStateInteraction(d, TestEntity.class, onEntry(1), onExit(0), onEvent(0));
     }
 
     @Test
