@@ -3,7 +3,7 @@ package org.headstar.scheelite;
 /**
  * Created by Per on 2014-01-25.
  */
-public interface InitialAction<T> {
+public interface DefaultAction<T> {
 
     String getName();
 

@@ -12,9 +12,9 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
 
     private MutableStateTree<T, U> stateTree;
     private final Set<Transition<T, U>> transitions;
-    private final Set<InitialTransition<T, U>> initialTransitions;
+    private final Set<DefaultTransition<T, U>> defaultTransitions;
     private MultipleTransitionsTriggeredResolver<T, U> multipleTransitionsTriggeredResolver;
-    private InitialTransition<T, U> topLevelInitialTransition;
+    private DefaultTransition<T, U> initialTransition;
 
     public static <T extends Entity<U>, U> StateMachineBuilder<T, U> newBuilder() {
         return new StateMachineBuilder<T, U>();
@@ -23,27 +23,27 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
     private StateMachineBuilder() {
         stateTree = new MutableStateTree<T, U>();
         transitions = Sets.newHashSet();
-        initialTransitions = Sets.newHashSet();
+        defaultTransitions = Sets.newHashSet();
         multipleTransitionsTriggeredResolver = new ThrowExceptionResolver<T, U>();
     }
 
     @SafeVarargs
-    public final StateMachineBuilder<T, U> withCompositeState(State<T, U> state, InitialAction<T> initialAction,
+    public final StateMachineBuilder<T, U> withCompositeState(State<T, U> state, DefaultAction<T> defaultAction,
                                                         State<T, U> defaultSubState, State<T, U>... subStates) {
-        Preconditions.checkNotNull(initialAction);
-        return withCompositeState(state, Optional.of(initialAction), defaultSubState, subStates);
+        Preconditions.checkNotNull(defaultAction);
+        return withCompositeState(state, Optional.of(defaultAction), defaultSubState, subStates);
     }
 
     @SafeVarargs
     public final StateMachineBuilder<T, U> withCompositeState(State<T, U> state, State<T, U> defaultSubState, State<T, U>... subStates) {
-        return withCompositeState(state, Optional.<InitialAction<T>>absent(), defaultSubState, subStates);
+        return withCompositeState(state, Optional.<DefaultAction<T>>absent(), defaultSubState, subStates);
     }
 
     @SafeVarargs
-    private final StateMachineBuilder<T, U> withCompositeState(State<T, U> superState, Optional<? extends InitialAction<T>> initialAction,
+    private final StateMachineBuilder<T, U> withCompositeState(State<T, U> superState, Optional<? extends DefaultAction<T>> defaultAction,
                                                          State<T, U> defaultSubState, State<T, U>... subStates) {
         Preconditions.checkNotNull(superState);
-        Preconditions.checkNotNull(initialAction);
+        Preconditions.checkNotNull(defaultAction);
         Preconditions.checkNotNull(defaultSubState);
         for (State<T, U> state : subStates) {
             Preconditions.checkNotNull(state);
@@ -65,7 +65,7 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
             stateTree.addState(state, superState);
         }
 
-        initialTransitions.add(new InitialTransition<T, U>(Optional.of(superState), defaultSubState, initialAction));
+        defaultTransitions.add(new DefaultTransition<T, U>(Optional.of(superState), defaultSubState, defaultAction));
         return this;
     }
 
@@ -114,24 +114,24 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
     }
 
     public StateMachineBuilder<T, U> withInitialTransition(State<T, U> toState) {
-        return withInitialTransition(toState, Optional.<InitialAction<T>>absent());
+        return withInitialTransition(toState, Optional.<DefaultAction<T>>absent());
     }
 
-    public StateMachineBuilder<T, U> withInitialTransition(State<T, U> toState, InitialAction<T> action) {
+    public StateMachineBuilder<T, U> withInitialTransition(State<T, U> toState, DefaultAction<T> action) {
         return withInitialTransition(toState, Optional.of(action));
     }
 
 
-    private StateMachineBuilder<T, U> withInitialTransition(State<T, U> toState, Optional<? extends InitialAction<T>> actionOpt) {
-        Preconditions.checkState(topLevelInitialTransition == null, "initial transition already set");
+    private StateMachineBuilder<T, U> withInitialTransition(State<T, U> toState, Optional<? extends DefaultAction<T>> actionOpt) {
+        Preconditions.checkState(initialTransition == null, "initial transition already set");
         Preconditions.checkNotNull(toState);
         Preconditions.checkNotNull(actionOpt);
 
         validateState(toState);
 
-        topLevelInitialTransition = new InitialTransition<T, U>(Optional.<State<T, U>>absent(), toState, actionOpt);
-        initialTransitions.add(topLevelInitialTransition);
-        stateTree.addState(topLevelInitialTransition.getToState());
+        initialTransition = new DefaultTransition<T, U>(Optional.<State<T, U>>absent(), toState, actionOpt);
+        defaultTransitions.add(initialTransition);
+        stateTree.addState(initialTransition.getToState());
         return this;
     }
 
@@ -146,12 +146,12 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
     public StateMachine<T> build() {
 
         // check we have a top level initial transition state
-        if (topLevelInitialTransition == null) {
+        if (initialTransition == null) {
             throw new IllegalStateException("no initial transition added");
         }
 
-        if(stateTree.isChild(topLevelInitialTransition.getToState())) {
-            throw new IllegalStateException(String.format("initial transition toState cannot be a child: toState=%s", topLevelInitialTransition.getToState()));
+        if(stateTree.isChild(initialTransition.getToState())) {
+            throw new IllegalStateException(String.format("initial transition toState cannot be a child: toState=%s", initialTransition.getToState()));
         }
 
         Set<State<T, U>> states = stateTree.getStates();
@@ -160,12 +160,12 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
         checkStateEquals(states);
 
         // check transitions are valid
-        checkTransitionsToAndFromStates(states, transitions, initialTransitions);
+        checkTransitionsToAndFromStates(states, transitions, defaultTransitions);
 
         // check all states are reachable from the start state
-        checkAllStatesAreReachableFromStartState(topLevelInitialTransition.getToState(), states, transitions, initialTransitions);
+        checkAllStatesAreReachableFromStartState(initialTransition.getToState(), states, transitions, defaultTransitions);
 
-        return new DefaultStateMachine<T, U>(this);
+        return new StateMachineImpl<T, U>(this);
     }
 
     StateTree<T, U> getStateTree() { return stateTree; }
@@ -174,8 +174,8 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
         return transitions;
     }
 
-    Set<InitialTransition<T, U>> getInitialTransitions() {
-        return initialTransitions;
+    Set<DefaultTransition<T, U>> getDefaultTransitions() {
+        return defaultTransitions;
     }
 
     MultipleTransitionsTriggeredResolver<T, U> getMultipleTransitionsTriggeredResolver() {
@@ -200,15 +200,15 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
         }
     }
 
-    protected void validateInitialTransition(InitialTransition<T, U> initialTransition) {
-        if (initialTransition.getAction() == null) {
-            throw new IllegalStateException(String.format("initial transition action cannot be null: transition=[%s]", initialTransition));
+    protected void validateInitialTransition(DefaultTransition<T, U> defaultTransition) {
+        if (defaultTransition.getAction() == null) {
+            throw new IllegalStateException(String.format("initial transition action cannot be null: transition=[%s]", defaultTransition));
         }
-        if (initialTransition.getFromState() == null) {
-            throw new IllegalStateException(String.format("initial transition fromState cannot be null: transition=[%s]", initialTransition));
+        if (defaultTransition.getFromState() == null) {
+            throw new IllegalStateException(String.format("initial transition fromState cannot be null: transition=[%s]", defaultTransition));
         }
-        if (initialTransition.getToState() == null) {
-            throw new IllegalStateException(String.format("initial transition toState cannot be null: transition=[%s]", initialTransition));
+        if (defaultTransition.getToState() == null) {
+            throw new IllegalStateException(String.format("initial transition toState cannot be null: transition=[%s]", defaultTransition));
         }
 
     }
@@ -230,7 +230,7 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
         }
     }
 
-    protected void checkTransitionsToAndFromStates(Set<State<T, U>> states, Set<Transition<T, U>> transitions, Set<InitialTransition<T, U>> initialTransitions) {
+    protected void checkTransitionsToAndFromStates(Set<State<T, U>> states, Set<Transition<T, U>> transitions, Set<DefaultTransition<T, U>> defaultTransitions) {
 
         for (Transition<T, U> transition : transitions) {
             // if transition is local, source state and target state must be descendants
@@ -245,7 +245,7 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
         return stateTree.isDescendantOf(a, b) || stateTree.isDescendantOf(b, a);
     }
 
-    protected void checkAllStatesAreReachableFromStartState(State<T, U> startState, Set<State<T, U>> allStates, Set<Transition<T, U>> transitions, Set<InitialTransition<T, U>> initialTransitions) {
+    protected void checkAllStatesAreReachableFromStartState(State<T, U> startState, Set<State<T, U>> allStates, Set<Transition<T, U>> transitions, Set<DefaultTransition<T, U>> defaultTransitions) {
 
         Set<State<T, U>> visited = Sets.newHashSet();
 
@@ -253,7 +253,7 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
         queue.add(startState);
         visited.add(startState);
 
-        Multimap<State<T, U>, State<T, U>> edges = getEdges(transitions, initialTransitions);
+        Multimap<State<T, U>, State<T, U>> edges = getEdges(transitions, defaultTransitions);
 
         while (!queue.isEmpty()) {
             State<T, U> w = queue.remove();
@@ -273,13 +273,13 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
         }
     }
 
-    protected Multimap<State<T, U>, State<T, U>> getEdges(Set<Transition<T, U>> transitions, Set<InitialTransition<T, U>> initialTransitions) {
+    protected Multimap<State<T, U>, State<T, U>> getEdges(Set<Transition<T, U>> transitions, Set<DefaultTransition<T, U>> defaultTransitions) {
         Multimap<State<T, U>, State<T, U>> edges = HashMultimap.create();
         for (Transition<T, U> transition : transitions) {
             edges.put(transition.getFromState(), transition.getToState());
         }
 
-        for (InitialTransition<T, U> transition : initialTransitions) {
+        for (DefaultTransition<T, U> transition : defaultTransitions) {
             if(transition.getFromState().isPresent()) {
                 edges.put(transition.getFromState().get(), transition.getToState());
             }
