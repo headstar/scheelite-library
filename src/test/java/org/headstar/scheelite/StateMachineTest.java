@@ -83,18 +83,19 @@ public class StateMachineTest extends TestBase {
 
     @Test
     public void testInitialTransition() {
+        // given
         TestEntity e = spy(new TestEntity(StateId.B));
         TestState a = spy(new TestState(StateId.A));
         TestState b = spy(new TestState(StateId.B));
         TestState c = spy(new TestState(StateId.C));
-        TestDefaultAction initialAction1 = spy(new TestDefaultAction());
-        TestDefaultAction initialAction2 = spy(new TestDefaultAction());
-        TestDefaultAction initialAction3 = spy(new TestDefaultAction());
+        TestDefaultAction defaultAction1 = spy(new TestDefaultAction());
+        TestDefaultAction defaultAction2 = spy(new TestDefaultAction());
+        TestDefaultAction defaultAction3 = spy(new TestDefaultAction());
 
         StateMachine<TestEntity> stateMachine = builder
-                .withInitialTransition(a, initialAction1)
-                .withCompositeState(a, initialAction2, b)
-                .withCompositeState(b, initialAction3, c)
+                .withInitialTransition(a, defaultAction1)
+                .withCompositeState(a, defaultAction2, b)
+                .withCompositeState(b, defaultAction3, c)
                 .build();
 
         // when
@@ -103,15 +104,22 @@ public class StateMachineTest extends TestBase {
         // then
         assertEquals(e.getStateId(), StateId.C);
 
-        InOrder inOrder = inOrder(a, b, c, initialAction1, initialAction2, initialAction3, e);
-        inOrder.verify(initialAction1).execute(e);
+        InOrder inOrder = inOrder(a, b, c, defaultAction1, defaultAction2, defaultAction3, e);
+        inOrder.verify(defaultAction1).execute(e);
         inOrder.verify(a).onEntry(e);
-        inOrder.verify(initialAction2).execute(e);
+        inOrder.verify(defaultAction2).execute(e);
         inOrder.verify(b).onEntry(e);
-        inOrder.verify(initialAction3).execute(e);
+        inOrder.verify(defaultAction3).execute(e);
         inOrder.verify(c).onEntry(e);
 
         assertEquals(e.getStateId(), StateId.C);
+
+        verifyStateInteraction(a, TestEntity.class, onEntry(1), onExit(0), onEvent(0));
+        verifyStateInteraction(b, TestEntity.class, onEntry(1), onExit(0), onEvent(0));
+        verifyStateInteraction(c, TestEntity.class, onEntry(1), onExit(0), onEvent(0));
+        verify(defaultAction1).execute(e);
+        verify(defaultAction2).execute(e);
+        verify(defaultAction3).execute(e);
     }
 
     @Test
