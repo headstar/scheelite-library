@@ -6,15 +6,19 @@ import com.google.common.collect.*;
 
 import java.util.*;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class StateMachineBuilder<T extends Entity<U>, U> {
+
+    private static int MAX_TRANSITIONS_DEFAULT = 100;
 
     private MutableStateTree<T, U> stateTree;
     private final Set<Transition<T, U>> transitions;
     private final Set<DefaultTransition<T, U>> defaultTransitions;
     private MultipleTransitionsTriggeredResolver<T, U> multipleTransitionsTriggeredResolver;
     private DefaultTransition<T, U> initialTransition;
+    private int maxTransitions = MAX_TRANSITIONS_DEFAULT;
 
     public static <T extends Entity<U>, U> StateMachineBuilder<T, U> newBuilder() {
         return new StateMachineBuilder<T, U>();
@@ -67,6 +71,16 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
 
         defaultTransitions.add(new DefaultTransition<T, U>(Optional.of(superState), defaultSubState, defaultAction));
         return this;
+    }
+
+    public StateMachineBuilder<T, U> withMaxTransitions(int maxTransitions) {
+        checkArgument(maxTransitions > 0, "maxTransitions must be > 0");
+        this.maxTransitions = maxTransitions;
+        return this;
+    }
+
+    public int getMaxTransitions() {
+        return maxTransitions;
     }
 
     public StateMachineBuilder<T, U> withTransition(State<T, U> fromState, State<T, U> toState, Guard<T> guard, Action<T> action) {

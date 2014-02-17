@@ -19,6 +19,7 @@ public class StateMachineImpl<T extends Entity<U>, U> implements StateMachine<T>
     private final ImmutableMap<State<T, U>, DefaultTransition<T, U>> initialTransitionsFromState; // state -> transitions from state
     private final DefaultTransition<T, U> initialTransition;
     private final MultipleTransitionsTriggeredResolver<T, U> multipleTransitionsTriggeredResolver;
+    private final int maxInvocationCount;
 
     protected StateMachineImpl(StateMachineBuilder<T, U> builder) {
         this.transitionsFromState = createTransitionsFromMap(builder.getTransitions());
@@ -26,6 +27,7 @@ public class StateMachineImpl<T extends Entity<U>, U> implements StateMachine<T>
         this.multipleTransitionsTriggeredResolver = builder.getMultipleTransitionsTriggeredResolver();
         this.stateTree = new ImmutableStateTree<>(builder.getStateTree().getMap());
         this.initialTransition = getInitialTransition(builder.getDefaultTransitions());
+        this.maxInvocationCount = builder.getMaxTransitions();
     }
 
     private void handleEvent(State<T, U> sourceState, T entity, Optional<?> eventOpt) {
@@ -42,9 +44,13 @@ public class StateMachineImpl<T extends Entity<U>, U> implements StateMachine<T>
         }
     }
 
-    private void process(T entity, Optional<?> eventOpt) {
+    private boolean process(T entity, Optional<?> eventOpt, int invocationCount) {
         checkNotNull(entity);
         checkNotNull(eventOpt);
+
+        if(invocationCount > maxInvocationCount) {
+            throw new MaxTransitionsException();
+        }
 
         // get current state
         U stateIdentifier = entity.getStateId();
@@ -98,9 +104,10 @@ public class StateMachineImpl<T extends Entity<U>, U> implements StateMachine<T>
             // handle default transitions
             handleDefaultTransitions(Optional.of(mainTargetState), entity);
 
-            process(entity, Optional.absent());
+            return true;
         }
 
+        return false;
     }
 
     @Override
@@ -113,7 +120,11 @@ public class StateMachineImpl<T extends Entity<U>, U> implements StateMachine<T>
         checkNotNull(entity);
         checkNotNull(event);
 
-        process(entity, Optional.of(event));
+        int invocationCount = 0;
+        boolean cont = process(entity, Optional.of(event), ++invocationCount);
+        while(cont) {
+            cont = process(entity, Optional.absent(), ++invocationCount);
+        }
     }
 
     private void handleInitialTransition(T entity) {

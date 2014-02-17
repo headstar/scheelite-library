@@ -455,6 +455,55 @@ public class StateMachineTest extends TestBase {
         verifyStateInteraction(d, TestEntity.class, onEntry(1), onExit(0), onEvent(0));
     }
 
+    @Test(expectedExceptions = MaxTransitionsException.class)
+    public void testTransitionLoopDetection() {
+        // given
+        TestEntity e = spy(new TestEntity(StateId.A));
+        TestState a = spy(new TestState(StateId.A));
+        TestState b = spy(new TestState(StateId.B));
+        TestEventX event = new TestEventX();
+
+        StateMachine<TestEntity> stateMachine = builder
+                .withInitialTransition(a)
+                .withMaxTransitions(2)
+                .withTransition(a, b)
+                .withTransition(b, a)
+                .build();
+
+        // when
+        try {
+            stateMachine.process(e, event);
+
+            // then
+            verifyStateInteraction(a, TestEntity.class, onEntry(1), onExit(1), onEvent(1));
+            verifyStateInteraction(b, TestEntity.class, onEntry(1), onExit(0), onEvent(0));
+        } catch(MaxTransitionsException ex) {
+            throw ex;
+        }
+
+    }
+
+    @Test(expectedExceptions = MaxTransitionsException.class)
+    public void testTransitionLoopNoStackOverflow() {
+        // given
+        TestEntity e = spy(new TestEntity(StateId.A));
+        TestState a = spy(new TestState(StateId.A));
+        TestState b = spy(new TestState(StateId.B));
+        TestEventX event = new TestEventX();
+
+        StateMachine<TestEntity> stateMachine = builder
+                .withInitialTransition(a)
+                .withMaxTransitions(1000)
+                .withTransition(a, b)
+                .withTransition(b, a)
+                .build();
+
+        // when
+            stateMachine.process(e, event);
+
+        // then... exception should be thrown
+    }
+
     @Test
     public void testEventHandledBySuperState() {
         // given
