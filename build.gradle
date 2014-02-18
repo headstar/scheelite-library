@@ -16,10 +16,10 @@ buildscript {
         classpath "net.saliman:gradle-cobertura-plugin:2.2.2"
     }
 }
-apply plugin: 'cobertura'
 
 ext.javaProjects = subprojects
 
 configure(javaProjects) {
     apply from: "$rootDir/gradle/javaprojects.gradle"
+    apply plugin: 'cobertura'
 }
