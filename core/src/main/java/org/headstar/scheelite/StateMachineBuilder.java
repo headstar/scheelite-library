@@ -31,19 +31,16 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
         multipleTransitionsTriggeredResolver = new ThrowExceptionResolver<T, U>();
     }
 
-    @SafeVarargs
     public final StateMachineBuilder<T, U> withCompositeState(State<T, U> state, DefaultAction<T> defaultAction,
                                                         State<T, U> defaultSubState, State<T, U>... subStates) {
         Preconditions.checkNotNull(defaultAction);
         return withCompositeState(state, Optional.of(defaultAction), defaultSubState, subStates);
     }
 
-    @SafeVarargs
     public final StateMachineBuilder<T, U> withCompositeState(State<T, U> state, State<T, U> defaultSubState, State<T, U>... subStates) {
         return withCompositeState(state, Optional.<DefaultAction<T>>absent(), defaultSubState, subStates);
     }
 
-    @SafeVarargs
     private final StateMachineBuilder<T, U> withCompositeState(State<T, U> superState, Optional<? extends DefaultAction<T>> defaultAction,
                                                          State<T, U> defaultSubState, State<T, U>... subStates) {
         Preconditions.checkNotNull(superState);

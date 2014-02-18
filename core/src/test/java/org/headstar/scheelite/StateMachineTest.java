@@ -81,6 +81,7 @@ public class StateMachineTest extends TestBase {
         // then ... exception should be thrown
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testInitialTransition() {
         // given
@@ -275,6 +276,7 @@ public class StateMachineTest extends TestBase {
         verifyStateInteraction(a, TestEntity.class, onEntry(0), onExit(0), onEvent(1));
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testExternalTransitionToSuperState() {
         // given
@@ -309,6 +311,7 @@ public class StateMachineTest extends TestBase {
         verifyStateInteraction(c, TestEntity.class, onEntry(0), onExit(1), onEvent(1));
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testLocalTransitionToSuperState() {
         // given
@@ -344,6 +347,7 @@ public class StateMachineTest extends TestBase {
         verifyStateInteraction(c, TestEntity.class, onEntry(0), onExit(1), onEvent(1));
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testExternalTransitionToSubState() {
         // given
@@ -380,6 +384,7 @@ public class StateMachineTest extends TestBase {
         verifyStateInteraction(c, TestEntity.class, onEntry(1), onExit(0), onEvent(0));
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testLocalTransitionToSubState() {
         // given
@@ -504,6 +509,7 @@ public class StateMachineTest extends TestBase {
         // then... exception should be thrown
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testEventHandledBySuperState() {
         // given

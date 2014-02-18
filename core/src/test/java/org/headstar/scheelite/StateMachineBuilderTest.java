@@ -83,6 +83,7 @@ public class StateMachineBuilderTest extends TestBase {
         // then ...exception should be thrown
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testCompositeStatesWithInitialTransition() {
         // given

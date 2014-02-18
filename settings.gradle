@@ -1,0 +1,13 @@
+def String[] modules = [
+	'core'
+]
+
+include modules
+
+modules.each {name ->
+	def p = findProject(":${name}")
+	p.name = "scheelite-${name}"
+	p.buildFileName = "${name}.gradle"
+}
+
+rootProject.name = 'scheelite'
