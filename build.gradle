@@ -1,11 +1,6 @@
-
-
 allprojects {
     apply plugin: 'idea'
     apply plugin: 'eclipse'
-
-    ext.releaseBuild = version.endsWith('RELEASE')
-    ext.snapshotBuild = version.endsWith('SNAPSHOT')
 
     repositories {
         mavenCentral()
