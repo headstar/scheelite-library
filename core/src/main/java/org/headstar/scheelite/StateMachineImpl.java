@@ -15,18 +15,14 @@ public class StateMachineImpl<T extends Entity<U>, U> implements StateMachine<T>
     private static final Logger logger = LoggerFactory.getLogger(StateMachineImpl.class);
 
     private final StateTree<T, U> stateTree;
-    private final ImmutableMultimap<State<T, U>, Transition<T, U>> transitionsFromState; // state -> transitions from state
-    private final ImmutableMap<State<T, U>, DefaultTransition<T, U>> initialTransitionsFromState; // state -> transitions from state
-    private final DefaultTransition<T, U> initialTransition;
+    private final TransitionMap<T, U> transitionMap;
     private final MultipleTransitionsTriggeredResolver<T, U> multipleTransitionsTriggeredResolver;
     private final int maxInvocationCount;
 
     protected StateMachineImpl(StateMachineBuilder<T, U> builder) {
-        this.transitionsFromState = createTransitionsFromMap(builder.getTransitions());
-        this.initialTransitionsFromState = createDefaultTransitionsFromMap(builder.getDefaultTransitions());
-        this.multipleTransitionsTriggeredResolver = builder.getMultipleTransitionsTriggeredResolver();
         this.stateTree = new ImmutableStateTree<T, U>(builder.getStateTree().getMap());
-        this.initialTransition = getInitialTransition(builder.getDefaultTransitions());
+        this.transitionMap = new ImmutableTransitionMap<T, U>(builder.getTransitions(), builder.getDefaultTransitions());
+        this.multipleTransitionsTriggeredResolver = builder.getMultipleTransitionsTriggeredResolver();
         this.maxInvocationCount = builder.getMaxTransitions();
     }
 
@@ -136,9 +132,9 @@ public class StateMachineImpl<T extends Entity<U>, U> implements StateMachine<T>
         State<T, U> endState = null;
         if (startState.isPresent()) {
             endState = startState.get();
-            initialTransitionOpt = getInitialTransition(endState);
+            initialTransitionOpt = transitionMap.getDefaultTransitionFromState(endState);
         } else {
-            initialTransitionOpt = Optional.of(initialTransition);
+            initialTransitionOpt = Optional.of(transitionMap.getDefaultTransitionFromRoot());
         }
         while (initialTransitionOpt.isPresent()) {
             DefaultTransition<T, U> it = initialTransitionOpt.get();
@@ -151,7 +147,7 @@ public class StateMachineImpl<T extends Entity<U>, U> implements StateMachine<T>
             endState = it.getToState();
             logger.debug("entering state: entity={}, state={}", entity.getEntityId(), endState.getId());
             endState.onEntry(entity);
-            initialTransitionOpt = getInitialTransition(endState);
+            initialTransitionOpt = transitionMap.getDefaultTransitionFromState(endState);
         }
 
         // update entity
@@ -185,46 +181,11 @@ public class StateMachineImpl<T extends Entity<U>, U> implements StateMachine<T>
         return res;
     }
 
-    protected Optional<DefaultTransition<T, U>> getInitialTransition(State<T, U> state) {
-        DefaultTransition<T, U> transition = initialTransitionsFromState.get(state);
-        return Optional.<DefaultTransition<T, U>>fromNullable(transition);
-    }
-
-
-    protected ImmutableMultimap<State<T, U>, Transition<T, U>> createTransitionsFromMap(Set<Transition<T, U>> transitions) {
-        Multimap<State<T, U>, Transition<T, U>> map = ArrayListMultimap.create();
-        for (Transition<T, U> transition : transitions) {
-            map.put(transition.getFromState(), transition);
-        }
-        return new ImmutableMultimap.Builder<State<T, U>, Transition<T, U>>().putAll(map).build();
-    }
-
-    protected ImmutableMap<State<T, U>, DefaultTransition<T, U>> createDefaultTransitionsFromMap(Set<DefaultTransition<T, U>> transitions) {
-        Map<State<T, U>, DefaultTransition<T, U>> map = Maps.newHashMap();
-        for (DefaultTransition<T, U> transition : transitions) {
-            if (transition.getFromState().isPresent()) {
-                map.put(transition.getFromState().get(), transition);
-            }
-        }
-        return new ImmutableMap.Builder<State<T, U>, DefaultTransition<T, U>>().putAll(map).build();
-    }
-
-    protected DefaultTransition<T, U> getInitialTransition(Set<DefaultTransition<T, U>> transitions) {
-        Map<State<T, U>, DefaultTransition<T, U>> map = Maps.newHashMap();
-        for (DefaultTransition<T, U> transition : transitions) {
-            if (!transition.getFromState().isPresent()) {
-                return transition;
-            }
-        }
-        throw new IllegalStateException("no initial transition found");
-    }
-
-
-    protected Optional<Transition<T, U>> getTriggeredTransition(State<T, U> currentState, T entity, Optional<?> event) {
+    private Optional<Transition<T, U>> getTriggeredTransition(State<T, U> currentState, T entity, Optional<?> event) {
         List<State<T, U>> fromCurrentStateToRoot = stateTree.getPathToRootState(currentState);
         Collection<Transition<T, U>> transitions = Lists.newArrayList();
         for (State<T, U> state : fromCurrentStateToRoot) {
-            transitions.addAll(transitionsFromState.get(state));
+            transitions.addAll(transitionMap.getTransitionsFromState(state));
         }
 
         List<Transition<T, U>> triggeredTransitions = Lists.newArrayList(Iterables.filter(transitions, new GuardIsAccepting<T, U>(entity, event)));
@@ -233,8 +194,7 @@ public class StateMachineImpl<T extends Entity<U>, U> implements StateMachine<T>
         } else if (triggeredTransitions.size() == 1) {
             return Optional.of(triggeredTransitions.get(0));
         } else {
-            return Optional.of(multipleTransitionsTriggeredResolver
-                    .resolve(entity, event, triggeredTransitions));
+            return Optional.of(multipleTransitionsTriggeredResolver.resolve(entity, event, triggeredTransitions));
         }
     }
 
