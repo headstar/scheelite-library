@@ -14,7 +14,7 @@ public class StateMachineImpl<T extends Entity<U>, U> implements StateMachine<T>
 
     private static final Logger logger = LoggerFactory.getLogger(StateMachineImpl.class);
 
-    private final AbstractStateTree<T, U> stateTree;
+    private final StateTree<T, U> stateTree;
     private final ImmutableMultimap<State<T, U>, Transition<T, U>> transitionsFromState; // state -> transitions from state
     private final ImmutableMap<State<T, U>, DefaultTransition<T, U>> initialTransitionsFromState; // state -> transitions from state
     private final DefaultTransition<T, U> initialTransition;

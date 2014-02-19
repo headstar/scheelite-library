@@ -14,17 +14,19 @@ import static com.google.common.base.Preconditions.checkNotNull;
 /**
  * Created by per on 15/02/14.
  */
-public abstract class AbstractStateTree<T, U>  {
+public abstract class AbstractStateTree<T, U> implements StateTree<T, U> {
 
     protected final State<T, U> NO_PARENT = null;
     private final Optional<State<T, U>> ROOT_STATE = Optional.absent();
 
     protected abstract Map<State<T, U>, State<T, U>> getMap();
 
+    @Override
     public Set<State<T, U>> getStates() {
         return getMap().keySet();
     }
 
+    @Override
     public Optional<State<T, U>> getState(U id) {
         checkNotNull(id);
         for(State<T, U> state : getStates()) {
@@ -35,17 +37,20 @@ public abstract class AbstractStateTree<T, U>  {
         return Optional.absent();
     }
 
+    @Override
     public boolean exists(State<T, U> a) {
         checkNotNull(a);
         Map<State<T, U>, State<T, U>> map = getMap();
         return map.containsKey(a);
     }
 
+    @Override
     public boolean isChild(State<T, U> a) {
         checkNotNull(a);
         return getParent(a).isPresent();
     }
 
+    @Override
     public Optional<State<T,U>> getParent(State<T, U> a) {
         checkNotNull(a);
         Map<State<T, U>, State<T, U>> map = getMap();
@@ -53,6 +58,7 @@ public abstract class AbstractStateTree<T, U>  {
         return Optional.fromNullable(value);
     }
 
+    @Override
     public boolean isChildOf(State<T, U> a, State<T, U> b) {
         checkNotNull(a);
         checkNotNull(b);
@@ -61,12 +67,14 @@ public abstract class AbstractStateTree<T, U>  {
         return value != null && value.equals(b);
     }
 
+    @Override
     public boolean isParentOf(State<T, U> a, State<T, U> b) {
         checkNotNull(a);
         checkNotNull(b);
         return isChildOf(b, a);
     }
 
+    @Override
     public boolean isAncestorOf(State<T, U> a, State<T, U> b) {
         checkNotNull(a);
         checkNotNull(b);
@@ -74,6 +82,7 @@ public abstract class AbstractStateTree<T, U>  {
         return bToRoot.contains(a);
     }
 
+    @Override
     public boolean isDescendantOf(State<T, U> a, State<T, U> b) {
         checkNotNull(a);
         checkNotNull(b);
@@ -82,6 +91,7 @@ public abstract class AbstractStateTree<T, U>  {
     }
 
 
+    @Override
     public Optional<State<T, U>> getLowestCommonAncestor(State<T, U> a, State<T, U> b) {
         checkNotNull(a);
         checkNotNull(b);
@@ -99,6 +109,7 @@ public abstract class AbstractStateTree<T, U>  {
         return result;
     }
 
+    @Override
     public List<State<T, U>> getPathBetween(State<T, U> a, Optional<State<T, U>> bOpt) {
         checkNotNull(a);
         checkNotNull(bOpt);
@@ -118,6 +129,7 @@ public abstract class AbstractStateTree<T, U>  {
         }
     }
 
+    @Override
     public List<State<T, U>> getPathToRootState(State<T, U> state) {
         checkNotNull(state);
 
