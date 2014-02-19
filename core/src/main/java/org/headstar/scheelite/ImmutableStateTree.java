@@ -1,6 +1,5 @@
 package org.headstar.scheelite;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
 import java.util.Map;
@@ -8,7 +7,7 @@ import java.util.Map;
 /**
  * Created by per on 15/02/14.
  */
-public class ImmutableStateTree<T, U> extends StateTree<T, U> {
+public class ImmutableStateTree<T, U> extends AbstractStateTree<T, U> {
 
     private final Map<State<T, U>, State<T, U>> map;
 

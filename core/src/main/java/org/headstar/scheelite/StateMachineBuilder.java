@@ -179,7 +179,7 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
         return new StateMachineImpl<T, U>(this);
     }
 
-    StateTree<T, U> getStateTree() { return stateTree; }
+    AbstractStateTree<T, U> getStateTree() { return stateTree; }
 
     Set<Transition<T, U>> getTransitions() {
         return transitions;

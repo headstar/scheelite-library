@@ -14,7 +14,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 /**
  * Created by per on 15/02/14.
  */
-public abstract class StateTree<T, U>  {
+public abstract class AbstractStateTree<T, U>  {
 
     protected final State<T, U> NO_PARENT = null;
     private final Optional<State<T, U>> ROOT_STATE = Optional.absent();
