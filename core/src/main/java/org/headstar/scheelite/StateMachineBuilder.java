@@ -11,7 +11,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public class StateMachineBuilder<T extends Entity<U>, U> {
 
-    private static int MAX_TRANSITIONS_DEFAULT = 100;
+    private static int MAX_TRANSITIONS_DEFAULT = 50;
 
     private MutableStateTree<T, U> stateTree;
     private MutableTransitionMap<T, U> transitionMap;
@@ -28,17 +28,17 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
         multipleTransitionsTriggeredResolver = new ThrowExceptionResolver<T, U>();
     }
 
-    public final StateMachineBuilder<T, U> withCompositeState(State<T, U> state, DefaultAction<T> defaultAction,
+    public StateMachineBuilder<T, U> withCompositeState(State<T, U> state, DefaultAction<T> defaultAction,
                                                         State<T, U> defaultSubState, State<T, U>... subStates) {
         Preconditions.checkNotNull(defaultAction);
         return withCompositeState(state, Optional.of(defaultAction), defaultSubState, subStates);
     }
 
-    public final StateMachineBuilder<T, U> withCompositeState(State<T, U> state, State<T, U> defaultSubState, State<T, U>... subStates) {
+    public StateMachineBuilder<T, U> withCompositeState(State<T, U> state, State<T, U> defaultSubState, State<T, U>... subStates) {
         return withCompositeState(state, Optional.<DefaultAction<T>>absent(), defaultSubState, subStates);
     }
 
-    private final StateMachineBuilder<T, U> withCompositeState(State<T, U> superState, Optional<? extends DefaultAction<T>> defaultAction,
+    private StateMachineBuilder<T, U> withCompositeState(State<T, U> superState, Optional<? extends DefaultAction<T>> defaultAction,
                                                          State<T, U> defaultSubState, State<T, U>... subStates) {
         Preconditions.checkNotNull(superState);
         Preconditions.checkNotNull(defaultAction);
@@ -238,7 +238,7 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
         }
     }
 
-    protected Multimap<State<T, U>, State<T, U>> getEdges() {
+    private Multimap<State<T, U>, State<T, U>> getEdges() {
         Multimap<State<T, U>, State<T, U>> edges = HashMultimap.create();
         for (Transition<T, U> transition : transitionMap.getTransitions()) {
             edges.put(transition.getFromState(), transition.getToState());
