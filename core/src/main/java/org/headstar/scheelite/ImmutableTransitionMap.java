@@ -17,10 +17,10 @@ public class ImmutableTransitionMap<T, U> extends AbstractTransitionMap<T, U> {
     private final ImmutableMap<State<T, U>, DefaultTransition<T, U>> defaultTransitions;
     private final DefaultTransition<T, U> initialTransition;
 
-    public ImmutableTransitionMap(Set<Transition<T, U>> transitions, Set<DefaultTransition<T, U>> defaultTransitions) {
-        this.transitions = ImmutableMultimap.copyOf(createTransitionsFromMap(transitions));
-        this.defaultTransitions = ImmutableMap.copyOf(createDefaultTransitionsFromMap(defaultTransitions));
-        this.initialTransition = getInitialTransition(defaultTransitions);
+    public ImmutableTransitionMap(MutableTransitionMap<T, U> transitionMap) {
+        this.transitions = ImmutableMultimap.copyOf(transitionMap.getTransitionsFromMap());
+        this.defaultTransitions = ImmutableMap.copyOf(transitionMap.getDefaultTransitionsFromMap());
+        this.initialTransition = transitionMap.getDefaultTransitionFromRoot();
     }
 
 

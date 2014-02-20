@@ -11,9 +11,9 @@ public class ImmutableStateTree<T, U> extends AbstractStateTree<T, U> {
 
     private final Map<State<T, U>, State<T, U>> map;
 
-    public ImmutableStateTree(Map<State<T, U>, State<T, U>> map) {
+    public ImmutableStateTree(MutableStateTree<T, U> stateTree) {
         // TODO: use Collections immutable map
-        this.map = Maps.newHashMap(map);
+        this.map = Maps.newHashMap(stateTree.getMap());
     }
 
     @Override

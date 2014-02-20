@@ -113,8 +113,4 @@ public class StateMachineBuilderTest extends TestBase {
 
         // then ...no exception should be thrown
     }
-
-
-
-
 }

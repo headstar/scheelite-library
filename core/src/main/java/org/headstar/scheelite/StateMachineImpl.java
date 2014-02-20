@@ -20,8 +20,8 @@ public class StateMachineImpl<T extends Entity<U>, U> implements StateMachine<T>
     private final int maxInvocationCount;
 
     protected StateMachineImpl(StateMachineBuilder<T, U> builder) {
-        this.stateTree = new ImmutableStateTree<T, U>(builder.getStateTree().getMap());
-        this.transitionMap = new ImmutableTransitionMap<T, U>(builder.getTransitions(), builder.getDefaultTransitions());
+        this.stateTree = new ImmutableStateTree<T, U>(builder.getStateTree());
+        this.transitionMap = new ImmutableTransitionMap<T, U>(builder.getTransitionMap());
         this.multipleTransitionsTriggeredResolver = builder.getMultipleTransitionsTriggeredResolver();
         this.maxInvocationCount = builder.getMaxTransitions();
     }
