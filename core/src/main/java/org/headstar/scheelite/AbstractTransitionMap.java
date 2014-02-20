@@ -15,7 +15,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 abstract class AbstractTransitionMap<T, U> implements TransitionMap<T, U> {
 
     protected abstract Multimap<State<T, U>, Transition<T, U>> getTransitionsFromMap();
-    protected abstract Map<State<T, U>, DefaultTransition<T, U>> getDefaultTransitionsFromMap();
+    protected abstract Map<State<T, U>, InitialTransition<T, U>> getInitialTransitionsFromMap();
 
     @Override
     public Collection<Transition<T, U>> getTransitionsFromState(State<T, U> state) {
@@ -24,9 +24,9 @@ abstract class AbstractTransitionMap<T, U> implements TransitionMap<T, U> {
     }
 
     @Override
-    public Optional<DefaultTransition<T, U>> getDefaultTransitionFromState(State<T, U> state) {
+    public Optional<InitialTransition<T, U>> getInitialTransitionFromState(State<T, U> state) {
         checkNotNull(state);
-        return Optional.fromNullable(getDefaultTransitionsFromMap().get(state));
+        return Optional.fromNullable(getInitialTransitionsFromMap().get(state));
     }
 
     protected Multimap<State<T, U>, Transition<T, U>> createTransitionsFromMap(Set<Transition<T, U>> transitions) {
@@ -37,9 +37,9 @@ abstract class AbstractTransitionMap<T, U> implements TransitionMap<T, U> {
         return map;
     }
 
-    protected Map<State<T, U>, DefaultTransition<T, U>> createDefaultTransitionsFromMap(Set<DefaultTransition<T, U>> transitions) {
-        Map<State<T, U>, DefaultTransition<T, U>> map = Maps.newHashMap();
-        for (DefaultTransition<T, U> transition : transitions) {
+    protected Map<State<T, U>, InitialTransition<T, U>> createDefaultTransitionsFromMap(Set<InitialTransition<T, U>> transitions) {
+        Map<State<T, U>, InitialTransition<T, U>> map = Maps.newHashMap();
+        for (InitialTransition<T, U> transition : transitions) {
             if (transition.getFromState().isPresent()) {
                 map.put(transition.getFromState().get(), transition);
             }
@@ -47,8 +47,8 @@ abstract class AbstractTransitionMap<T, U> implements TransitionMap<T, U> {
         return map;
     }
 
-    protected DefaultTransition<T, U> getInitialTransition(Set<DefaultTransition<T, U>> transitions) {
-        for (DefaultTransition<T, U> transition : transitions) {
+    protected InitialTransition<T, U> getInitialTransitionFromRoot(Set<InitialTransition<T, U>> transitions) {
+        for (InitialTransition<T, U> transition : transitions) {
             if (!transition.getFromState().isPresent()) {
                 return transition;
             }

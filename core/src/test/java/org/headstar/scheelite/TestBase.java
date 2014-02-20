@@ -59,11 +59,11 @@ public class TestBase {
 
     }
 
-    protected class TestDefaultAction implements DefaultAction<TestEntity> {
+    protected class TestInitialAction implements InitialAction<TestEntity> {
 
         @Override
         public String getName() {
-            return "TestDefaultAction";
+            return "TestInitialAction";
         }
 
         @Override

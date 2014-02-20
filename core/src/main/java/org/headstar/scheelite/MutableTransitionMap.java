@@ -14,20 +14,19 @@ import static com.google.common.base.Preconditions.checkNotNull;
 class MutableTransitionMap <T, U> extends AbstractTransitionMap<T, U> {
 
     private final Set<Transition<T, U>> transitions;
-    private final Set<DefaultTransition<T, U>> defaultTransitions;
-    private DefaultTransition<T, U> initialTransition;
+    private final Set<InitialTransition<T, U>> initialTransitions;
 
     MutableTransitionMap() {
         transitions = Sets.newHashSet();
-        defaultTransitions = Sets.newHashSet();
+        initialTransitions = Sets.newHashSet();
     }
 
     Set<Transition<T, U>> getTransitions() {
         return transitions;
     }
 
-    Set<DefaultTransition<T, U>> getDefaultTransitions() {
-        return defaultTransitions;
+    Set<InitialTransition<T, U>> getInitialTransitions() {
+        return initialTransitions;
     }
 
     void addTransition(Transition<T, U> transition) {
@@ -35,14 +34,9 @@ class MutableTransitionMap <T, U> extends AbstractTransitionMap<T, U> {
         transitions.add(transition);
     }
 
-    void addDefaultTransition(DefaultTransition<T, U> defaultTransition) {
-        checkNotNull(defaultTransition);
-        defaultTransitions.add(defaultTransition);
-    }
-
-    void setDefaultTransitionFromRoot(DefaultTransition<T, U> defaultTransitionFromRoot) {
-        checkNotNull(defaultTransitionFromRoot);
-        this.initialTransition = defaultTransitionFromRoot;
+    void addInitialTransition(InitialTransition<T, U> initialTransition) {
+        checkNotNull(initialTransition);
+        initialTransitions.add(initialTransition);
     }
 
     @Override
@@ -51,12 +45,12 @@ class MutableTransitionMap <T, U> extends AbstractTransitionMap<T, U> {
     }
 
     @Override
-    protected Map<State<T, U>, DefaultTransition<T, U>> getDefaultTransitionsFromMap() {
-        return createDefaultTransitionsFromMap(defaultTransitions);
+    protected Map<State<T, U>, InitialTransition<T, U>> getInitialTransitionsFromMap() {
+        return createDefaultTransitionsFromMap(initialTransitions);
     }
 
     @Override
-    public DefaultTransition<T, U> getDefaultTransitionFromRoot() {
-        return getInitialTransition(defaultTransitions);
+    public InitialTransition<T, U> getInitialTransitionFromRoot() {
+        return getInitialTransitionFromRoot(initialTransitions);
     }
 }

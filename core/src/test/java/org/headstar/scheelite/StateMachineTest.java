@@ -89,9 +89,9 @@ public class StateMachineTest extends TestBase {
         TestState a = spy(new TestState(StateId.A));
         TestState b = spy(new TestState(StateId.B));
         TestState c = spy(new TestState(StateId.C));
-        TestDefaultAction defaultAction1 = spy(new TestDefaultAction());
-        TestDefaultAction defaultAction2 = spy(new TestDefaultAction());
-        TestDefaultAction defaultAction3 = spy(new TestDefaultAction());
+        TestInitialAction defaultAction1 = spy(new TestInitialAction());
+        TestInitialAction defaultAction2 = spy(new TestInitialAction());
+        TestInitialAction defaultAction3 = spy(new TestInitialAction());
 
         StateMachine<TestEntity> stateMachine = builder
                 .withInitialTransition(a, defaultAction1)

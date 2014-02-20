@@ -2,11 +2,9 @@ package org.headstar.scheelite;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by per on 19/02/14.
@@ -14,13 +12,13 @@ import java.util.Set;
 public class ImmutableTransitionMap<T, U> extends AbstractTransitionMap<T, U> {
 
     private final ImmutableMultimap<State<T, U>, Transition<T, U>> transitions;
-    private final ImmutableMap<State<T, U>, DefaultTransition<T, U>> defaultTransitions;
-    private final DefaultTransition<T, U> initialTransition;
+    private final ImmutableMap<State<T, U>, InitialTransition<T, U>> defaultTransitions;
+    private final InitialTransition<T, U> initialTransition;
 
     public ImmutableTransitionMap(MutableTransitionMap<T, U> transitionMap) {
         this.transitions = ImmutableMultimap.copyOf(transitionMap.getTransitionsFromMap());
-        this.defaultTransitions = ImmutableMap.copyOf(transitionMap.getDefaultTransitionsFromMap());
-        this.initialTransition = transitionMap.getDefaultTransitionFromRoot();
+        this.defaultTransitions = ImmutableMap.copyOf(transitionMap.getInitialTransitionsFromMap());
+        this.initialTransition = transitionMap.getInitialTransitionFromRoot();
     }
 
 
@@ -30,12 +28,12 @@ public class ImmutableTransitionMap<T, U> extends AbstractTransitionMap<T, U> {
     }
 
     @Override
-    protected Map<State<T, U>, DefaultTransition<T, U>> getDefaultTransitionsFromMap() {
+    protected Map<State<T, U>, InitialTransition<T, U>> getInitialTransitionsFromMap() {
         return defaultTransitions;
     }
 
     @Override
-    public DefaultTransition<T, U> getDefaultTransitionFromRoot() {
+    public InitialTransition<T, U> getInitialTransitionFromRoot() {
         return initialTransition;
     }
 }

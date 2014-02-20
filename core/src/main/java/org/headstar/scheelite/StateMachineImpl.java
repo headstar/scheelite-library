@@ -128,26 +128,26 @@ public class StateMachineImpl<T extends Entity<U>, U> implements StateMachine<T>
     }
 
     private void handleDefaultTransitions(Optional<State<T, U>> startState, T entity) {
-        Optional<DefaultTransition<T, U>> initialTransitionOpt;
+        Optional<InitialTransition<T, U>> initialTransitionOpt;
         State<T, U> endState = null;
         if (startState.isPresent()) {
             endState = startState.get();
-            initialTransitionOpt = transitionMap.getDefaultTransitionFromState(endState);
+            initialTransitionOpt = transitionMap.getInitialTransitionFromState(endState);
         } else {
-            initialTransitionOpt = Optional.of(transitionMap.getDefaultTransitionFromRoot());
+            initialTransitionOpt = Optional.of(transitionMap.getInitialTransitionFromRoot());
         }
         while (initialTransitionOpt.isPresent()) {
-            DefaultTransition<T, U> it = initialTransitionOpt.get();
+            InitialTransition<T, U> it = initialTransitionOpt.get();
             logger.debug("default transition: transition={}", it.getName());
             if (it.getAction().isPresent()) {
-                DefaultAction<T> action = it.getAction().get();
+                InitialAction<T> action = it.getAction().get();
                 logger.debug("executing default action: entity={}, action={}", entity.getEntityId(), action.getName());
                 action.execute(entity);
             }
             endState = it.getToState();
             logger.debug("entering state: entity={}, state={}", entity.getEntityId(), endState.getId());
             endState.onEntry(entity);
-            initialTransitionOpt = transitionMap.getDefaultTransitionFromState(endState);
+            initialTransitionOpt = transitionMap.getInitialTransitionFromState(endState);
         }
 
         // update entity

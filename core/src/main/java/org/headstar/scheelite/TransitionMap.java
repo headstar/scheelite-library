@@ -11,8 +11,8 @@ public interface TransitionMap<T, U> {
 
     Collection<Transition<T,U>> getTransitionsFromState(State<T,U> state);
 
-    Optional<DefaultTransition<T, U>> getDefaultTransitionFromState(State<T,U> state);
+    Optional<InitialTransition<T, U>> getInitialTransitionFromState(State<T, U> state);
 
-    DefaultTransition<T, U> getDefaultTransitionFromRoot();
+    InitialTransition<T, U> getInitialTransitionFromRoot();
 
 }

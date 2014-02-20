@@ -7,14 +7,14 @@ import static com.google.common.base.Preconditions.checkNotNull;
 /**
  * Created by Per on 2014-01-24.
  */
-class DefaultTransition<T, U> {
+class InitialTransition<T, U> {
 
     private final Optional<State<T, U>> fromState;
     private final State<T, U> toState;
-    private final Optional<? extends DefaultAction<T>> action;
+    private final Optional<? extends InitialAction<T>> action;
     private final String name;
 
-    DefaultTransition(Optional<State<T, U>> fromState, State<T, U> toState, Optional<? extends DefaultAction<T>> action) {
+    InitialTransition(Optional<State<T, U>> fromState, State<T, U> toState, Optional<? extends InitialAction<T>> action) {
         this.fromState = checkNotNull(fromState);
         this.toState = checkNotNull(toState);
         this.action = checkNotNull(action);
@@ -43,7 +43,7 @@ class DefaultTransition<T, U> {
         return fromState;
     }
 
-    Optional<? extends DefaultAction<T>> getAction() {
+    Optional<? extends InitialAction<T>> getAction() {
         return action;
     }
 
@@ -53,7 +53,7 @@ class DefaultTransition<T, U> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        DefaultTransition that = (DefaultTransition) o;
+        InitialTransition that = (InitialTransition) o;
 
         if (!action.equals(that.action)) return false;
         if (!fromState.equals(that.fromState)) return false;
