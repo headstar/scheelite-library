@@ -63,7 +63,7 @@ public class StateMachineImpl<T extends Entity<U>, U> implements StateMachine<T>
         // handle event
         handleEvent(currentState, entity, eventOpt);
 
-        // process triggered transition (if any)
+        // processEvent triggered transition (if any)
         Optional<Transition<T, U>> triggeredTransitionOpt = getTriggeredTransition(currentState, entity, eventOpt);
         if (triggeredTransitionOpt.isPresent()) {
             Transition<T, U> triggeredTransition = triggeredTransitionOpt.get();
@@ -112,7 +112,7 @@ public class StateMachineImpl<T extends Entity<U>, U> implements StateMachine<T>
     }
 
     @Override
-    public void process(T entity, Object event) {
+    public void processEvent(T entity, Object event) {
         checkNotNull(entity);
         checkNotNull(event);
 

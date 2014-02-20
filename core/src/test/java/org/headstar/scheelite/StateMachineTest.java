@@ -35,7 +35,7 @@ public class StateMachineTest extends TestBase {
 
         // when
         try {
-            stateMachine.process(e, event);
+            stateMachine.processEvent(e, event);
             fail("should have thrown");
         } catch(IllegalStateException ex) {
             // expected
@@ -58,7 +58,7 @@ public class StateMachineTest extends TestBase {
                 .build();
 
         // when
-        stateMachine.process(e, event);
+        stateMachine.processEvent(e, event);
 
         // then ... exception should be thrown
     }
@@ -76,7 +76,7 @@ public class StateMachineTest extends TestBase {
                 .build();
 
         // when
-        stateMachine.process(e, event);
+        stateMachine.processEvent(e, event);
 
         // then ... exception should be thrown
     }
@@ -140,7 +140,7 @@ public class StateMachineTest extends TestBase {
                 .build();
 
         // when
-        stateMachine.process(e, event);
+        stateMachine.processEvent(e, event);
 
         // then
         assertEquals(e.getStateId(), StateId.B);
@@ -170,7 +170,7 @@ public class StateMachineTest extends TestBase {
                 .build();
 
         // when
-        stateMachine.process(e, new TestEventX());
+        stateMachine.processEvent(e, new TestEventX());
 
         // then
         assertEquals(e.getStateId(), StateId.A);
@@ -191,7 +191,7 @@ public class StateMachineTest extends TestBase {
                 .build();
 
         // when
-        stateMachine.process(e, new TestEventX());
+        stateMachine.processEvent(e, new TestEventX());
 
         // then
         assertEquals(e.getStateId(), StateId.B);
@@ -212,7 +212,7 @@ public class StateMachineTest extends TestBase {
                 .build();
 
         // when
-        stateMachine.process(e, event);
+        stateMachine.processEvent(e, event);
 
         // then
         InOrder inOrder = inOrder(a, guard, action, e);
@@ -242,7 +242,7 @@ public class StateMachineTest extends TestBase {
                 .build();
 
         // when
-        stateMachine.process(e, event);
+        stateMachine.processEvent(e, event);
 
         // then
         InOrder inOrder = inOrder(a, guard, action, e);
@@ -268,7 +268,7 @@ public class StateMachineTest extends TestBase {
                 .build();
 
         // when
-        stateMachine.process(e, event);
+        stateMachine.processEvent(e, event);
 
         // then
         assertEquals(e.getStateId(), StateId.A);
@@ -295,7 +295,7 @@ public class StateMachineTest extends TestBase {
                 .build();
 
         // when
-        stateMachine.process(e, event);
+        stateMachine.processEvent(e, event);
 
         // then
         InOrder inOrder = inOrder(a, b, c, action, e);
@@ -330,7 +330,7 @@ public class StateMachineTest extends TestBase {
                 .build();
 
         // when
-        stateMachine.process(e, event);
+        stateMachine.processEvent(e, event);
 
         // then
         InOrder inOrder = inOrder(a, b, c, action, e);
@@ -365,7 +365,7 @@ public class StateMachineTest extends TestBase {
                 .build();
 
         // when
-        stateMachine.process(e, event);
+        stateMachine.processEvent(e, event);
 
         // then
         InOrder inOrder = inOrder(a, b, c, action, e);
@@ -402,7 +402,7 @@ public class StateMachineTest extends TestBase {
                 .build();
 
         // when
-        stateMachine.process(e, event);
+        stateMachine.processEvent(e, event);
 
         // then
         InOrder inOrder = inOrder(a, b, c, action, e);
@@ -439,7 +439,7 @@ public class StateMachineTest extends TestBase {
                 .build();
 
         // when
-        stateMachine.process(e, event);
+        stateMachine.processEvent(e, event);
 
         // then
         InOrder inOrder = inOrder(a, b, c, d, guard, action, e);
@@ -477,7 +477,7 @@ public class StateMachineTest extends TestBase {
 
         // when
         try {
-            stateMachine.process(e, event);
+            stateMachine.processEvent(e, event);
 
             // then
             verifyStateInteraction(a, TestEntity.class, onEntry(1), onExit(1), onEvent(1));
@@ -504,7 +504,7 @@ public class StateMachineTest extends TestBase {
                 .build();
 
         // when
-            stateMachine.process(e, event);
+            stateMachine.processEvent(e, event);
 
         // then... exception should be thrown
     }
@@ -525,7 +525,7 @@ public class StateMachineTest extends TestBase {
                 .build();
 
         // when
-        stateMachine.process(e, event);
+        stateMachine.processEvent(e, event);
 
         // then
         InOrder inOrder = inOrder(a, b);
