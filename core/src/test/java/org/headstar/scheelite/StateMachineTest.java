@@ -460,7 +460,7 @@ public class StateMachineTest extends TestBase {
         verifyStateInteraction(d, TestEntity.class, onEntry(1), onExit(0), onEvent(0));
     }
 
-    @Test(expectedExceptions = MaxTransitionsException.class)
+    @Test(expectedExceptions = MaxTransitionsPerEventException.class)
     public void testTransitionLoopDetection() {
         // given
         TestEntity e = spy(new TestEntity(StateId.A));
@@ -482,13 +482,13 @@ public class StateMachineTest extends TestBase {
             // then
             verifyStateInteraction(a, TestEntity.class, onEntry(1), onExit(1), onEvent(1));
             verifyStateInteraction(b, TestEntity.class, onEntry(1), onExit(0), onEvent(0));
-        } catch(MaxTransitionsException ex) {
+        } catch(MaxTransitionsPerEventException ex) {
             throw ex;
         }
 
     }
 
-    @Test(expectedExceptions = MaxTransitionsException.class)
+    @Test(expectedExceptions = MaxTransitionsPerEventException.class)
     public void testTransitionLoopNoStackOverflow() {
         // given
         TestEntity e = spy(new TestEntity(StateId.A));

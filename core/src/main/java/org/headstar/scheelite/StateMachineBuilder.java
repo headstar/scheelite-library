@@ -11,12 +11,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public class StateMachineBuilder<T extends Entity<U>, U> {
 
-    private static int MAX_TRANSITIONS_DEFAULT = 50;
+    private static int MAX_TRANSITIONS_PER_EVENT_DEFAULT = 50;
 
     private MutableStateTree<T, U> stateTree;
     private MutableTransitionMap<T, U> transitionMap;
     private MultipleTransitionsTriggeredResolver<T, U> multipleTransitionsTriggeredResolver;
-    private int maxTransitions = MAX_TRANSITIONS_DEFAULT;
+    private int maxTransitionsPerEvent = MAX_TRANSITIONS_PER_EVENT_DEFAULT;
 
     public static <T extends Entity<U>, U> StateMachineBuilder<T, U> newBuilder() {
         return new StateMachineBuilder<T, U>();
@@ -68,13 +68,13 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
     }
 
     public StateMachineBuilder<T, U> withMaxTransitions(int maxTransitions) {
-        checkArgument(maxTransitions > 0, "maxTransitions must be > 0");
-        this.maxTransitions = maxTransitions;
+        checkArgument(maxTransitions > 0, "maxTransitionsPerEvent must be > 0");
+        this.maxTransitionsPerEvent = maxTransitions;
         return this;
     }
 
-    public int getMaxTransitions() {
-        return maxTransitions;
+    public int getMaxTransitionsPerEvent() {
+        return maxTransitionsPerEvent;
     }
 
     public StateMachineBuilder<T, U> withTransition(State<T, U> fromState, State<T, U> toState, Guard<T> guard, Action<T> action) {

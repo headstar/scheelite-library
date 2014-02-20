@@ -17,13 +17,13 @@ public class StateMachineImpl<T extends Entity<U>, U> implements StateMachine<T>
     private final StateTree<T, U> stateTree;
     private final TransitionMap<T, U> transitionMap;
     private final MultipleTransitionsTriggeredResolver<T, U> multipleTransitionsTriggeredResolver;
-    private final int maxInvocationCount;
+    private final int maxTransitionsPerEvent;
 
     protected StateMachineImpl(StateMachineBuilder<T, U> builder) {
         this.stateTree = new ImmutableStateTree<T, U>(builder.getStateTree());
         this.transitionMap = new ImmutableTransitionMap<T, U>(builder.getTransitionMap());
         this.multipleTransitionsTriggeredResolver = builder.getMultipleTransitionsTriggeredResolver();
-        this.maxInvocationCount = builder.getMaxTransitions();
+        this.maxTransitionsPerEvent = builder.getMaxTransitionsPerEvent();
     }
 
     private void handleEvent(State<T, U> sourceState, T entity, Optional<?> eventOpt) {
@@ -40,12 +40,12 @@ public class StateMachineImpl<T extends Entity<U>, U> implements StateMachine<T>
         }
     }
 
-    private boolean process(T entity, Optional<?> eventOpt, int invocationCount) {
+    private boolean process(T entity, Optional<?> eventOpt, int transitionCount) {
         checkNotNull(entity);
         checkNotNull(eventOpt);
 
-        if(invocationCount > maxInvocationCount) {
-            throw new MaxTransitionsException();
+        if(transitionCount >= maxTransitionsPerEvent) {
+            throw new MaxTransitionsPerEventException();
         }
 
         // get current state
@@ -116,10 +116,10 @@ public class StateMachineImpl<T extends Entity<U>, U> implements StateMachine<T>
         checkNotNull(entity);
         checkNotNull(event);
 
-        int invocationCount = 0;
-        boolean cont = process(entity, Optional.of(event), ++invocationCount);
+        int transitionCount = 0;
+        boolean cont = process(entity, Optional.of(event), transitionCount++);
         while(cont) {
-            cont = process(entity, Optional.absent(), ++invocationCount);
+            cont = process(entity, Optional.absent(), transitionCount++);
         }
     }
 
