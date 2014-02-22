@@ -1,0 +1,9 @@
+dependencies {
+    compile project(':scheelite-core')
+
+    runtime "ch.qos.logback:logback-classic:$logbackClassicVersion"
+}
+
+test {
+    useTestNG()
+}
