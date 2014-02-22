@@ -159,9 +159,9 @@ public class StateMachineImpl<T extends Entity<U>, U> implements StateMachine<T>
         List<State<T, U>> res = stateTree.getPathBetween(currentState, lowestCommonAncestorOpt);
         if (lowestCommonAncestorOpt.isPresent()) {
             State<T, U> lowestCommonAncestor = lowestCommonAncestorOpt.get();
-            if (TransitionType.LOCAL.equals(transitionType) &&
+            if (TransitionType.EXTERNAL.equals(transitionType) &&
                     (mainSourceState.equals(lowestCommonAncestor) || mainTargetState.equals(lowestCommonAncestor))) {
-                res.remove(lowestCommonAncestor);
+                res.add(lowestCommonAncestor);
             }
         }
         return res;
@@ -172,9 +172,9 @@ public class StateMachineImpl<T extends Entity<U>, U> implements StateMachine<T>
         List<State<T, U>> res = stateTree.getPathBetween(mainTargetState, lowestCommonAncestorOpt);
         if (lowestCommonAncestorOpt.isPresent()) {
             State<T, U> lowestCommonAncestor = lowestCommonAncestorOpt.get();
-            if (TransitionType.LOCAL.equals(transitionType) &&
+            if (TransitionType.EXTERNAL.equals(transitionType) &&
                     (mainSourceState.equals(lowestCommonAncestor) || mainTargetState.equals(lowestCommonAncestor))) {
-                res.remove(lowestCommonAncestor);
+                res.add(lowestCommonAncestor);
             }
         }
         Collections.reverse(res);

@@ -276,6 +276,68 @@ public class StateMachineTest extends TestBase {
         verifyStateInteraction(a, TestEntity.class, onEntry(0), onExit(0), onEvent(1));
     }
 
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testTransitionBetweenSubStates() {
+        // given
+        TestEntity e = spy(new TestEntity(StateId.B));
+        TestState a = spy(new TestState(StateId.A));
+        TestState b = spy(new TestState(StateId.B));
+        TestState c = spy(new TestState(StateId.C));
+        TestAction action = spy(new TestAction());
+        TestEventX event = new TestEventX();
+
+        StateMachine<TestEntity> stateMachine = builder
+                .withInitialTransition(a)
+                .withCompositeState(a, b, c)
+                .withTransition(b, c, new TestGuard(), action)
+                .build();
+
+        // when
+        stateMachine.processEvent(e, event);
+
+        // then
+        InOrder inOrder = inOrder(a, b, c, action, e);
+        inOrder.verify(b).onEvent(e, event);
+        inOrder.verify(b).onExit(e);
+        inOrder.verify(action).execute(e, Optional.of(event));
+        inOrder.verify(c).onEntry(e);
+
+        verifyStateInteraction(a, TestEntity.class, onEntry(0), onExit(0), onEvent(0));
+        verifyStateInteraction(b, TestEntity.class, onEntry(0), onExit(1), onEvent(1));
+        verifyStateInteraction(c, TestEntity.class, onEntry(1), onExit(0), onEvent(0));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testTransitionBetweenTopLevelStates() {
+        // given
+        TestEntity e = spy(new TestEntity(StateId.A));
+        TestState a = spy(new TestState(StateId.A));
+        TestState b = spy(new TestState(StateId.B));
+        TestAction action = spy(new TestAction());
+        TestEventX event = new TestEventX();
+
+        StateMachine<TestEntity> stateMachine = builder
+                .withInitialTransition(a)
+                .withTransition(a, b, new TestGuard(), action)
+                .build();
+
+        // when
+        stateMachine.processEvent(e, event);
+
+        // then
+        InOrder inOrder = inOrder(a, b, action, e);
+        inOrder.verify(a).onEvent(e, event);
+        inOrder.verify(a).onExit(e);
+        inOrder.verify(action).execute(e, Optional.of(event));
+        inOrder.verify(b).onEntry(e);
+
+        verifyStateInteraction(a, TestEntity.class, onEntry(0), onExit(1), onEvent(1));
+        verifyStateInteraction(b, TestEntity.class, onEntry(1), onExit(0), onEvent(0));
+    }
+
     @SuppressWarnings("unchecked")
     @Test
     public void testExternalTransitionToSuperState() {

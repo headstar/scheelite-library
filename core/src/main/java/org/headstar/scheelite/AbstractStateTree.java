@@ -123,7 +123,7 @@ public abstract class AbstractStateTree<T, U> implements StateTree<T, U> {
             if(index == -1) {
                 throw new IllegalArgumentException(String.format("b not an ancestor of a: a=%s, b=%s", a, b));
             } else {
-                List<State<T, U>> res = aToRoot.subList(0, index + 1);
+                List<State<T, U>> res = aToRoot.subList(0, index);
                 return res;
             }
         }
