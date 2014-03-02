@@ -25,13 +25,13 @@ public class Application {
         StateMachine<CalculatorEntity, CalculatorState> fsm = fsmBuilder
                 .withInitialTransition(onState)
                 .withCompositeState(onState, initState, operand1State, operand2State, opEnteredState, resultState)
-                .withTransition(initState, operand1State, Guards.<CalculatorEntity>eventInstanceOf(DigitEvent.class))
-                .withTransition(operand1State, opEnteredState,Guards.<CalculatorEntity>eventInstanceOf(OperationEvent.class))
-                .withTransition(opEnteredState, operand2State, Guards.<CalculatorEntity>eventInstanceOf(DigitEvent.class))
-                .withTransition(operand2State, resultState, Guards.<CalculatorEntity>eventInstanceOf(ResultEvent.class))
-                .withTransition(resultState, operand1State, Guards.<CalculatorEntity>eventInstanceOf(DigitEvent.class))
-                .withTransition(resultState, opEnteredState, Guards.<CalculatorEntity>eventInstanceOf(OperationEvent.class))
-                .withTransition(onState, offState, Guards.<CalculatorEntity>eventInstanceOf(OffEvent.class))
+                .withTransition(initState, operand1State, eventInstanceOf(DigitEvent.class))
+                .withTransition(operand1State, opEnteredState, eventInstanceOf(OperationEvent.class))
+                .withTransition(opEnteredState, operand2State, eventInstanceOf(DigitEvent.class))
+                .withTransition(operand2State, resultState, eventInstanceOf(ResultEvent.class))
+                .withTransition(resultState, operand1State, eventInstanceOf(DigitEvent.class))
+                .withTransition(resultState, opEnteredState, eventInstanceOf(OperationEvent.class))
+                .withTransition(onState, offState, eventInstanceOf(OffEvent.class))
                 .build();
 
 
@@ -47,5 +47,8 @@ public class Application {
         fsm.processEvent(entity, state, new OffEvent());
     }
 
+    private static Guard<CalculatorEntity> eventInstanceOf(Class<?> clazz) {
+        return Guards.<CalculatorEntity>eventInstanceOf(clazz);
+    }
 
 }
