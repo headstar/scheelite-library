@@ -3,7 +3,3 @@ dependencies {
 
     runtime "ch.qos.logback:logback-classic:$logbackClassicVersion"
 }
-
-test {
-    useTestNG()
-}
