@@ -1,4 +1,4 @@
-package org.headstar.scheelite;
+package org.headstar.scheelite.test;
 
 import org.testng.annotations.Test;
 

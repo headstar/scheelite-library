@@ -1,6 +1,7 @@
-package org.headstar.scheelite;
+package org.headstar.scheelite.test;
 
 import com.google.common.base.Optional;
+import org.headstar.scheelite.*;
 import org.testng.annotations.BeforeMethod;
 
 /**
