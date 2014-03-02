@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Default policy when building a state machine. Throw an <code>IllegalStateException</code> if multiple transitions were triggered.
+ * Default policy when building a state machine,throws an <code>IllegalStateException</code>.
  *
  * @param <T> entity type
  * @param <U> state id type

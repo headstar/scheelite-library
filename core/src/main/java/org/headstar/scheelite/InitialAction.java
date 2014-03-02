@@ -1,7 +1,7 @@
 package org.headstar.scheelite;
 
 /**
- * Encapsulates the action to be executed at the initial transition from a super state to a sub state.
+ * Encapsulates an action to be executed at the initial transition from a super state to a sub state.
  * @param <T> entity type
  *
  * @see org.headstar.scheelite.InitialTransition
