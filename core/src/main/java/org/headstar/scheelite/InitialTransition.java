@@ -13,7 +13,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * @see org.headstar.scheelite.InitialAction
  * @see org.headstar.scheelite.State
  */
-public class InitialTransition<T, U> {
+class InitialTransition<T, U> {
 
     private final Optional<State<T, U>> fromState;
     private final State<T, U> toState;
