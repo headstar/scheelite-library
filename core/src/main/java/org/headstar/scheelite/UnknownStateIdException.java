@@ -6,11 +6,11 @@ package org.headstar.scheelite;
  * @see org.headstar.scheelite.StateMachine#processEvent(Object, Object, Object)
  */
 
-public class InvalidStateIdException extends RuntimeException {
+public class UnknownStateIdException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 
-    public InvalidStateIdException(String message) {
+    public UnknownStateIdException(String message) {
         super(message);
     }
 

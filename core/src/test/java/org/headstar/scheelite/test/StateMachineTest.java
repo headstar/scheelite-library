@@ -65,7 +65,7 @@ public class StateMachineTest extends TestBase {
     }
 
 
-    @Test(expectedExceptions = InvalidStateIdException.class)
+    @Test(expectedExceptions = UnknownStateIdException.class)
     public void testNoStateForStateId() {
         // given
         TestEntity e = new TestEntity(StateId.B);

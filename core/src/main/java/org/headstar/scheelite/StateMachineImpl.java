@@ -54,7 +54,7 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
 
         Optional<State<T, U>> currentStateOpt = stateTree.getState(stateId);
         if (!currentStateOpt.isPresent()) {
-            throw new InvalidStateIdException(String.format("no state found for stateId: stateId=%s", stateId));
+            throw new UnknownStateIdException(String.format("no state found for stateId: stateId=%s", stateId));
         }
         State<T, U> currentState = currentStateOpt.get();
 
