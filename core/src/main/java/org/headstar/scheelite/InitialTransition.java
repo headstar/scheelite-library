@@ -12,27 +12,11 @@ class InitialTransition<T, U> {
     private final Optional<State<T, U>> fromState;
     private final State<T, U> toState;
     private final Optional<? extends InitialAction<T>> action;
-    private final String name;
 
     InitialTransition(Optional<State<T, U>> fromState, State<T, U> toState, Optional<? extends InitialAction<T>> action) {
         this.fromState = checkNotNull(fromState);
         this.toState = checkNotNull(toState);
         this.action = checkNotNull(action);
-        this.name = createName();
-    }
-
-    String getName() {
-        return name;
-    }
-
-    private String createName() {
-        StringBuilder sb = new StringBuilder();
-        if(fromState.isPresent()) {
-            sb.append(String.format("%s-TO-%s", fromState.get().getId(), toState.getId()));
-        } else {
-            sb.append(String.format("TO-%s", toState.getId()));
-        }
-        return sb.toString();
     }
 
     State<T, U> getToState() {
@@ -69,4 +53,16 @@ class InitialTransition<T, U> {
         result = 31 * result + action.hashCode();
         return result;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        if(fromState.isPresent()) {
+            sb.append(String.format("%s->%s", fromState.get().getId(), toState.getId()));
+        } else {
+            sb.append(String.format("->%s", toState.getId()));
+        }
+        return sb.toString();
+    }
+
 }

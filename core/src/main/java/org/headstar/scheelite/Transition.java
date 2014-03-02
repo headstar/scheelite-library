@@ -11,7 +11,6 @@ class Transition<T, U> {
     private final Optional<? extends Action<T>> action;
     private final Optional<? extends Guard<T>> guard;
     private final TransitionType transitionType;
-    private final String name;
 
     Transition(State<T, U> fromState, State<T, U> toState, Optional<? extends Action<T>> action, Optional<? extends Guard<T>> guard, TransitionType transitionType) {
         this.transitionType = checkNotNull(transitionType);
@@ -19,20 +18,6 @@ class Transition<T, U> {
         this.toState = checkNotNull(toState);
         this.action = checkNotNull(action);
         this.guard = checkNotNull(guard);
-        this.name = createName();
-    }
-
-    String getName() {
-        return name;
-    }
-
-    private String createName() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(String.format("%s-TO-%s", fromState.getId(), toState.getId()));
-        if(guard.isPresent()) {
-            sb.append(String.format("[%s]", guard.get()));
-        }
-        return sb.toString();
     }
 
     TransitionType getTransitionType() {
@@ -78,5 +63,15 @@ class Transition<T, U> {
         result = 31 * result + action.hashCode();
         result = 31 * result + guard.hashCode();
         return result;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("%s->%s", fromState.getId(), toState.getId()));
+        if(guard.isPresent()) {
+            sb.append(String.format(" [%s]", guard.get()));
+        }
+        return sb.toString();
     }
 }

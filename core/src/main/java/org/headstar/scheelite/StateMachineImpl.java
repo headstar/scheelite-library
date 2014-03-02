@@ -65,7 +65,7 @@ public class StateMachineImpl<T, U> implements StateMachine<T, U> {
         Optional<Transition<T, U>> triggeredTransitionOpt = getTriggeredTransition(currentState, entity, eventOpt);
         if (triggeredTransitionOpt.isPresent()) {
             Transition<T, U> triggeredTransition = triggeredTransitionOpt.get();
-            logger.debug("transition triggered: entity={}, state={}, transition={}, transitionType={}", entity, currentState.getId(), triggeredTransition.getName(), triggeredTransition.getTransitionType().name());
+            logger.debug("transition triggered: entity={}, state={}, transition={}, transitionType={}", entity, currentState.getId(), triggeredTransition, triggeredTransition.getTransitionType().name());
 
             State<T, U> mainSourceState = triggeredTransition.getFromState();
             State<T, U> mainTargetState = triggeredTransition.getToState();
@@ -138,7 +138,7 @@ public class StateMachineImpl<T, U> implements StateMachine<T, U> {
         }
         while (initialTransitionOpt.isPresent()) {
             InitialTransition<T, U> it = initialTransitionOpt.get();
-            logger.debug("default transition: transition={}", it.getName());
+            logger.debug("default transition: transition={}", it);
             if (it.getAction().isPresent()) {
                 InitialAction<T> action = it.getAction().get();
                 logger.debug("executing default action: entity={}, action={}", entity, action.getName());
