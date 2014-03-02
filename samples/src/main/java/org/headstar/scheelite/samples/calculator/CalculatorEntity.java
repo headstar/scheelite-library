@@ -1,14 +1,11 @@
 package org.headstar.scheelite.samples.calculator;
 
 
-import org.headstar.scheelite.Entity;
-
 /**
  * Created by per on 20/02/14.
  */
-public class CalculatorEntity implements Entity<CalculatorState> {
+public class CalculatorEntity {
 
-    private CalculatorState stateId;
     private Integer operand1;
     private Integer operand2;
     private Integer result;
@@ -21,7 +18,6 @@ public class CalculatorEntity implements Entity<CalculatorState> {
         operand1 = null;
         operand2 = null;
         op = null;
-        stateId = null;
     }
 
     public Integer getOperand1() {
@@ -57,17 +53,7 @@ public class CalculatorEntity implements Entity<CalculatorState> {
     }
 
     @Override
-    public String getEntityId() {
-        return "MyCalculator";
-    }
-
-    @Override
-    public CalculatorState getStateId() {
-        return stateId;
-    }
-
-    @Override
-    public void setStateId(CalculatorState id) {
-        stateId = id;
+    public String toString() {
+        return "CalculatorEntity{}";
     }
 }

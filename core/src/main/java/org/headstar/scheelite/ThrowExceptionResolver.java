@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Created by Per on 2014-01-17.
  */
-public class ThrowExceptionResolver<T extends Entity<U>, U> implements MultipleTransitionsTriggeredResolver<T, U> {
+public class ThrowExceptionResolver<T, U> implements MultipleTransitionsTriggeredResolver<T, U> {
 
     @Override
     public Transition<T, U> resolve(T entity, Object event, Collection<Transition<T, U>> transitions) {
@@ -17,6 +17,6 @@ public class ThrowExceptionResolver<T extends Entity<U>, U> implements MultipleT
             transitionNames.add(t.getName());
         }
         throw new IllegalStateException(String.format("multiple transitions triggered: " +
-                "entity=[%s], transitions=[%s]", entity.getEntityId(), transitionNames));
+                "entity=[%s], transitions=[%s]", entity, transitionNames));
     }
 }

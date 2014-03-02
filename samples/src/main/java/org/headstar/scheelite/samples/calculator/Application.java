@@ -4,14 +4,13 @@ import com.google.common.base.Optional;
 import org.headstar.scheelite.Guard;
 import org.headstar.scheelite.StateMachine;
 import org.headstar.scheelite.StateMachineBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Created by per on 20/02/14.
  */
 public class Application {
 
+    @SuppressWarnings("unchecked")
     public static void main(String[] args) {
 
         OnState onState = new OnState();
@@ -23,7 +22,7 @@ public class Application {
         OffState offState = new OffState();
 
         StateMachineBuilder<CalculatorEntity, CalculatorState> fsmBuilder = StateMachineBuilder.<CalculatorEntity, CalculatorState>newBuilder();
-        StateMachine<CalculatorEntity> fsm = fsmBuilder
+        StateMachine<CalculatorEntity, CalculatorState> fsm = fsmBuilder
                 .withInitialTransition(onState)
                 .withCompositeState(onState, initState, operand1State, operand2State, opEnteredState, resultState)
                 .withTransition(initState, operand1State, new AcceptingInstanceOf(DigitEvent.class))
@@ -37,15 +36,15 @@ public class Application {
 
 
         CalculatorEntity entity = new CalculatorEntity();
-        fsm.initialTransition(entity);
-        fsm.processEvent(entity, new DigitEvent(7));
-        fsm.processEvent(entity, new OperationEvent(Operation.ADDITION));
-        fsm.processEvent(entity, new DigitEvent(4));
-        fsm.processEvent(entity, new ResultEvent());
-        fsm.processEvent(entity, new OperationEvent(Operation.SUBTRACTION));
-        fsm.processEvent(entity, new DigitEvent(2));
-        fsm.processEvent(entity, new ResultEvent());
-        fsm.processEvent(entity, new OffEvent());
+        CalculatorState state = fsm.processInitialTransition(entity);
+        state = fsm.processEvent(entity, state, new DigitEvent(7));
+        state = fsm.processEvent(entity, state, new OperationEvent(Operation.ADDITION));
+        state = fsm.processEvent(entity, state, new DigitEvent(4));
+        state = fsm.processEvent(entity, state, new ResultEvent());
+        state = fsm.processEvent(entity, state, new OperationEvent(Operation.SUBTRACTION));
+        state = fsm.processEvent(entity, state, new DigitEvent(2));
+        state = fsm.processEvent(entity, state, new ResultEvent());
+        fsm.processEvent(entity, state, new OffEvent());
 
 
     }

@@ -1,5 +1,9 @@
+apply plugin: 'application'
+
 dependencies {
     compile project(':scheelite-core')
 
     runtime "ch.qos.logback:logback-classic:$logbackClassicVersion"
 }
+
+mainClassName = 'org.headstar.scheelite.samples.calculator.Application';

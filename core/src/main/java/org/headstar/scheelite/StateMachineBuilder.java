@@ -9,7 +9,7 @@ import java.util.*;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class StateMachineBuilder<T extends Entity<U>, U> {
+public class StateMachineBuilder<T, U> {
 
     private static int MAX_TRANSITIONS_PER_EVENT_DEFAULT = 50;
 
@@ -18,7 +18,7 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
     private MultipleTransitionsTriggeredResolver<T, U> multipleTransitionsTriggeredResolver;
     private int maxTransitionsPerEvent = MAX_TRANSITIONS_PER_EVENT_DEFAULT;
 
-    public static <T extends Entity<U>, U> StateMachineBuilder<T, U> newBuilder() {
+    public static <T, U> StateMachineBuilder<T, U> newBuilder() {
         return new StateMachineBuilder<T, U>();
     }
 
@@ -144,7 +144,7 @@ public class StateMachineBuilder<T extends Entity<U>, U> {
         return this;
     }
 
-    public StateMachine<T> build() {
+    public StateMachine<T, U> build() {
 
         // check we have a top level initial transition state
         if (transitionMap.getInitialTransitionFromRoot() == null) {

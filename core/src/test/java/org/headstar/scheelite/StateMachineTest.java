@@ -26,7 +26,7 @@ public class StateMachineTest extends TestBase {
         TestEventX event = new TestEventX();
         MultipleTransitionsTriggeredResolver<TestEntity, StateId> resolver = spy(new ThrowExceptionResolver<TestEntity, StateId>());
 
-        StateMachine<TestEntity> stateMachine = builder
+        StateMachine<TestEntity, StateId> stateMachine = builder
                 .withInitialTransition(a)
                 .withMultipleTransitionsTriggerPolicy(resolver)
                 .withTransition(a, b, new TestGuard(true))
@@ -35,7 +35,7 @@ public class StateMachineTest extends TestBase {
 
         // when
         try {
-            stateMachine.processEvent(e, event);
+            stateMachine.processEvent(e, e.getStateId(), event);
             fail("should have thrown");
         } catch(IllegalStateException ex) {
             // expected
@@ -46,19 +46,19 @@ public class StateMachineTest extends TestBase {
         verify(a).onEvent(e, event);
     }
 
-    @Test(expectedExceptions = InvalidStateIdException.class)
+    @Test(expectedExceptions = NullPointerException.class)
     public void testNullStateId() {
         // given
         TestEntity e = new TestEntity(null);
         TestState a = new TestState(StateId.A);
         TestEventX event = new TestEventX();
 
-        StateMachine<TestEntity> stateMachine = builder
+        StateMachine<TestEntity, StateId> stateMachine = builder
                 .withInitialTransition(a)
                 .build();
 
         // when
-        stateMachine.processEvent(e, event);
+        stateMachine.processEvent(e, e.getStateId(), event);
 
         // then ... exception should be thrown
     }
@@ -71,12 +71,12 @@ public class StateMachineTest extends TestBase {
         TestState a = new TestState(StateId.A);
         TestEventX event = new TestEventX();
 
-        StateMachine<TestEntity> stateMachine = builder
+        StateMachine<TestEntity, StateId> stateMachine = builder
                 .withInitialTransition(a)
                 .build();
 
         // when
-        stateMachine.processEvent(e, event);
+        stateMachine.processEvent(e, e.getStateId(), event);
 
         // then ... exception should be thrown
     }
@@ -93,17 +93,17 @@ public class StateMachineTest extends TestBase {
         TestInitialAction defaultAction2 = spy(new TestInitialAction());
         TestInitialAction defaultAction3 = spy(new TestInitialAction());
 
-        StateMachine<TestEntity> stateMachine = builder
+        StateMachine<TestEntity, StateId> stateMachine = builder
                 .withInitialTransition(a, defaultAction1)
                 .withCompositeState(a, defaultAction2, b)
                 .withCompositeState(b, defaultAction3, c)
                 .build();
 
         // when
-        stateMachine.initialTransition(e);
+        StateId nextStateId = stateMachine.processInitialTransition(e);
 
         // then
-        assertEquals(e.getStateId(), StateId.C);
+        assertEquals(nextStateId, StateId.C);
 
         InOrder inOrder = inOrder(a, b, c, defaultAction1, defaultAction2, defaultAction3, e);
         inOrder.verify(defaultAction1).execute(e);
@@ -112,8 +112,6 @@ public class StateMachineTest extends TestBase {
         inOrder.verify(b).onEntry(e);
         inOrder.verify(defaultAction3).execute(e);
         inOrder.verify(c).onEntry(e);
-
-        assertEquals(e.getStateId(), StateId.C);
 
         verifyStateInteraction(a, TestEntity.class, onEntry(1), onExit(0), onEvent(0));
         verifyStateInteraction(b, TestEntity.class, onEntry(1), onExit(0), onEvent(0));
@@ -134,16 +132,16 @@ public class StateMachineTest extends TestBase {
 
         TestEventX event = new TestEventX();
 
-        StateMachine<TestEntity> stateMachine = builder
+        StateMachine<TestEntity, StateId> stateMachine = builder
                 .withInitialTransition(a)
                 .withTransition(a, b, guard, action)
                 .build();
 
         // when
-        stateMachine.processEvent(e, event);
+        StateId nextStateId = stateMachine.processEvent(e, e.getStateId(), event);
 
         // then
-        assertEquals(e.getStateId(), StateId.B);
+        assertEquals(nextStateId, StateId.B);
 
         InOrder inOrder = inOrder(a, b, guard, action, e);
         inOrder.verify(a).onEvent(e, event);
@@ -151,8 +149,6 @@ public class StateMachineTest extends TestBase {
         inOrder.verify(a).onExit(e);
         inOrder.verify(action).execute(e, Optional.of(event));
         inOrder.verify(b).onEntry(e);
-
-        assertEquals(e.getStateId(), StateId.B);
 
         verifyStateInteraction(a, TestEntity.class, onEntry(0), onExit(1), onEvent(1));
         verifyStateInteraction(b, TestEntity.class, onEntry(1), onExit(0), onEvent(0));
@@ -164,16 +160,16 @@ public class StateMachineTest extends TestBase {
         TestEntity e = new TestEntity(StateId.A);
         TestState a = new TestState(StateId.A);
         TestState b = new TestState(StateId.B);
-        StateMachine<TestEntity> stateMachine = builder
+        StateMachine<TestEntity, StateId> stateMachine = builder
                 .withInitialTransition(a)
                 .withTransition(a, b, new TestGuard(false))
                 .build();
 
         // when
-        stateMachine.processEvent(e, new TestEventX());
+        StateId nextStateId = stateMachine.processEvent(e, e.getStateId(), new TestEventX());
 
         // then
-        assertEquals(e.getStateId(), StateId.A);
+        assertEquals(nextStateId, StateId.A);
     }
 
     @Test
@@ -183,7 +179,7 @@ public class StateMachineTest extends TestBase {
         TestState b = new TestState(StateId.B);
 
         TestEntity e = new TestEntity(StateId.A);
-        StateMachine<TestEntity> stateMachine = builder
+        StateMachine<TestEntity, StateId> stateMachine = builder
                 .withInitialTransition(a)
                 .withTransition(a, b, new TestGuard(false))
                 .withTransition(a, b, new TestGuard(false))
@@ -191,10 +187,10 @@ public class StateMachineTest extends TestBase {
                 .build();
 
         // when
-        stateMachine.processEvent(e, new TestEventX());
+        StateId nextStateId = stateMachine.processEvent(e, e.getStateId(), new TestEventX());
 
         // then
-        assertEquals(e.getStateId(), StateId.B);
+        assertEquals(nextStateId, StateId.B);
     }
 
     @Test
@@ -206,13 +202,13 @@ public class StateMachineTest extends TestBase {
         TestAction action = spy(new TestAction());
         TestEventX event = new TestEventX();
 
-        StateMachine<TestEntity> stateMachine = builder
+        StateMachine<TestEntity, StateId> stateMachine = builder
                 .withInitialTransition(a)
                 .withTransition(a, a, guard, action)
                 .build();
 
         // when
-        stateMachine.processEvent(e, event);
+        StateId nextStateId = stateMachine.processEvent(e, e.getStateId(), event);
 
         // then
         InOrder inOrder = inOrder(a, guard, action, e);
@@ -222,7 +218,7 @@ public class StateMachineTest extends TestBase {
         inOrder.verify(action).execute(e, Optional.of(event));
         inOrder.verify(a).onEntry(e);
 
-        assertEquals(e.getStateId(), StateId.A);
+        assertEquals(nextStateId, StateId.A);
 
         verifyStateInteraction(a, TestEntity.class, onEntry(1), onExit(1), onEvent(1));
     }
@@ -236,13 +232,13 @@ public class StateMachineTest extends TestBase {
         TestAction action = spy(new TestAction());
         TestEventX event = new TestEventX();
 
-        StateMachine<TestEntity> stateMachine = builder
+        StateMachine<TestEntity, StateId> stateMachine = builder
                 .withInitialTransition(a)
                 .withLocalTransition(a, a, guard, action)
                 .build();
 
         // when
-        stateMachine.processEvent(e, event);
+        StateId nextStateId = stateMachine.processEvent(e, e.getStateId(), event);
 
         // then
         InOrder inOrder = inOrder(a, guard, action, e);
@@ -250,7 +246,7 @@ public class StateMachineTest extends TestBase {
         inOrder.verify(guard).accept(e, Optional.of(event));
         inOrder.verify(action).execute(e, Optional.of(event));
 
-        assertEquals(e.getStateId(), StateId.A);
+        assertEquals(nextStateId, StateId.A);
 
         verifyStateInteraction(a, TestEntity.class, onEntry(0), onExit(0), onEvent(1));
     }
@@ -263,15 +259,15 @@ public class StateMachineTest extends TestBase {
 
         TestEventX event = new TestEventX();
 
-        StateMachine<TestEntity> stateMachine = builder
+        StateMachine<TestEntity, StateId> stateMachine = builder
                 .withInitialTransition(a)
                 .build();
 
         // when
-        stateMachine.processEvent(e, event);
+        StateId nextStateId = stateMachine.processEvent(e, e.getStateId(), event);
 
         // then
-        assertEquals(e.getStateId(), StateId.A);
+        assertEquals(nextStateId, StateId.A);
 
         verifyStateInteraction(a, TestEntity.class, onEntry(0), onExit(0), onEvent(1));
     }
@@ -288,16 +284,18 @@ public class StateMachineTest extends TestBase {
         TestAction action = spy(new TestAction());
         TestEventX event = new TestEventX();
 
-        StateMachine<TestEntity> stateMachine = builder
+        StateMachine<TestEntity, StateId> stateMachine = builder
                 .withInitialTransition(a)
                 .withCompositeState(a, b, c)
                 .withTransition(b, c, new TestGuard(), action)
                 .build();
 
         // when
-        stateMachine.processEvent(e, event);
+        StateId nextStateId = stateMachine.processEvent(e, e.getStateId(), event);
 
         // then
+        assertEquals(nextStateId, StateId.C);
+
         InOrder inOrder = inOrder(a, b, c, action, e);
         inOrder.verify(b).onEvent(e, event);
         inOrder.verify(b).onExit(e);
@@ -319,15 +317,17 @@ public class StateMachineTest extends TestBase {
         TestAction action = spy(new TestAction());
         TestEventX event = new TestEventX();
 
-        StateMachine<TestEntity> stateMachine = builder
+        StateMachine<TestEntity, StateId> stateMachine = builder
                 .withInitialTransition(a)
                 .withTransition(a, b, new TestGuard(), action)
                 .build();
 
         // when
-        stateMachine.processEvent(e, event);
+        StateId nextStateId = stateMachine.processEvent(e, e.getStateId(), event);
 
         // then
+        assertEquals(nextStateId, StateId.B);
+
         InOrder inOrder = inOrder(a, b, action, e);
         inOrder.verify(a).onEvent(e, event);
         inOrder.verify(a).onExit(e);
@@ -349,7 +349,7 @@ public class StateMachineTest extends TestBase {
         TestAction action = spy(new TestAction());
         TestEventX event = new TestEventX();
 
-        StateMachine<TestEntity> stateMachine = builder
+        StateMachine<TestEntity, StateId> stateMachine = builder
                 .withInitialTransition(a)
                 .withCompositeState(a, b, c)
                 .withTransition(b, c, new AlwaysDenyTestGuard())
@@ -357,9 +357,11 @@ public class StateMachineTest extends TestBase {
                 .build();
 
         // when
-        stateMachine.processEvent(e, event);
+        StateId nextStateId = stateMachine.processEvent(e, e.getStateId(), event);
 
         // then
+        assertEquals(nextStateId, StateId.B);
+
         InOrder inOrder = inOrder(a, b, c, action, e);
         inOrder.verify(c).onEvent(e, event);
         inOrder.verify(c).onExit(e);
@@ -384,7 +386,7 @@ public class StateMachineTest extends TestBase {
         TestAction action = spy(new TestAction());
         TestEventX event = new TestEventX();
 
-        StateMachine<TestEntity> stateMachine = builder
+        StateMachine<TestEntity, StateId> stateMachine = builder
                 .withInitialTransition(a)
                 .withCompositeState(a, b, c)
                 .withTransition(b, c, new AlwaysDenyTestGuard())
@@ -392,17 +394,16 @@ public class StateMachineTest extends TestBase {
                 .build();
 
         // when
-        stateMachine.processEvent(e, event);
+        StateId nextStateId = stateMachine.processEvent(e, e.getStateId(), event);
 
         // then
-        InOrder inOrder = inOrder(a, b, c, action, e);
+        assertEquals(nextStateId, StateId.B);
 
+        InOrder inOrder = inOrder(a, b, c, action, e);
         inOrder.verify(c).onEvent(e, event);
         inOrder.verify(c).onExit(e);
         inOrder.verify(action).execute(e, Optional.of(event));
         inOrder.verify(b).onEntry(e);
-
-        assertEquals(e.getStateId(), StateId.B);
 
         verifyStateInteraction(a, TestEntity.class, onEntry(0), onExit(0), onEvent(0));
         verifyStateInteraction(b, TestEntity.class, onEntry(1), onExit(0), onEvent(0));
@@ -420,16 +421,18 @@ public class StateMachineTest extends TestBase {
         TestAction action = spy(new TestAction());
         TestEventX event = new TestEventX();
 
-        StateMachine<TestEntity> stateMachine = builder
+        StateMachine<TestEntity, StateId> stateMachine = builder
                 .withInitialTransition(a)
                 .withCompositeState(a, b, c)
                 .withTransition(a, c, new AlwaysAcceptTestGuard(), action)
                 .build();
 
         // when
-        stateMachine.processEvent(e, event);
+        StateId nextStateId = stateMachine.processEvent(e, e.getStateId(), event);
 
         // then
+        assertEquals(nextStateId, StateId.C);
+
         InOrder inOrder = inOrder(a, b, c, action, e);
         inOrder.verify(b).onEvent(e, event);
         inOrder.verify(a).onEvent(e, event);
@@ -438,8 +441,6 @@ public class StateMachineTest extends TestBase {
         inOrder.verify(action).execute(e, Optional.of(event));
         inOrder.verify(a).onEntry(e);
         inOrder.verify(c).onEntry(e);
-
-        assertEquals(e.getStateId(), StateId.C);
 
         verifyStateInteraction(a, TestEntity.class, onEntry(1), onExit(1), onEvent(1));
         verifyStateInteraction(b, TestEntity.class, onEntry(0), onExit(1), onEvent(1));
@@ -457,24 +458,24 @@ public class StateMachineTest extends TestBase {
         TestAction action = spy(new TestAction());
         TestEventX event = new TestEventX();
 
-        StateMachine<TestEntity> stateMachine = builder
+        StateMachine<TestEntity, StateId> stateMachine = builder
                 .withInitialTransition(a)
                 .withCompositeState(a, b, c)
                 .withLocalTransition(a, c, new AlwaysAcceptTestGuard(), action)
                 .build();
 
         // when
-        stateMachine.processEvent(e, event);
+        StateId nextStateId = stateMachine.processEvent(e, e.getStateId(), event);
 
         // then
+        assertEquals(nextStateId, StateId.C);
+
         InOrder inOrder = inOrder(a, b, c, action, e);
         inOrder.verify(b).onEvent(e, event);
         inOrder.verify(a).onEvent(e, event);
         inOrder.verify(b).onExit(e);
         inOrder.verify(action).execute(e, Optional.of(event));
         inOrder.verify(c).onEntry(e);
-
-        assertEquals(e.getStateId(), StateId.C);
 
         verifyStateInteraction(a, TestEntity.class, onEntry(0), onExit(0), onEvent(1));
         verifyStateInteraction(b, TestEntity.class, onEntry(0), onExit(1), onEvent(1));
@@ -493,7 +494,7 @@ public class StateMachineTest extends TestBase {
         TestAction action = spy(new TestAction());
         TestEventX event = new TestEventX();
 
-        StateMachine<TestEntity> stateMachine = builder
+        StateMachine<TestEntity, StateId> stateMachine = builder
                 .withInitialTransition(a)
                 .withTransition(a, b, guard, action)
                 .withTransition(b, c, new TestGuard(false))
@@ -501,20 +502,19 @@ public class StateMachineTest extends TestBase {
                 .build();
 
         // when
-        stateMachine.processEvent(e, event);
+        StateId nextStateId = stateMachine.processEvent(e, e.getStateId(), event);
 
         // then
+        assertEquals(nextStateId, StateId.D);
+
         InOrder inOrder = inOrder(a, b, c, d, guard, action, e);
         inOrder.verify(a).onEvent(e, event);
         inOrder.verify(guard).accept(e, Optional.of(event));
         inOrder.verify(a).onExit(e);
         inOrder.verify(action).execute(e, Optional.of(event));
         inOrder.verify(b).onEntry(e);
-
         inOrder.verify(b).onExit(e);
         inOrder.verify(d).onEntry(e);
-
-        assertEquals(e.getStateId(), StateId.D);
 
         verifyStateInteraction(a, TestEntity.class, onEntry(0), onExit(1), onEvent(1));
         verifyStateInteraction(b, TestEntity.class, onEntry(1), onExit(1), onEvent(0));
@@ -530,7 +530,7 @@ public class StateMachineTest extends TestBase {
         TestState b = spy(new TestState(StateId.B));
         TestEventX event = new TestEventX();
 
-        StateMachine<TestEntity> stateMachine = builder
+        StateMachine<TestEntity, StateId> stateMachine = builder
                 .withInitialTransition(a)
                 .withMaxTransitions(2)
                 .withTransition(a, b)
@@ -539,7 +539,7 @@ public class StateMachineTest extends TestBase {
 
         // when
         try {
-            stateMachine.processEvent(e, event);
+            stateMachine.processEvent(e, e.getStateId(), event);
 
             // then
             verifyStateInteraction(a, TestEntity.class, onEntry(1), onExit(1), onEvent(1));
@@ -558,7 +558,7 @@ public class StateMachineTest extends TestBase {
         TestState b = spy(new TestState(StateId.B));
         TestEventX event = new TestEventX();
 
-        StateMachine<TestEntity> stateMachine = builder
+        StateMachine<TestEntity, StateId> stateMachine = builder
                 .withInitialTransition(a)
                 .withMaxTransitions(1000)
                 .withTransition(a, b)
@@ -566,7 +566,7 @@ public class StateMachineTest extends TestBase {
                 .build();
 
         // when
-            stateMachine.processEvent(e, event);
+            stateMachine.processEvent(e, e.getStateId(), event);
 
         // then... exception should be thrown
     }
@@ -581,13 +581,13 @@ public class StateMachineTest extends TestBase {
 
         TestEventX event = new TestEventX();
 
-        StateMachine<TestEntity> stateMachine = builder
+        StateMachine<TestEntity, StateId> stateMachine = builder
                 .withInitialTransition(a)
                 .withCompositeState(a, b)
                 .build();
 
         // when
-        stateMachine.processEvent(e, event);
+        stateMachine.processEvent(e, e.getStateId(), event);
 
         // then
         InOrder inOrder = inOrder(a, b);

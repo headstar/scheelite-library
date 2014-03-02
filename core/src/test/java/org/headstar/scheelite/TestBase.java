@@ -9,7 +9,7 @@ import org.testng.annotations.BeforeMethod;
 public class TestBase {
     enum StateId {A, B, C, D, E}
 
-    protected class TestEntity implements Entity<StateId> {
+    protected class TestEntity {
 
         private StateId state;
 
@@ -21,21 +21,16 @@ public class TestBase {
             this.state = state;
         }
 
-        @Override
-        public String getEntityId() {
-            return String.valueOf(17L);
-        }
-
-        @Override
         public StateId getStateId() {
             return state;
         }
 
         @Override
-        public void setStateId(StateId identifier) {
-            this.state = identifier;
+        public String toString() {
+            return "TestEntity{" +
+                    "state=" + state +
+                    '}';
         }
-
     }
 
     protected StateMachineBuilder<TestEntity, StateId> builder;

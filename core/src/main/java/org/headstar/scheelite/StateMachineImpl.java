@@ -10,7 +10,7 @@ import java.util.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class StateMachineImpl<T extends Entity<U>, U> implements StateMachine<T> {
+public class StateMachineImpl<T, U> implements StateMachine<T, U> {
 
     private static final Logger logger = LoggerFactory.getLogger(StateMachineImpl.class);
 
@@ -33,30 +33,25 @@ public class StateMachineImpl<T extends Entity<U>, U> implements StateMachine<T>
             Optional<State<T, U>> stateOpt = Optional.of(sourceState);
             do {
                 State<T, U> state = stateOpt.get();
-                logger.debug("handling event: entity={}, state={}, event={}", entity.getEntityId(), state.getId(), event);
+                logger.debug("handling event: entity={}, state={}, event={}", entity, state.getId(), event);
                 eventHandled = state.onEvent(entity, event);
                 stateOpt = stateTree.getParent(state);
             } while (!eventHandled && stateOpt.isPresent());
         }
     }
 
-    private boolean process(T entity, Optional<?> eventOpt, int transitionCount) {
+    private ProcessEventResult<U> process(T entity, U stateId, Optional<?> eventOpt, int transitionCount) {
         checkNotNull(entity);
+        checkNotNull(stateId);
         checkNotNull(eventOpt);
 
         if(transitionCount >= maxTransitionsPerEvent) {
             throw new MaxTransitionsPerEventException();
         }
 
-        // get current state
-        U stateIdentifier = entity.getStateId();
-        if (stateIdentifier == null) {
-            throw new InvalidStateIdException(String.format("stateId is null: entity=%s", entity.getEntityId()));
-        }
-
-        Optional<State<T, U>> currentStateOpt = stateTree.getState(stateIdentifier);
+        Optional<State<T, U>> currentStateOpt = stateTree.getState(stateId);
         if (!currentStateOpt.isPresent()) {
-            throw new InvalidStateIdException(String.format("no state found for stateId: stateId=%s", stateIdentifier));
+            throw new InvalidStateIdException(String.format("no state found for stateId: stateId=%s", stateId));
         }
         State<T, U> currentState = currentStateOpt.get();
 
@@ -67,7 +62,7 @@ public class StateMachineImpl<T extends Entity<U>, U> implements StateMachine<T>
         Optional<Transition<T, U>> triggeredTransitionOpt = getTriggeredTransition(currentState, entity, eventOpt);
         if (triggeredTransitionOpt.isPresent()) {
             Transition<T, U> triggeredTransition = triggeredTransitionOpt.get();
-            logger.debug("transition triggered: entity={}, state={}, transition={}, transitionType={}", entity.getEntityId(), currentState.getId(), triggeredTransition.getName(), triggeredTransition.getTransitionType().name());
+            logger.debug("transition triggered: entity={}, state={}, transition={}, transitionType={}", entity, currentState.getId(), triggeredTransition.getName(), triggeredTransition.getTransitionType().name());
 
             State<T, U> mainSourceState = triggeredTransition.getFromState();
             State<T, U> mainTargetState = triggeredTransition.getToState();
@@ -78,7 +73,7 @@ public class StateMachineImpl<T extends Entity<U>, U> implements StateMachine<T>
             // exit sources states
             List<State<T, U>> sourceStates = getSourceStates(currentState, mainSourceState, mainTargetState, lowestCommonAncestor, triggeredTransition.getTransitionType());
             for (State<T, U> state : sourceStates) {
-                logger.debug("exiting state: entity={}, state={}", entity.getEntityId(), state.getId());
+                logger.debug("exiting state: entity={}, state={}", entity, state.getId());
                 state.onExit(entity);
             }
 
@@ -86,48 +81,50 @@ public class StateMachineImpl<T extends Entity<U>, U> implements StateMachine<T>
             Optional<? extends Action<T>> actionOpt = triggeredTransition.getAction();
             if (actionOpt.isPresent()) {
                 Action<T> action = actionOpt.get();
-                logger.debug("executing action: entity={}, action={}", entity.getEntityId(), action.getName());
+                logger.debug("executing action: entity={}, action={}", entity, action.getName());
                 action.execute(entity, eventOpt);
             }
 
             // enter target states
             List<State<T, U>> targetStates = getTargetStates(mainSourceState, mainTargetState, lowestCommonAncestor, triggeredTransition.getTransitionType());
             for (State<T, U> state : targetStates) {
-                logger.debug("entering state: entity={}, state={}", entity.getEntityId(), state.getId());
+                logger.debug("entering state: entity={}, state={}", entity, state.getId());
                 state.onEntry(entity);
             }
 
             // handle default transitions
-            handleDefaultTransitions(Optional.of(mainTargetState), entity);
+            U nextStateId = handleDefaultTransitions(Optional.of(mainTargetState), entity);
 
-            return true;
+            return new ProcessEventResult<U>(true, nextStateId);
+        } else {
+            return new ProcessEventResult<U>(false, currentState.getId());
         }
-
-        return false;
     }
 
     @Override
-    public void initialTransition(T entity) {
-        handleInitialTransition(entity);
+    public U processInitialTransition(T entity) {
+        return handleInitialTransition(entity);
     }
 
     @Override
-    public void processEvent(T entity, Object event) {
+    public U processEvent(T entity, U stateId, Object event) {
         checkNotNull(entity);
+        checkNotNull(stateId);
         checkNotNull(event);
 
         int transitionCount = 0;
-        boolean cont = process(entity, Optional.of(event), transitionCount++);
-        while(cont) {
-            cont = process(entity, Optional.absent(), transitionCount++);
+        ProcessEventResult<U> res = process(entity, stateId, Optional.of(event), transitionCount++);
+        while(res.isContinueProcessing()) {
+            res = process(entity, res.getNextStateId(), Optional.absent(), transitionCount++);
         }
+        return res.getNextStateId();
     }
 
-    private void handleInitialTransition(T entity) {
-        handleDefaultTransitions(Optional.<State<T, U>>absent(), entity);
+    private U handleInitialTransition(T entity) {
+        return handleDefaultTransitions(Optional.<State<T, U>>absent(), entity);
     }
 
-    private void handleDefaultTransitions(Optional<State<T, U>> startState, T entity) {
+    private U handleDefaultTransitions(Optional<State<T, U>> startState, T entity) {
         Optional<InitialTransition<T, U>> initialTransitionOpt;
         State<T, U> endState = null;
         if (startState.isPresent()) {
@@ -141,17 +138,17 @@ public class StateMachineImpl<T extends Entity<U>, U> implements StateMachine<T>
             logger.debug("default transition: transition={}", it.getName());
             if (it.getAction().isPresent()) {
                 InitialAction<T> action = it.getAction().get();
-                logger.debug("executing default action: entity={}, action={}", entity.getEntityId(), action.getName());
+                logger.debug("executing default action: entity={}, action={}", entity, action.getName());
                 action.execute(entity);
             }
             endState = it.getToState();
-            logger.debug("entering state: entity={}, state={}", entity.getEntityId(), endState.getId());
+            logger.debug("entering state: entity={}, state={}", entity, endState.getId());
             endState.onEntry(entity);
             initialTransitionOpt = transitionMap.getInitialTransitionFromState(endState);
         }
 
-        // update entity
-        entity.setStateId(endState.getId());
+
+        return endState.getId();
     }
 
     private List<State<T, U>> getSourceStates(State<T, U> currentState, State<T, U> mainSourceState, State<T, U> mainTargetState,
@@ -215,6 +212,24 @@ public class StateMachineImpl<T extends Entity<U>, U> implements StateMachine<T>
             } else {
                 return true;
             }
+        }
+    }
+
+    private static class ProcessEventResult<U> {
+        private final boolean continueProcessing;
+        private final U nextStateId;
+
+        private ProcessEventResult(boolean continueProcessing, U nextStateId) {
+            this.continueProcessing = continueProcessing;
+            this.nextStateId = nextStateId;
+        }
+
+        public boolean isContinueProcessing() {
+            return continueProcessing;
+        }
+
+        public U getNextStateId() {
+            return nextStateId;
         }
     }
 }
