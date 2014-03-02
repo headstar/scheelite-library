@@ -83,7 +83,7 @@ public class StateMachineBuilder<T, U> {
         return this;
     }
 
-    public int getMaxTransitionsPerEvent() {
+    int getMaxTransitionsPerEvent() {
         return maxTransitionsPerEvent;
     }
 
