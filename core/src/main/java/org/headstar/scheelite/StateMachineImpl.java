@@ -13,7 +13,7 @@ import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class StateMachineImpl<T, U> implements StateMachine<T, U> {
+class StateMachineImpl<T, U> implements StateMachine<T, U> {
 
     private static final Logger logger = LoggerFactory.getLogger(StateMachineImpl.class);
 

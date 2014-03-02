@@ -13,6 +13,12 @@ import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+/**
+ * A builder of {@link org.headstar.scheelite.StateMachine} instances.
+ *
+ * @param <T> entity type
+ * @param <U> state id type
+ */
 public class StateMachineBuilder<T, U> {
 
     private static int MAX_TRANSITIONS_PER_EVENT_DEFAULT = 50;

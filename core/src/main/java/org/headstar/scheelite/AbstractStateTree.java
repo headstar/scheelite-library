@@ -11,9 +11,9 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * Created by per on 15/02/14.
+ * This class provides a skeletal implementation of the {@link org.headstar.scheelite.StateTree} interface.
  */
-public abstract class AbstractStateTree<T, U> implements StateTree<T, U> {
+abstract class AbstractStateTree<T, U> implements StateTree<T, U> {
 
     protected final State<T, U> NO_PARENT = null;
     private final Optional<State<T, U>> ROOT_STATE = Optional.absent();

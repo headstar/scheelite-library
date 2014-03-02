@@ -6,9 +6,11 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Created by per on 19/02/14.
+ *
+ * @param <T> entity type
+ * @param <U> state id type
  */
-public interface StateTree<T, U> {
+interface StateTree<T, U> {
     Set<State<T, U>> getStates();
 
     Optional<State<T, U>> getState(U id);

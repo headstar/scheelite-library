@@ -5,9 +5,11 @@ import com.google.common.base.Optional;
 import java.util.Collection;
 
 /**
- * Created by per on 19/02/14.
+ *
+ * @param <T> entity type
+ * @param <U> state id type
  */
-public interface TransitionMap<T, U> {
+interface TransitionMap<T, U> {
 
     Collection<Transition<T,U>> getTransitionsFromState(State<T,U> state);
 

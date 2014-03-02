@@ -1,7 +1,7 @@
 package org.headstar.scheelite;
 
 /**
- * Created by per on 11/02/14.
+ * Transition types.
  */
 enum TransitionType {
     EXTERNAL, LOCAL

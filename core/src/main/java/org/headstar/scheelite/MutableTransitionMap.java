@@ -9,7 +9,7 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * Created by per on 20/02/14.
+ * Mutable implementation of the {@link org.headstar.scheelite.TransitionMap} interface.
  */
 class MutableTransitionMap <T, U> extends AbstractTransitionMap<T, U> {
 

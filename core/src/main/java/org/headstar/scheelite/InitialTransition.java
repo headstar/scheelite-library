@@ -5,9 +5,15 @@ import com.google.common.base.Optional;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * Created by Per on 2014-01-24.
+ * Encapsulates the initial transition to be taken when entering a composite state.
+ *
+ * @param <T> entity type
+ * @param <U> state id type
+ *
+ * @see org.headstar.scheelite.InitialAction
+ * @see org.headstar.scheelite.State
  */
-class InitialTransition<T, U> {
+public class InitialTransition<T, U> {
 
     private final Optional<State<T, U>> fromState;
     private final State<T, U> toState;

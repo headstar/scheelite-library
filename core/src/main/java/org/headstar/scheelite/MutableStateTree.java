@@ -7,9 +7,9 @@ import java.util.Map;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * Created by per on 15/02/14.
+ * Mutable implementation of the {@link org.headstar.scheelite.StateTree} interface.
  */
-public class MutableStateTree<T, U> extends AbstractStateTree<T,U> {
+class MutableStateTree<T, U> extends AbstractStateTree<T,U> {
 
     private final Map<State<T, U>, State<T, U>> map;
 

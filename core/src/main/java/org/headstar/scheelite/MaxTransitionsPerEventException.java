@@ -1,7 +1,9 @@
 package org.headstar.scheelite;
 
 /**
- * Created by per on 17/02/14.
+ * Thrown to indicate that the maximum number of transitions per event was exceeded.
+ *
+ * @see org.headstar.scheelite.StateMachine#processEvent(Object, Object, Object)
  */
 public class MaxTransitionsPerEventException extends RuntimeException {
 

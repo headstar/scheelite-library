@@ -12,7 +12,7 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * Created by per on 19/02/14.
+ * This class provides a skeletal implementation of the {@link org.headstar.scheelite.TransitionMap} interface.
  */
 abstract class AbstractTransitionMap<T, U> implements TransitionMap<T, U> {
 

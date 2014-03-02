@@ -3,7 +3,11 @@ package org.headstar.scheelite;
 import java.util.Collection;
 
 /**
- * Created by Per on 2014-01-17.
+ * Encapsulates the action to be taken when multiple transitions have been triggered.
+ *
+ * @param <T> entity type
+ * @param <U> state id type
+ *
  */
 public interface MultipleTransitionsTriggeredResolver<T, U> {
 

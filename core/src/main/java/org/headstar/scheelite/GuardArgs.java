@@ -3,7 +3,10 @@ package org.headstar.scheelite;
 import com.google.common.base.Optional;
 
 /**
- * Created by per on 02/03/14.
+ * Container for arguments to a guard.
+ * @param <T> entity type
+ *
+ * @see org.headstar.scheelite.Guard
  */
 public class GuardArgs<T> {
 

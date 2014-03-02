@@ -4,7 +4,12 @@ import com.google.common.base.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-class Transition<T, U> {
+/**
+ *
+ * @param <T> entity type
+ * @param <U> state id type
+ */
+public class Transition<T, U> {
 
     private final State<T, U> fromState;
     private final State<T, U> toState;

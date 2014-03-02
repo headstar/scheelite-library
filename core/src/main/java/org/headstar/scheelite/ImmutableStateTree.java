@@ -5,9 +5,9 @@ import com.google.common.collect.Maps;
 import java.util.Map;
 
 /**
- * Created by per on 15/02/14.
+ * Immutable implementation of the {@link org.headstar.scheelite.StateTree} interface.
  */
-public class ImmutableStateTree<T, U> extends AbstractStateTree<T, U> {
+class ImmutableStateTree<T, U> extends AbstractStateTree<T, U> {
 
     private final Map<State<T, U>, State<T, U>> map;
 

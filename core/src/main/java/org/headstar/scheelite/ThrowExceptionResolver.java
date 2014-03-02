@@ -6,7 +6,13 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Created by Per on 2014-01-17.
+ * Default policy when building a state machine. Throw an <code>IllegalStateException</code> if multiple transitions were triggered.
+ *
+ * @param <T> entity type
+ * @param <U> state id type
+ *
+ * @see org.headstar.scheelite.StateMachineBuilder
+ * @see org.headstar.scheelite.Transition
  */
 public class ThrowExceptionResolver<T, U> implements MultipleTransitionsTriggeredResolver<T, U> {
 

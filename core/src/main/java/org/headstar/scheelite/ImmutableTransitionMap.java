@@ -7,9 +7,9 @@ import com.google.common.collect.Multimap;
 import java.util.Map;
 
 /**
- * Created by per on 19/02/14.
+ * Immutable implementation of the {@link org.headstar.scheelite.TransitionMap} interface.
  */
-public class ImmutableTransitionMap<T, U> extends AbstractTransitionMap<T, U> {
+class ImmutableTransitionMap<T, U> extends AbstractTransitionMap<T, U> {
 
     private final ImmutableMultimap<State<T, U>, Transition<T, U>> transitions;
     private final ImmutableMap<State<T, U>, InitialTransition<T, U>> defaultTransitions;

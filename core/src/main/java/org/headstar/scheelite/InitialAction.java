@@ -1,7 +1,10 @@
 package org.headstar.scheelite;
 
 /**
- * Created by Per on 2014-01-25.
+ * Encapsulates the action to be executed at the initial transition from a super state to a sub state.
+ * @param <T> entity type
+ *
+ * @see org.headstar.scheelite.InitialTransition
  */
 public interface InitialAction<T> {
 

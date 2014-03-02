@@ -6,7 +6,7 @@ import com.google.common.base.Predicates;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * Created by per on 02/03/14.
+ * Static utility methods pertaining to <code>Guard</code> instances.
  */
 public class Guards {
 
