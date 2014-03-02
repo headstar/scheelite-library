@@ -30,7 +30,7 @@ class Transition<T, U> {
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("%s-TO-%s", fromState.getId(), toState.getId()));
         if(guard.isPresent()) {
-            sb.append(String.format("[%s]", guard.get().getName()));
+            sb.append(String.format("[%s]", guard.get()));
         }
         return sb.toString();
     }

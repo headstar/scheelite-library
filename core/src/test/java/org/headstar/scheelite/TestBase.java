@@ -88,8 +88,8 @@ public class TestBase {
         private final boolean accept;
 
         @Override
-        public String getName() {
-            return "testGuard";
+        public String toString() {
+            return getClass().getSimpleName();
         }
 
         public TestGuard(boolean accept) {
@@ -100,14 +100,11 @@ public class TestBase {
             this(true);
         }
 
-        @Override
-        public boolean accept(TestEntity entity, Optional<?> event) {
-            if(event.isPresent()) {
-                return accept;
-            }
-            return false;
-        }
 
+        @Override
+        public boolean apply(GuardArgs<TestEntity> input) {
+            return input.getEvent().isPresent() && accept;
+        }
     }
 
     enum HandleEvent { YES, NO };

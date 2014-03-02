@@ -1,7 +1,9 @@
 package org.headstar.scheelite;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.*;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 
 import java.util.Collection;
 import java.util.Map;

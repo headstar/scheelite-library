@@ -1,9 +1,9 @@
 package org.headstar.scheelite.samples.calculator;
 
 import com.google.common.base.Optional;
-import org.headstar.scheelite.Guard;
-import org.headstar.scheelite.StateMachine;
-import org.headstar.scheelite.StateMachineBuilder;
+import org.headstar.scheelite.*;
+
+import javax.sql.rowset.Predicate;
 
 /**
  * Created by per on 20/02/14.
@@ -25,13 +25,13 @@ public class Application {
         StateMachine<CalculatorEntity, CalculatorState> fsm = fsmBuilder
                 .withInitialTransition(onState)
                 .withCompositeState(onState, initState, operand1State, operand2State, opEnteredState, resultState)
-                .withTransition(initState, operand1State, new AcceptingInstanceOf(DigitEvent.class))
-                .withTransition(operand1State, opEnteredState, new AcceptingInstanceOf(OperationEvent.class))
-                .withTransition(opEnteredState, operand2State, new AcceptingInstanceOf(DigitEvent.class))
-                .withTransition(operand2State, resultState, new AcceptingInstanceOf(ResultEvent.class))
-                .withTransition(resultState, operand1State, new AcceptingInstanceOf(DigitEvent.class))
-                .withTransition(resultState, opEnteredState, new AcceptingInstanceOf(OperationEvent.class))
-                .withTransition(onState, offState, new AcceptingInstanceOf(OffEvent.class))
+                .withTransition(initState, operand1State, Guards.<CalculatorEntity>eventInstanceOf(DigitEvent.class))
+                .withTransition(operand1State, opEnteredState,Guards.<CalculatorEntity>eventInstanceOf(OperationEvent.class))
+                .withTransition(opEnteredState, operand2State, Guards.<CalculatorEntity>eventInstanceOf(DigitEvent.class))
+                .withTransition(operand2State, resultState, Guards.<CalculatorEntity>eventInstanceOf(ResultEvent.class))
+                .withTransition(resultState, operand1State, Guards.<CalculatorEntity>eventInstanceOf(DigitEvent.class))
+                .withTransition(resultState, opEnteredState, Guards.<CalculatorEntity>eventInstanceOf(OperationEvent.class))
+                .withTransition(onState, offState, Guards.<CalculatorEntity>eventInstanceOf(OffEvent.class))
                 .build();
 
 
@@ -45,26 +45,7 @@ public class Application {
         state = fsm.processEvent(entity, state, new DigitEvent(2));
         state = fsm.processEvent(entity, state, new ResultEvent());
         fsm.processEvent(entity, state, new OffEvent());
-
-
     }
 
-    private static class AcceptingInstanceOf implements Guard<CalculatorEntity> {
 
-        private final Class<?> clazz;
-
-        AcceptingInstanceOf(Class<?> clazz) {
-            this.clazz = clazz;
-        }
-
-        @Override
-        public String getName() {
-            return this.getClass().getSimpleName();
-        }
-
-        @Override
-        public boolean accept(CalculatorEntity entity, Optional<?> event) {
-           return event.isPresent() && clazz.isInstance(event.get());
-        }
-    }
 }

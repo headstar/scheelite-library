@@ -2,6 +2,7 @@ package org.headstar.scheelite;
 
 import com.google.common.base.Optional;
 import org.mockito.InOrder;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.testng.annotations.Test;
 
@@ -143,9 +144,8 @@ public class StateMachineTest extends TestBase {
         // then
         assertEquals(nextStateId, StateId.B);
 
-        InOrder inOrder = inOrder(a, b, guard, action, e);
+        InOrder inOrder = inOrder(a, b, action);
         inOrder.verify(a).onEvent(e, event);
-        inOrder.verify(guard).accept(e, Optional.of(event));
         inOrder.verify(a).onExit(e);
         inOrder.verify(action).execute(e, Optional.of(event));
         inOrder.verify(b).onEntry(e);
@@ -211,9 +211,8 @@ public class StateMachineTest extends TestBase {
         StateId nextStateId = stateMachine.processEvent(e, e.getStateId(), event);
 
         // then
-        InOrder inOrder = inOrder(a, guard, action, e);
+        InOrder inOrder = inOrder(a, action, e);
         inOrder.verify(a).onEvent(e, event);
-        inOrder.verify(guard).accept(e, Optional.of(event));
         inOrder.verify(a).onExit(e);
         inOrder.verify(action).execute(e, Optional.of(event));
         inOrder.verify(a).onEntry(e);
@@ -241,9 +240,8 @@ public class StateMachineTest extends TestBase {
         StateId nextStateId = stateMachine.processEvent(e, e.getStateId(), event);
 
         // then
-        InOrder inOrder = inOrder(a, guard, action, e);
+        InOrder inOrder = inOrder(a, action, e);
         inOrder.verify(a).onEvent(e, event);
-        inOrder.verify(guard).accept(e, Optional.of(event));
         inOrder.verify(action).execute(e, Optional.of(event));
 
         assertEquals(nextStateId, StateId.A);
@@ -509,7 +507,7 @@ public class StateMachineTest extends TestBase {
 
         InOrder inOrder = inOrder(a, b, c, d, guard, action, e);
         inOrder.verify(a).onEvent(e, event);
-        inOrder.verify(guard).accept(e, Optional.of(event));
+        inOrder.verify(guard).apply(Mockito.<GuardArgs<TestEntity>>any());
         inOrder.verify(a).onExit(e);
         inOrder.verify(action).execute(e, Optional.of(event));
         inOrder.verify(b).onEntry(e);

@@ -1,7 +1,5 @@
 package org.headstar.scheelite;
 
-import org.omg.SendingContext.RunTime;
-
 /**
  * Created by per on 16/02/14.
  */

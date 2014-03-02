@@ -2,11 +2,14 @@ package org.headstar.scheelite;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
-import com.google.common.collect.*;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -185,7 +188,7 @@ public class StateMachineImpl<T, U> implements StateMachine<T, U> {
             transitions.addAll(transitionMap.getTransitionsFromState(state));
         }
 
-        List<Transition<T, U>> triggeredTransitions = Lists.newArrayList(Iterables.filter(transitions, new GuardIsAccepting<T, U>(entity, event)));
+        List<Transition<T, U>> triggeredTransitions = Lists.newArrayList(Iterables.filter(transitions, new TransitionGuardIsAccepting<T, U>(entity, event)));
         if (triggeredTransitions.isEmpty()) {
             return Optional.absent();
         } else if (triggeredTransitions.size() == 1) {
@@ -195,21 +198,20 @@ public class StateMachineImpl<T, U> implements StateMachine<T, U> {
         }
     }
 
-    private static class GuardIsAccepting<T, U> implements Predicate<Transition<T, U>> {
+    private static class TransitionGuardIsAccepting<T, U> implements Predicate<Transition<T, U>> {
 
-        private final T entity;
-        private final Optional<?> event;
+        private final GuardArgs<T> guardArgs;
 
-        private GuardIsAccepting(T entity, Optional<?> event) {
-            this.entity = entity;
-            this.event = event;
+        private TransitionGuardIsAccepting(T entity, Optional<?> event) {
+            this.guardArgs = new GuardArgs<T>(entity, event);
         }
 
         @Override
         public boolean apply(Transition<T, U> input) {
             if (input.getGuard().isPresent()) {
-                return input.getGuard().get().accept(entity, event);
+                return input.getGuard().get().apply(guardArgs);
             } else {
+                // no guard present
                 return true;
             }
         }

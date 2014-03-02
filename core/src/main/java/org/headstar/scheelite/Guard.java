@@ -1,10 +1,7 @@
 package org.headstar.scheelite;
 
-import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
 
-public interface Guard<T> {
+public interface Guard<T> extends Predicate<GuardArgs<T>> {
 
-    String getName();
-
-    boolean accept(T entity, Optional<?> event);
 }
