@@ -14,7 +14,21 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.checkArgument;
 
 /**
- * A builder of {@link org.headstar.scheelite.StateMachine} instances.
+ * <p>A builder of {@link org.headstar.scheelite.StateMachine} instances.
+ *
+ * <p>Usage example: <pre>   {@code
+ *
+ *  StateMachine<CalculatorEntity, CalculatorState> fsm = StateMachineBuilder.<CalculatorEntity, CalculatorState>newBuilder()
+ *      .withInitialTransition(onState)
+ *      .withCompositeState(onState, initState, operand1State, operand2State, opEnteredState, resultState)
+ *      .withTransition(initState, operand1State, eventInstanceOf(DigitEvent.class))
+ *      .withTransition(operand1State, opEnteredState, eventInstanceOf(OperationEvent.class))
+ *      .withTransition(opEnteredState, operand2State, eventInstanceOf(DigitEvent.class))
+ *      .withTransition(operand2State, resultState, eventInstanceOf(ResultEvent.class))
+ *      .withTransition(resultState, operand1State, eventInstanceOf(DigitEvent.class))
+ *      .withTransition(resultState, opEnteredState, eventInstanceOf(OperationEvent.class))
+ *      .withTransition(onState, offState, eventInstanceOf(OffEvent.class))
+ *      .build();}</pre>
  *
  * @param <T> entity type
  * @param <U> state id type

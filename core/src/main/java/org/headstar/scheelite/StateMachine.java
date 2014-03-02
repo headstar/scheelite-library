@@ -14,7 +14,6 @@ public interface StateMachine<T, U> {
      * @param entity
      * @return id of the state after the initial transition
      *
-     * @see org.headstar.scheelite.InitialTransition
      * @see org.headstar.scheelite.State
      */
     U processInitialTransition(T entity);
