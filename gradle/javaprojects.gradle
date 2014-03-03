@@ -5,7 +5,7 @@ targetCompatibility = 1.5
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
-ext.guavaVersion = '15.0'
+ext.guavaVersion = '16.0.1'
 ext.testngVersion = '6.8.7'
 ext.mockitoVersion = '1.9.5'
 ext.slf4jApiVersion = '1.7.5'
