@@ -101,34 +101,78 @@ public class StateMachineBuilder<T, U> {
         return maxTransitionsPerEvent;
     }
 
+    public StateMachineBuilder<T, U> withTransition(State<T, U> fromState, State<T, U> toState, Class<?> triggerEventClass) {
+        return withTransition(fromState, toState, Optional.<Class<?>>of(triggerEventClass), Optional.<Guard<T>>absent(), Optional.<Action<T>>absent());
+    }
+
+    public StateMachineBuilder<T, U> withTransition(State<T, U> fromState, State<T, U> toState, Class<?> triggerEventClass, Guard<T> guard) {
+        return withTransition(fromState, toState, Optional.<Class<?>>of(triggerEventClass), Optional.<Guard<T>>of(guard), Optional.<Action<T>>absent());
+    }
+
+    public StateMachineBuilder<T, U> withTransition(State<T, U> fromState, State<T, U> toState, Class<?> triggerEventClass, Action<T> action) {
+        return withTransition(fromState, toState, Optional.<Class<?>>of(triggerEventClass), Optional.<Guard<T>>absent(), Optional.<Action<T>>of(action));
+    }
+
+    public StateMachineBuilder<T, U> withTransition(State<T, U> fromState, State<T, U> toState, Class<?> triggerEventClass, Guard<T> guard, Action<T> action) {
+        return withTransition(fromState, toState, Optional.<Class<?>>of(triggerEventClass), Optional.<Guard<T>>of(guard), Optional.<Action<T>>of(action));
+    }
+
     public StateMachineBuilder<T, U> withTransition(State<T, U> fromState, State<T, U> toState, Guard<T> guard, Action<T> action) {
-        return withTransition(fromState, toState, Optional.<Guard<T>>of(guard), Optional.<Action<T>>of(action));
+        return withTransition(fromState, toState, Optional.<Class<?>>absent(), Optional.<Guard<T>>of(guard), Optional.<Action<T>>of(action));
     }
 
     public StateMachineBuilder<T, U> withTransition(State<T, U> fromState, State<T, U> toState, Guard<T> guard) {
-        return withTransition(fromState, toState, Optional.<Guard<T>>of(guard), Optional.<Action<T>>absent());
+        return withTransition(fromState, toState, Optional.<Class<?>>absent(), Optional.<Guard<T>>of(guard), Optional.<Action<T>>absent());
     }
 
     public StateMachineBuilder<T, U> withTransition(State<T, U> fromState, State<T, U> toState, Action<T> action) {
-        return withTransition(fromState, toState, Optional.<Guard<T>>absent(), Optional.<Action<T>>of(action));
+        return withTransition(fromState, toState, Optional.<Class<?>>absent(), Optional.<Guard<T>>absent(), Optional.<Action<T>>of(action));
     }
 
     public StateMachineBuilder<T, U> withTransition(State<T, U> fromState, State<T, U> toState) {
-        return withTransition(fromState, toState, Optional.<Guard<T>>absent(), Optional.<Action<T>>absent());
+        return withTransition(fromState, toState, Optional.<Class<?>>absent(), Optional.<Guard<T>>absent(), Optional.<Action<T>>absent());
     }
 
-    private StateMachineBuilder<T, U> withTransition(State<T, U> fromState, State<T, U> toState,
+    private StateMachineBuilder<T, U> withTransition(State<T, U> fromState, State<T, U> toState, Optional<Class<?>> triggerEventClass,
                                                     Optional<? extends Guard<T>> guard, Optional<? extends Action<T>> action) {
-        return withTransition(new Transition<T, U>(fromState, toState, action, guard, TransitionType.EXTERNAL));
+        return withTransition(new Transition<T, U>(fromState, toState, TransitionType.EXTERNAL, triggerEventClass, guard, action));
+    }
+
+    public StateMachineBuilder<T, U> withLocalTransition(State<T, U> fromState, State<T, U> toState, Class<?> triggerEventClass) {
+        return withLocalTransition(fromState, toState, Optional.<Class<?>>of(triggerEventClass), Optional.<Guard<T>>absent(), Optional.<Action<T>>absent());
+    }
+
+    public StateMachineBuilder<T, U> withLocalTransition(State<T, U> fromState, State<T, U> toState, Class<?> triggerEventClass, Guard<T> guard) {
+        return withLocalTransition(fromState, toState, Optional.<Class<?>>of(triggerEventClass), Optional.<Guard<T>>of(guard), Optional.<Action<T>>absent());
+    }
+
+    public StateMachineBuilder<T, U> withLocalTransition(State<T, U> fromState, State<T, U> toState, Class<?> triggerEventClass, Action<T> action) {
+        return withLocalTransition(fromState, toState, Optional.<Class<?>>of(triggerEventClass), Optional.<Guard<T>>absent(), Optional.<Action<T>>of(action));
+    }
+
+    public StateMachineBuilder<T, U> withLocalTransition(State<T, U> fromState, State<T, U> toState, Class<?> triggerEventClass, Guard<T> guard, Action<T> action) {
+        return withLocalTransition(fromState, toState, Optional.<Class<?>>of(triggerEventClass), Optional.<Guard<T>>of(guard), Optional.<Action<T>>of(action));
     }
 
     public StateMachineBuilder<T, U> withLocalTransition(State<T, U> fromState, State<T, U> toState, Guard<T> guard, Action<T> action) {
-        return withLocalTransition(fromState, toState, Optional.<Guard<T>>of(guard), Optional.<Action<T>>of(action));
+        return withLocalTransition(fromState, toState, Optional.<Class<?>>absent(), Optional.<Guard<T>>of(guard), Optional.<Action<T>>of(action));
     }
 
-    public StateMachineBuilder<T, U> withLocalTransition(State<T, U> fromState, State<T, U> toState,
-                                                         Optional<? extends Guard<T>> guard, Optional<? extends Action<T>> action) {
-        return withTransition(new Transition<T, U>(fromState, toState, action, guard, TransitionType.LOCAL));
+    public StateMachineBuilder<T, U> withLocalTransition(State<T, U> fromState, State<T, U> toState, Guard<T> guard) {
+        return withLocalTransition(fromState, toState, Optional.<Class<?>>absent(), Optional.<Guard<T>>of(guard), Optional.<Action<T>>absent());
+    }
+
+    public StateMachineBuilder<T, U> withLocalTransition(State<T, U> fromState, State<T, U> toState, Action<T> action) {
+        return withLocalTransition(fromState, toState, Optional.<Class<?>>absent(), Optional.<Guard<T>>absent(), Optional.<Action<T>>of(action));
+    }
+
+    public StateMachineBuilder<T, U> withLocalTransition(State<T, U> fromState, State<T, U> toState) {
+        return withLocalTransition(fromState, toState, Optional.<Class<?>>absent(), Optional.<Guard<T>>absent(), Optional.<Action<T>>absent());
+    }
+
+    private StateMachineBuilder<T, U> withLocalTransition(State<T, U> fromState, State<T, U> toState, Optional<Class<?>> triggerEventClass,
+                                                     Optional<? extends Guard<T>> guard, Optional<? extends Action<T>> action) {
+        return withTransition(new Transition<T, U>(fromState, toState, TransitionType.LOCAL, triggerEventClass, guard, action));
     }
 
     private StateMachineBuilder<T, U> withTransition(Transition<T, U> transition) {

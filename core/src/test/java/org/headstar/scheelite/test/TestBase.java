@@ -104,7 +104,7 @@ public class TestBase {
 
         @Override
         public boolean apply(GuardArgs<TestEntity> input) {
-            return input.getEvent().isPresent() && accept;
+            return accept;
         }
     }
 
@@ -162,11 +162,17 @@ public class TestBase {
     }
 
     protected class TestEventX {
-
         @Override
         public String toString() {
-            final StringBuilder sb = new StringBuilder("TestEventX");
-            return sb.toString();
+            return getClass().getSimpleName();
         }
     }
+
+    protected class TestEventY {
+        @Override
+        public String toString() {
+            return getClass().getSimpleName();
+        }
+    }
+
 }

@@ -37,6 +37,22 @@ public class StateMachineBuilderTest extends TestBase {
     }
 
     @Test
+    public void testWithTriggerEventClass() {
+        // given
+        TestState a = new TestState(StateId.A);
+        TestState b = new TestState(StateId.B);
+
+        // when
+        builder.withInitialTransition(a)
+                .withTransition(a, b, TestEventX.class)
+                .build();
+
+        // then ... no exception should be thrown
+
+    }
+
+
+    @Test
     public void testSimpleReachability() {
         // given
         TestState a = new TestState(StateId.A);

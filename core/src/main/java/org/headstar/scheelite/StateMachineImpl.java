@@ -48,7 +48,7 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
         checkNotNull(stateId);
         checkNotNull(eventOpt);
 
-        if(transitionCount >= maxTransitionsPerEvent) {
+        if (transitionCount >= maxTransitionsPerEvent) {
             throw new MaxTransitionsPerEventException();
         }
 
@@ -117,7 +117,7 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
 
         int transitionCount = 0;
         ProcessEventResult<U> res = process(entity, stateId, Optional.of(event), transitionCount++);
-        while(res.isContinueProcessing()) {
+        while (res.isContinueProcessing()) {
             res = process(entity, res.getNextStateId(), Optional.absent(), transitionCount++);
         }
         return res.getNextStateId();
@@ -188,7 +188,7 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
             transitions.addAll(transitionMap.getTransitionsFromState(state));
         }
 
-        List<Transition<T, U>> triggeredTransitions = Lists.newArrayList(Iterables.filter(transitions, new TransitionGuardIsAccepting<T, U>(entity, event)));
+        List<Transition<T, U>> triggeredTransitions = Lists.newArrayList(Iterables.filter(transitions, new TransitionTriggered<T, U>(entity, event)));
         if (triggeredTransitions.isEmpty()) {
             return Optional.absent();
         } else if (triggeredTransitions.size() == 1) {
@@ -198,16 +198,31 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
         }
     }
 
-    private static class TransitionGuardIsAccepting<T, U> implements Predicate<Transition<T, U>> {
+    private static class TransitionTriggered<T, U> implements Predicate<Transition<T, U>> {
 
         private final GuardArgs<T> guardArgs;
 
-        private TransitionGuardIsAccepting(T entity, Optional<?> event) {
+        private TransitionTriggered(T entity, Optional<?> event) {
             this.guardArgs = new GuardArgs<T>(entity, event);
         }
 
         @Override
         public boolean apply(Transition<T, U> input) {
+            if (input.getTriggerEventClass().isPresent()) {
+                Class<?> triggerEventClass = input.getTriggerEventClass().get();
+                if (guardArgs.getEvent().isPresent()) {
+                    Object event = guardArgs.getEvent().get();
+                    if (!triggerEventClass.isInstance(event)) {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            } else {
+                if(guardArgs.getEvent().isPresent()) {
+                    return false;
+                }
+            }
             if (input.getGuard().isPresent()) {
                 return input.getGuard().get().apply(guardArgs);
             } else {
