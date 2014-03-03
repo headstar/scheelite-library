@@ -1,11 +1,12 @@
+apply plugin: 'cobertura'
 
 dependencies {
     compile "com.google.guava:guava:$guavaVersion",
-            "org.mockito:mockito-all:$mockitoVersion",
             "org.slf4j:slf4j-api:$slf4jApiVersion"
 
     testCompile "org.testng:testng:$testngVersion"
     testCompile "org.hamcrest:hamcrest-library:$hamcrestVersion"
+    testCompile "org.mockito:mockito-all:$mockitoVersion"
     testRuntime "ch.qos.logback:logback-classic:$logbackClassicVersion"
 }
 
