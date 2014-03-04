@@ -8,6 +8,7 @@ import org.headstar.scheelite.Guards;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 
 /**
  * Created by per on 04/03/14.
@@ -62,6 +63,8 @@ public class GuardsTest extends TestBase {
 
         @Override
         public boolean apply(GuardArgs<TestEntity> input) {
+            assertNotNull(input.getEntity());
+            assertNotNull(input.getEvent());
             return accept;
         }
     }

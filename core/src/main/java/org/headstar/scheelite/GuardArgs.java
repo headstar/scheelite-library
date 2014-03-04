@@ -2,6 +2,8 @@ package org.headstar.scheelite;
 
 import com.google.common.base.Optional;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 /**
  * Container for arguments to a guard.
  * @param <T> entity type
@@ -14,8 +16,8 @@ public class GuardArgs<T> {
     private final Optional<?> event;
 
     public GuardArgs(T entity, Optional<?> event) {
-        this.entity = entity;
-        this.event = event;
+        this.entity = checkNotNull(entity);
+        this.event = checkNotNull(event);
     }
 
     public T getEntity() {
