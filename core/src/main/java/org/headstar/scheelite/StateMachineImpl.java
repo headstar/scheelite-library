@@ -105,7 +105,7 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
     }
 
     @Override
-    public U processInitialTransition(T entity) {
+    public U start(T entity) {
         return handleInitialTransition(entity);
     }
 

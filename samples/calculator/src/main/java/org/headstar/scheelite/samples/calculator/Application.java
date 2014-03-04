@@ -1,9 +1,6 @@
 package org.headstar.scheelite.samples.calculator;
 
-import com.google.common.base.Optional;
 import org.headstar.scheelite.*;
-
-import javax.sql.rowset.Predicate;
 
 /**
  * Created by per on 20/02/14.
@@ -36,7 +33,7 @@ public class Application {
 
 
         CalculatorEntity entity = new CalculatorEntity();
-        CalculatorState state = fsm.processInitialTransition(entity);
+        CalculatorState state = fsm.start(entity);
         state = fsm.processEvent(entity, state, new DigitEvent(7));
         state = fsm.processEvent(entity, state, new OperationEvent(Operation.ADDITION));
         state = fsm.processEvent(entity, state, new DigitEvent(4));

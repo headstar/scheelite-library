@@ -101,7 +101,7 @@ public class StateMachineTest extends TestBase {
                 .build();
 
         // when
-        StateId nextStateId = stateMachine.processInitialTransition(e);
+        StateId nextStateId = stateMachine.start(e);
 
         // then
         assertEquals(nextStateId, StateId.C);

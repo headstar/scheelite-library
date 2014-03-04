@@ -9,14 +9,14 @@ package org.headstar.scheelite;
 public interface StateMachine<T, U> {
 
     /**
-     * Processes the initial transition from the implicit root state.
+     * Starts the state machine for the given entity by processing the initial transition from the implicit root state.
      *
      * @param entity
      * @return id of the state after the initial transition
      *
      * @see org.headstar.scheelite.State
      */
-    U processInitialTransition(T entity);
+    U start(T entity);
 
     /**
      * Processes the given event.
