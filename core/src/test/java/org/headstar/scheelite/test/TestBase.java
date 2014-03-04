@@ -8,9 +8,9 @@ import org.testng.annotations.BeforeMethod;
  * Created by Per on 2014-01-16.
  */
 public class TestBase {
-    enum StateId {A, B, C, D, E}
+    public enum StateId {A, B, C, D, E}
 
-    protected class TestEntity {
+    public class TestEntity {
 
         private StateId state;
 
@@ -34,14 +34,14 @@ public class TestBase {
         }
     }
 
-    protected StateMachineBuilder<TestEntity, StateId> builder;
+    public StateMachineBuilder<TestEntity, StateId> builder;
 
     @BeforeMethod
     public void setup() {
         builder = StateMachineBuilder.<TestEntity, StateId>newBuilder();
     }
 
-    protected class TestAction implements Action<TestEntity> {
+    public class TestAction implements Action<TestEntity> {
 
         @Override
         public String getName() {
@@ -55,7 +55,7 @@ public class TestBase {
 
     }
 
-    protected class TestInitialAction implements InitialAction<TestEntity> {
+    public class TestInitialAction implements InitialAction<TestEntity> {
 
         @Override
         public String getName() {
@@ -64,12 +64,13 @@ public class TestBase {
 
         @Override
         public void execute(TestEntity entity) {
-
         }
+
+
 
     }
 
-    protected class AlwaysAcceptTestGuard extends TestGuard {
+    public class AlwaysAcceptTestGuard extends TestGuard {
 
         public AlwaysAcceptTestGuard() {
             super(true);
@@ -77,7 +78,7 @@ public class TestBase {
 
     }
 
-    protected class AlwaysDenyTestGuard extends TestGuard {
+    public class AlwaysDenyTestGuard extends TestGuard {
 
         public AlwaysDenyTestGuard() {
             super(false);
@@ -85,7 +86,7 @@ public class TestBase {
 
     }
 
-    protected class TestGuard implements Guard<TestEntity> {
+    public class TestGuard implements Guard<TestEntity> {
         private final boolean accept;
 
         @Override
@@ -110,12 +111,12 @@ public class TestBase {
 
     enum HandleEvent { YES, NO };
 
-    protected class TestState extends StateAdapter<TestEntity, StateId> {
+    public static class TestState extends StateAdapter<TestEntity, StateId> {
 
         private final StateId id;
         private final HandleEvent handleEvent;
 
-        TestState(StateId id) {
+        public TestState(StateId id) {
             this(id, HandleEvent.YES);
         }
 
@@ -161,14 +162,14 @@ public class TestBase {
 
     }
 
-    protected class TestEventX {
+    public class TestEventX {
         @Override
         public String toString() {
             return getClass().getSimpleName();
         }
     }
 
-    protected class TestEventY {
+    public class TestEventY {
         @Override
         public String toString() {
             return getClass().getSimpleName();
