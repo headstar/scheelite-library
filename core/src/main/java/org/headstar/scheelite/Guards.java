@@ -10,6 +10,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class Guards {
 
+    private Guards() {}
+
     public static <T> Guard<T> of(Predicate<GuardArgs<T>> pred) {
         return new GuardPredicate<T>(pred);
     }
