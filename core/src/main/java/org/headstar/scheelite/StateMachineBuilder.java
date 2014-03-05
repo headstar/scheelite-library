@@ -71,6 +71,7 @@ public class StateMachineBuilder<T, U> {
             Preconditions.checkNotNull(state);
         }
 
+        Preconditions.checkState(!stateTree.isAncestorOf(defaultSubState, superState), "state super state of supplied super state: %s", defaultSubState);
         for (State<T, U> state : subStates) {
             Preconditions.checkState(!stateTree.isAncestorOf(state, superState), "state super state of supplied super state: %s", state);
         }

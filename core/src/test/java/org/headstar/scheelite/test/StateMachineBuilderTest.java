@@ -16,6 +16,22 @@ public class StateMachineBuilderTest extends TestBase {
         // then ...exception should be thrown
     }
 
+    @SuppressWarnings("unchecked")
+    @Test(expectedExceptions = IllegalStateException.class)
+    public void testStartStateChild() {
+        // given
+        TestState a = new TestState(StateId.A);
+        TestState b = new TestState(StateId.B);
+
+        // when
+        builder.withInitialTransition(b)
+                .withCompositeState(a, b)
+                .build();
+
+        // then ...exception should be thrown
+    }
+
+
     @Test(expectedExceptions = NullPointerException.class)
     public void testStartStateNull() {
         // given
@@ -25,6 +41,17 @@ public class StateMachineBuilderTest extends TestBase {
 
         // then ...exception should be thrown
     }
+
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void testMaxTransitionsInvalid() {
+        // given
+
+        // when
+        builder.withMaxTransitions(0);
+
+        // then ...exception should be thrown
+    }
+
 
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void testNullStartStateId() {
@@ -129,4 +156,38 @@ public class StateMachineBuilderTest extends TestBase {
 
         // then ...no exception should be thrown
     }
+
+    @SuppressWarnings("unchecked")
+    @Test(expectedExceptions = IllegalStateException.class)
+    public void testSubStateOfXAlreadySuperStateOfX_1() {
+        // given
+        TestState a = new TestState(StateId.A);
+        TestState b = new TestState(StateId.B);
+        TestState c = new TestState(StateId.C);
+        TestState d = new TestState(StateId.D);
+
+        // when
+        builder.withCompositeState(a, b, c)
+               .withCompositeState(c, d, a);
+
+        // then ...exception should be thrown
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test(expectedExceptions = IllegalStateException.class)
+    public void testSubStateOfXAlreadySuperStateOfX_2() {
+        // given
+        TestState a = new TestState(StateId.A);
+        TestState b = new TestState(StateId.B);
+        TestState c = new TestState(StateId.C);
+        TestState d = new TestState(StateId.D);
+
+        // when
+        builder.withCompositeState(a, b, c)
+                .withCompositeState(c, a, d);
+
+        // then ...exception should be thrown
+    }
+
+
 }
