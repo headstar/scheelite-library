@@ -1,6 +1,6 @@
 ### General
 
-Lightweight Java FSM library with some UML 2 features:
+Lightweight Java FSM library with the following features:
 
 * Entry/exit actions
 * Sub states
