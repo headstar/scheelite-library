@@ -1,4 +1,4 @@
-*** General
+### General
 
 Lightweight Java FSM library with some UML 2 features:
 
