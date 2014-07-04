@@ -19,6 +19,8 @@ interface StateTree<T, U> {
 
     boolean isChild(State<T, U> a);
 
+    public boolean isParent(State<T, U> a);
+
     Optional<State<T, U>> getParent(State<T, U> a);
 
     boolean isChildOf(State<T, U> a, State<T, U> b);

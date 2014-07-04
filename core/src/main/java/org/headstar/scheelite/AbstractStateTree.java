@@ -74,6 +74,13 @@ abstract class AbstractStateTree<T, U> implements StateTree<T, U> {
     }
 
     @Override
+    public boolean isParent(State<T, U> a) {
+        checkNotNull(a);
+        Map<State<T, U>, State<T, U>> map = getMap();
+        return map.values().contains(a);
+    }
+
+    @Override
     public boolean isAncestorOf(State<T, U> a, State<T, U> b) {
         checkNotNull(a);
         checkNotNull(b);

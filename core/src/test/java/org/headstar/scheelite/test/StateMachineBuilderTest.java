@@ -145,6 +145,25 @@ public class StateMachineBuilderTest extends TestBase {
         // then ... no exception should be thrown
     }
 
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testCompositeStatesNoTransitionToSuperState() {
+        // given
+        TestState a = new TestState(StateId.A);
+        TestState b = new TestState(StateId.B);
+        TestState c = new TestState(StateId.C);
+        TestState d = new TestState(StateId.D);
+
+        // when
+        builder.withInitialTransition(a)
+                .withCompositeState(b, c, d)
+                .withTransition(a, d)
+                .withTransition(d, c)
+                .build();
+
+        // then ... no exception should be thrown
+    }
+
 
     @Test
     public void testStartOnly() {

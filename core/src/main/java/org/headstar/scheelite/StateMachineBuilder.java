@@ -2,7 +2,9 @@ package org.headstar.scheelite;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 
@@ -300,7 +302,8 @@ public class StateMachineBuilder<T, U> {
             }
         }
 
-        Set<State<T, U>> notVisited = Sets.difference(stateTree.getStates(), visited);
+        Set<State<T, U>> leafs = Sets.newHashSet(Iterables.filter(stateTree.getStates(), new NotParentPredicate()));
+        Set<State<T, U>> notVisited = Sets.difference(leafs, visited);
         if (!notVisited.isEmpty()) {
             throw new IllegalStateException(String.format("states not reachable from start state: startState=[%s] states=[%s]", startState,
                     notVisited));
@@ -318,6 +321,13 @@ public class StateMachineBuilder<T, U> {
             }
         }
         return edges;
+    }
+
+    private class NotParentPredicate implements Predicate<State<T,U>> {
+        @Override
+        public boolean apply(State<T, U> input) {
+            return !stateTree.isParent(input);
+        }
     }
 
 }
