@@ -1,0 +1,3 @@
+apply plugin: 'cobertura'
+
+cobertura.coverageFormats = ['html', 'xml'] // coveralls plugin depends on xml format report

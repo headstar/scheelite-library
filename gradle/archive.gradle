@@ -1,0 +1,42 @@
+apply plugin: 'nexus'
+
+group = 'com.headstartech.scheelite'
+
+modifyPom {
+    project {
+        name 'Scheelite FSM'
+        description 'Finite state machine library'
+        url 'https://github.com/headstar/scheelite-library'
+        inceptionYear '2014'
+
+        scm {
+            url 'https://github.com/headstar/scheelite-librar'
+            connection 'scm:https://github.com/headstar/scheelite-library.git'
+            developerConnection 'scm:git@github.com:headstar/scheelite-library.git'
+        }
+
+        licenses {
+            license {
+                name 'The Apache Software License, Version 2.0'
+                url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                distribution 'repo'
+            }
+        }
+
+        developers {
+            developer {
+                id 'per'
+                name 'Per Johansson'
+                email 'per@headstartech.com'
+            }
+        }
+    }
+}
+
+nexus {
+    attachSources = true
+    attachTests = false
+    attachJavadoc = true
+    sign = true
+    snapshotRepositoryUrl = 'http://localhost:8081/nexus/content/repositories/snapshots/'
+}

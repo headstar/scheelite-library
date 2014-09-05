@@ -1,19 +1,17 @@
-allprojects {
-    apply plugin: 'idea'
-    apply plugin: 'eclipse'
-    apply plugin: 'maven-publish'
-
-    repositories {
-        mavenCentral()
-    }
-}
+apply plugin: 'idea'
+apply plugin: 'eclipse'
+apply plugin: 'cobertura'
+apply plugin: 'com.github.kt3k.coveralls'
 
 buildscript {
     repositories {
+        jcenter()
         mavenCentral()
     }
     dependencies {
-        classpath "net.saliman:gradle-cobertura-plugin:2.2.2"
+        classpath "net.saliman:gradle-cobertura-plugin:2.2.4"
+        classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.0.0'
+        classpath 'org.gradle.api.plugins:gradle-nexus-plugin:0.7.1'
     }
 }
 
@@ -21,21 +19,48 @@ task wrapper(type: Wrapper) {
     gradleVersion = '2.0'
 }
 
-ext.javaProjects = subprojects
+def javaProjects = [ project(':scheelite-core'), project(':scheelite-samples-calculator') ]
+def javaReleaseProjects = [ project(':scheelite-core') ]
 
 configure(javaProjects) {
     apply from: "$rootDir/gradle/javaprojects.gradle"
+}
 
-    publishing {
-        publications {
-            mavenJava(MavenPublication) {
-                from components.java
-            }
-        }
-        repositories {
-            maven {
-                url "$buildDir/repo" // change to point to your repo, e.g. http://my.org/repo
-            }
-        }
+configure(javaReleaseProjects) {
+    apply from: "$rootDir/gradle/archive.gradle"
+    apply from: "$rootDir/gradle/cobertura.gradle"
+
+}
+
+allprojects {
+    repositories {
+        mavenCentral()
     }
 }
+
+idea {
+    project {
+        jdkName = '1.7'
+        languageLevel = '1.6'
+    }
+}
+
+def childTestTasks = []
+def coverageDatafiles = []
+def coverallsSourceDirs = []
+javaProjects.each {
+    coverageDatafiles << it.file("build/cobertura/cobertura.ser")
+    childTestTasks << "${it.name}:test"
+    coverallsSourceDirs << it.file("src/main/java").path
+}
+
+cobertura {
+    coverageMergeDatafiles = coverageDatafiles
+    coverageFormats = ['html', 'xml'] // coveralls plugin depends on xml format report
+}
+
+coveralls {
+    sourceDirs = coverallsSourceDirs
+}
+
+test.dependsOn(childTestTasks)
