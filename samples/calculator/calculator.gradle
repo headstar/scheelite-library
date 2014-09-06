@@ -6,4 +6,4 @@ dependencies {
     runtime "ch.qos.logback:logback-classic:$logbackClassicVersion"
 }
 
-mainClassName = 'org.headstar.scheelite.samples.calculator.Application';
+mainClassName = 'com.headstartech.scheelite.samples.calculator.Application';
