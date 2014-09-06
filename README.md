@@ -1,5 +1,5 @@
 ###Scheelite
-[![Build Status](https://travis-ci.org/headstar/scheelite-library.svg?branch=master)](https://travis-ci.org/headstar/scheelite-library) [![Coverage Status](https://img.shields.io/coveralls/headstar/scheelite-library.svg)](https://coveralls.io/r/headstar/scheelite-library?branch=master)
+[![Build Status](https://travis-ci.org/headstar/scheelite-library.svg?branch=1.0)](https://travis-ci.org/headstar/scheelite-library) [![Coverage Status](https://img.shields.io/coveralls/headstar/scheelite-library.svg)](https://coveralls.io/r/headstar/scheelite-library?branch=1.0)
 
 
 Lightweight Java FSM library with the following features:
