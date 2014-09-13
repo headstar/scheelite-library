@@ -227,4 +227,135 @@ public class AbstractStateTreeTest extends TestBase {
         assertFalse(resStateA);
     }
 
+    @Test
+    public void isAncestorOfWhenFalse1() {
+        // given
+        MutableStateTree<TestEntity, StateId> tree = new MutableStateTree<TestEntity, StateId>();
+        TestState stateA = new TestState(StateId.A);
+        TestState stateB = new TestState(StateId.B);
+        TestState stateC = new TestState(StateId.C);
+        tree.addState(stateA, stateB);
+        tree.addState(stateC);
+
+        // when
+        boolean res = tree.isAncestorOf(stateB, stateC);
+
+        // then
+        assertFalse(res);
+    }
+
+    @Test
+    public void isAncestorOfWhenFalse2() {
+        // given
+        MutableStateTree<TestEntity, StateId> tree = new MutableStateTree<TestEntity, StateId>();
+        TestState stateA = new TestState(StateId.A);
+        TestState stateB = new TestState(StateId.B);
+        TestState stateC = new TestState(StateId.C);
+        tree.addState(stateA, stateB);
+        tree.addState(stateC);
+
+        // when
+        boolean res = tree.isAncestorOf(stateA, stateB);
+
+        // then
+        assertFalse(res);
+    }
+
+    @Test
+    public void isAncestorOfWhenTrue1() {
+        // given
+        MutableStateTree<TestEntity, StateId> tree = new MutableStateTree<TestEntity, StateId>();
+        TestState stateA = new TestState(StateId.A);
+        TestState stateB = new TestState(StateId.B);
+        TestState stateC = new TestState(StateId.C);
+        tree.addState(stateA, stateB);
+        tree.addState(stateC, stateA);
+
+        // when
+        boolean res = tree.isAncestorOf(stateB, stateC);
+
+        // then
+        assertTrue(res);
+    }
+
+    @Test
+    public void isAncestorOfWhenTrue2() {
+        // given
+        MutableStateTree<TestEntity, StateId> tree = new MutableStateTree<TestEntity, StateId>();
+        TestState stateA = new TestState(StateId.A);
+        tree.addState(stateA);
+
+        // when
+        boolean res = tree.isAncestorOf(stateA, stateA);
+
+        // then
+        assertTrue(res);
+    }
+
+    @Test
+    public void isDescendantOfWhenFalse1() {
+        // given
+        MutableStateTree<TestEntity, StateId> tree = new MutableStateTree<TestEntity, StateId>();
+        TestState stateA = new TestState(StateId.A);
+        TestState stateB = new TestState(StateId.B);
+        TestState stateC = new TestState(StateId.C);
+        tree.addState(stateA, stateB);
+        tree.addState(stateC);
+
+        // when
+        boolean res = tree.isDescendantOf(stateA, stateC);
+
+        // then
+        assertFalse(res);
+    }
+
+    @Test
+    public void isDescendantOfWhenFalse2() {
+        // given
+        MutableStateTree<TestEntity, StateId> tree = new MutableStateTree<TestEntity, StateId>();
+        TestState stateA = new TestState(StateId.A);
+        TestState stateB = new TestState(StateId.B);
+        TestState stateC = new TestState(StateId.C);
+        tree.addState(stateA, stateB);
+        tree.addState(stateC);
+
+        // when
+        boolean res = tree.isDescendantOf(stateB, stateA);
+
+        // then
+        assertFalse(res);
+    }
+
+    @Test
+    public void isDescendantOfWhenTrue1() {
+        // given
+        MutableStateTree<TestEntity, StateId> tree = new MutableStateTree<TestEntity, StateId>();
+        TestState stateA = new TestState(StateId.A);
+        TestState stateB = new TestState(StateId.B);
+        TestState stateC = new TestState(StateId.C);
+        tree.addState(stateA, stateB);
+        tree.addState(stateC, stateA);
+
+        // when
+        boolean res = tree.isDescendantOf(stateC, stateB);
+
+        // then
+        assertTrue(res);
+    }
+
+    @Test
+    public void isDescendantOfWhenTrue2() {
+        // given
+        MutableStateTree<TestEntity, StateId> tree = new MutableStateTree<TestEntity, StateId>();
+        TestState stateA = new TestState(StateId.A);
+        tree.addState(stateA);
+
+        // when
+        boolean res = tree.isDescendantOf(stateA, stateA);
+
+        // then
+        assertTrue(res);
+    }
+
+
 }
