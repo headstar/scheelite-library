@@ -47,20 +47,22 @@ idea {
 
 def childTestTasks = []
 def coverageDatafiles = []
-def coverallsSourceDirs = []
-javaProjects.each {
+def testSourceDirs = []
+javaReleaseProjects.each {
     coverageDatafiles << it.file("build/cobertura/cobertura.ser")
     childTestTasks << "${it.name}:test"
-    coverallsSourceDirs << it.file("src/main/java").path
+    testSourceDirs << it.file("src/main/java").path
 }
 
 cobertura {
-    coverageMergeDatafiles = coverageDatafiles
-    coverageFormats = ['html', 'xml'] // coveralls plugin depends on xml format report
+  coverageMergeDatafiles = coverageDatafiles
+  coverageFormats = ['html', 'xml'] // coveralls plugin depends on xml format report
+  coverageSourceDirs  = testSourceDirs
 }
 
 coveralls {
-    sourceDirs = coverallsSourceDirs
+    sourceDirs = testSourceDirs
 }
 
+// make sure this test task is run last  
 test.dependsOn(childTestTasks)
