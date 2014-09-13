@@ -5,6 +5,8 @@ import com.google.common.base.Optional;
 import com.headstartech.scheelite.test.TestBase;
 import org.testng.annotations.Test;
 
+import java.util.List;
+
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
@@ -357,5 +359,137 @@ public class AbstractStateTreeTest extends TestBase {
         assertTrue(res);
     }
 
+    @Test
+    public void getLowestCommonAncestorWhenRoot() {
+        // given
+        MutableStateTree<TestEntity, StateId> tree = new MutableStateTree<TestEntity, StateId>();
+        TestState stateA = new TestState(StateId.A);
+        TestState stateB = new TestState(StateId.B);
+        tree.addState(stateA);
+        tree.addState(stateB);
+
+        // when
+        Optional<State<TestEntity, StateId>> res = tree.getLowestCommonAncestor(stateA, stateB);
+
+        // then
+        assertFalse(res.isPresent());
+    }
+
+    @Test
+    public void getLowestCommonAncestorWhenSelf() {
+        // given
+        MutableStateTree<TestEntity, StateId> tree = new MutableStateTree<TestEntity, StateId>();
+        TestState stateA = new TestState(StateId.A);
+        tree.addState(stateA);
+
+        // when
+        Optional<State<TestEntity, StateId>> res = tree.getLowestCommonAncestor(stateA, stateA);
+
+        // then
+        assertTrue(res.isPresent());
+        assertEquals(stateA, res.get());
+    }
+
+    @Test
+    public void getLowestCommonAncestorWhenParentChild() {
+        // given
+        MutableStateTree<TestEntity, StateId> tree = new MutableStateTree<TestEntity, StateId>();
+        TestState stateA = new TestState(StateId.A);
+        TestState stateB = new TestState(StateId.B);
+        tree.addState(stateA, stateB);
+
+        // when
+        Optional<State<TestEntity, StateId>> res = tree.getLowestCommonAncestor(stateB, stateA);
+
+        // then
+        assertTrue(res.isPresent());
+        assertEquals(stateB, res.get());
+    }
+
+    @Test
+    public void getLowestCommonAncestorWhenParentGrandChild() {
+        // given
+        MutableStateTree<TestEntity, StateId> tree = new MutableStateTree<TestEntity, StateId>();
+        TestState stateA = new TestState(StateId.A);
+        TestState stateB = new TestState(StateId.B);
+        TestState stateC = new TestState(StateId.C);
+        tree.addState(stateA, stateB);
+        tree.addState(stateC, stateA);
+
+        // when
+        Optional<State<TestEntity, StateId>> res = tree.getLowestCommonAncestor(stateC, stateB);
+
+        // then
+        assertTrue(res.isPresent());
+        assertEquals(stateB, res.get());
+    }
+
+    @Test(expectedExceptions = {IllegalArgumentException.class})
+    public void getPathBetweenWhenNotRelated() {
+        // given
+        MutableStateTree<TestEntity, StateId> tree = new MutableStateTree<TestEntity, StateId>();
+        State<TestEntity, StateId> stateA = new TestState(StateId.A);
+        State<TestEntity, StateId> stateB = new TestState(StateId.B);
+        tree.addState(stateA);
+        tree.addState(stateB);
+
+        // when
+        tree.getPathBetween(stateA, Optional.of(stateB));
+
+        // then
+    }
+
+    @Test
+    public void getPathBetweenSelf() {
+        // given
+        MutableStateTree<TestEntity, StateId> tree = new MutableStateTree<TestEntity, StateId>();
+        State<TestEntity, StateId> stateA = new TestState(StateId.A);
+        tree.addState(stateA);
+
+        // when
+        List<State<TestEntity, StateId>> res = tree.getPathBetween(stateA, Optional.of(stateA));
+
+        // then
+        assertTrue(res.isEmpty());
+    }
+
+    @Test
+    public void getPathBetween() {
+        // given
+        MutableStateTree<TestEntity, StateId> tree = new MutableStateTree<TestEntity, StateId>();
+        State<TestEntity, StateId> stateA = new TestState(StateId.A);
+        State<TestEntity, StateId> stateB = new TestState(StateId.B);
+        State<TestEntity, StateId> stateC = new TestState(StateId.C);
+        tree.addState(stateA, stateB);
+        tree.addState(stateC, stateA);
+
+        // when
+        List<State<TestEntity, StateId>> res = tree.getPathBetween(stateC, Optional.of(stateB));
+
+        // then
+        assertEquals(2, res.size());
+        assertEquals(res.get(0), stateC);
+        assertEquals(res.get(1), stateA);
+    }
+
+    @Test
+    public void getPathToRootState() {
+        // given
+        MutableStateTree<TestEntity, StateId> tree = new MutableStateTree<TestEntity, StateId>();
+        State<TestEntity, StateId> stateA = new TestState(StateId.A);
+        State<TestEntity, StateId> stateB = new TestState(StateId.B);
+        State<TestEntity, StateId> stateC = new TestState(StateId.C);
+        tree.addState(stateA, stateB);
+        tree.addState(stateC, stateA);
+
+        // when
+        List<State<TestEntity, StateId>> res = tree.getPathToRootState(stateC);
+
+        // then
+        assertEquals(3, res.size());
+        assertEquals(res.get(0), stateC);
+        assertEquals(res.get(1), stateA);
+        assertEquals(res.get(2), stateB);
+    }
 
 }
