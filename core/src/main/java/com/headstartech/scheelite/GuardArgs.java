@@ -5,7 +5,8 @@ import com.google.common.base.Optional;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * Container for arguments to a guard.
+ * Container for arguments to a <code>Guard</code>.
+ *
  * @param <T> entity type
  *
  * @see Guard
