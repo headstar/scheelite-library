@@ -78,6 +78,32 @@ public class GuardsTest extends TestBase {
         assertFalse(res);
     }
 
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testNotTrue() {
+        // given
+        Guard<TestEntity> guard = Guards.not(Guards.of(new TestPred(false)));
+
+        // when
+        boolean res = guard.apply(new GuardArgs<TestEntity>(new TestEntity(), Optional.absent()));
+
+        // then
+        assertTrue(res);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testNotFalse() {
+        // given
+        Guard<TestEntity> guard = Guards.not(Guards.of(new TestPred(true)));
+
+        // when
+        boolean res = guard.apply(new GuardArgs<TestEntity>(new TestEntity(), Optional.absent()));
+
+        // then
+        assertFalse(res);
+    }
+
     private static class TestPred implements Predicate<GuardArgs<TestEntity>> {
 
         private final boolean accept;
@@ -93,6 +119,5 @@ public class GuardsTest extends TestBase {
             return accept;
         }
     }
-
 
 }

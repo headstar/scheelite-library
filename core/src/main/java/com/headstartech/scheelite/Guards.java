@@ -24,6 +24,10 @@ public class Guards {
         return of(Predicates.<GuardArgs<T>>or(components));
     }
 
+    public static <T> Guard<T> not(Guard<T> component) {
+        return of(Predicates.<GuardArgs<T>>not(component));
+    }
+
     private static class GuardPredicate<T> implements Guard<T> {
 
         private final Predicate<GuardArgs<T>> pred;
