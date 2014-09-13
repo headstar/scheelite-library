@@ -7,8 +7,7 @@ import com.headstartech.scheelite.GuardArgs;
 import com.headstartech.scheelite.Guards;
 import org.testng.annotations.Test;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.*;
 
 /**
  * Created by per on 04/03/14.
@@ -24,7 +23,7 @@ public class GuardsTest extends TestBase {
         boolean res = guard.apply(new GuardArgs<TestEntity>(new TestEntity(), Optional.absent()));
 
         // then
-        assertEquals(true, res);
+        assertTrue(res);
     }
 
     @SuppressWarnings("unchecked")
@@ -37,7 +36,7 @@ public class GuardsTest extends TestBase {
         boolean res = guard.apply(new GuardArgs<TestEntity>(new TestEntity(), Optional.absent()));
 
         // then
-        assertEquals(true, res);
+        assertTrue(res);
     }
 
     @SuppressWarnings("unchecked")
@@ -50,7 +49,33 @@ public class GuardsTest extends TestBase {
         boolean res = guard.apply(new GuardArgs<TestEntity>(new TestEntity(), Optional.absent()));
 
         // then
-        assertEquals(false, res);
+        assertFalse(res);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testOrTrue() {
+        // given
+        Guard<TestEntity> guard = Guards.or(Guards.of(new TestPred(true)), Guards.of(new TestPred(false)));
+
+        // when
+        boolean res = guard.apply(new GuardArgs<TestEntity>(new TestEntity(), Optional.absent()));
+
+        // then
+        assertTrue(res);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testOrFalse() {
+        // given
+        Guard<TestEntity> guard = Guards.or(Guards.of(new TestPred(false)), Guards.of(new TestPred(false)));
+
+        // when
+        boolean res = guard.apply(new GuardArgs<TestEntity>(new TestEntity(), Optional.absent()));
+
+        // then
+        assertFalse(res);
     }
 
     private static class TestPred implements Predicate<GuardArgs<TestEntity>> {

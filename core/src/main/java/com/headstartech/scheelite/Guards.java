@@ -20,6 +20,10 @@ public class Guards {
         return of(Predicates.<GuardArgs<T>>and(components));
     }
 
+    public static <T> Guard<T> or(Guard<T>... components) {
+        return of(Predicates.<GuardArgs<T>>or(components));
+    }
+
     private static class GuardPredicate<T> implements Guard<T> {
 
         private final Predicate<GuardArgs<T>> pred;
