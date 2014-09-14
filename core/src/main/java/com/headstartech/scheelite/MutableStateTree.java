@@ -27,17 +27,7 @@ class MutableStateTree<T, U> extends AbstractStateTree<T,U> {
     public void addState(State<T, U> state, State<T, U> parentState) {
         checkNotNull(state);
         checkNotNull(parentState);
-        if(!exists(state)) {
-            map.put(state, parentState);
-        } else {
-           if(isChild(state)) {
-               if(!isChildOf(state, parentState)) {
-                   throw new IllegalArgumentException(String.format("state already has a parent: state=%s, parentState=%s", state.getId(), parentState.getId()));
-               }
-           } else {
-               map.put(state, parentState);
-           }
-        }
+        map.put(state, parentState);
     }
 
 
