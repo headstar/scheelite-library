@@ -138,10 +138,10 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
         }
         while (initialTransitionOpt.isPresent()) {
             InitialTransition<T, U> it = initialTransitionOpt.get();
-            logger.debug("default transition: transition={}", it);
+            logger.debug("initial transition: transition={}", it);
             if (it.getAction().isPresent()) {
                 InitialAction<T> action = it.getAction().get();
-                logger.debug("executing default action: entity={}, action={}", entity, action.getName());
+                logger.debug("executing action for initial transition: entity={}, action={}", entity, action.getName());
                 action.execute(entity);
             }
             endState = it.getToState();
