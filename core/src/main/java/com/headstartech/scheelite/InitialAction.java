@@ -8,6 +8,12 @@ package com.headstartech.scheelite;
  */
 public interface InitialAction<T> {
 
+    /**
+     * Name of initial action.
+     * Note, will be removed in next major version.
+     * @return
+     */
+    @Deprecated
     String getName();
 
     void execute(T entity);

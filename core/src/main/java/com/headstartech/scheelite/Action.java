@@ -9,6 +9,12 @@ import com.google.common.base.Optional;
  */
 public interface Action<T> {
 
+    /**
+     * Name of action.
+     * Note, will be removed in next major version.
+     * @return
+     */
+    @Deprecated
     String getName();
 
     void execute(T entity, Optional<?> event);

@@ -84,7 +84,9 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
             Optional<? extends Action<T>> actionOpt = triggeredTransition.getAction();
             if (actionOpt.isPresent()) {
                 Action<T> action = actionOpt.get();
-                logger.debug("executing action: entity={}, action={}", entity, action.getName());
+                if(logger.isDebugEnabled()) {
+                    logger.debug("executing action: entity={}, action={}", entity, getActionName(action));
+                }
                 action.execute(entity, eventOpt);
             }
 
@@ -141,7 +143,9 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
             logger.debug("initial transition: transition={}", it);
             if (it.getAction().isPresent()) {
                 InitialAction<T> action = it.getAction().get();
-                logger.debug("executing action for initial transition: entity={}, action={}", entity, action.getName());
+                if(logger.isDebugEnabled()) {
+                    logger.debug("executing action for initial transition: entity={}, action={}", entity, getInitialActionName(action));
+                }
                 action.execute(entity);
             }
             endState = it.getToState();
@@ -248,5 +252,13 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
         public U getNextStateId() {
             return nextStateId;
         }
+    }
+
+    private String getActionName(Action<T> action) {
+        return action.getClass().getName();
+    }
+
+    private String getInitialActionName(InitialAction<T> initialAction) {
+        return initialAction.getClass().getName();
     }
 }
