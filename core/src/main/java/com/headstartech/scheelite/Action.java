@@ -17,5 +17,11 @@ public interface Action<T> {
     @Deprecated
     String getName();
 
+    /**
+     * Called when action is executed.
+     *
+     * @param entity
+     * @param event
+     */
     void execute(T entity, Optional<?> event);
 }

@@ -16,5 +16,10 @@ public interface InitialAction<T> {
     @Deprecated
     String getName();
 
+    /**
+     * Called when action is executed.
+     *
+     * @param entity
+     */
     void execute(T entity);
 }

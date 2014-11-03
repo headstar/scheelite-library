@@ -3,7 +3,7 @@ package com.headstartech.scheelite;
 import java.util.Collection;
 
 /**
- * Default policy when building a state machine,throws an <code>IllegalStateException</code>.
+ * Default policy when building a state machine, throws an <code>IllegalStateException</code>.
  *
  * @param <T> entity type
  * @param <U> state id type
