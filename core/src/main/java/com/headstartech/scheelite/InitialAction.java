@@ -10,7 +10,7 @@ public interface InitialAction<T> {
 
     /**
      * Name of initial action.
-     * Note, will be removed in next major version.
+     * Not used anymore, will be removed in next major version.
      * @return
      */
     @Deprecated
