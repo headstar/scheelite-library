@@ -71,7 +71,7 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
             State<T, U> mainTargetState = triggeredTransition.getToState();
 
             // get lowest common ancestor (LCA) for main source state and main target state
-            Optional<State<T, U>> lowestCommonAncestor = stateTree.getLowestCommonAncestor(mainSourceState, mainTargetState);
+            State<T, U> lowestCommonAncestor = stateTree.getLowestCommonAncestor(mainSourceState, mainTargetState);
 
             // exit sources states
             List<State<T, U>> sourceStates = getSourceStates(currentState, mainSourceState, mainTargetState, lowestCommonAncestor, triggeredTransition.getTransitionType());
@@ -159,34 +159,28 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
     }
 
     private List<State<T, U>> getSourceStates(State<T, U> currentState, State<T, U> mainSourceState, State<T, U> mainTargetState,
-                                              Optional<State<T, U>> lowestCommonAncestorOpt, TransitionType transitionType) {
-        List<State<T, U>> res = stateTree.getPathBetween(currentState, lowestCommonAncestorOpt);
-        if (lowestCommonAncestorOpt.isPresent()) {
-            State<T, U> lowestCommonAncestor = lowestCommonAncestorOpt.get();
-            if (TransitionType.EXTERNAL.equals(transitionType) &&
-                    (mainSourceState.equals(lowestCommonAncestor) || mainTargetState.equals(lowestCommonAncestor))) {
-                res.add(lowestCommonAncestor);
-            }
+                                              State<T, U> lowestCommonAncestor, TransitionType transitionType) {
+        List<State<T, U>> res = stateTree.getPathToAncestor(currentState, lowestCommonAncestor, false);
+        if (TransitionType.EXTERNAL.equals(transitionType) &&
+                (mainSourceState.equals(lowestCommonAncestor) || mainTargetState.equals(lowestCommonAncestor))) {
+            res.add(lowestCommonAncestor);
         }
         return res;
     }
 
     private List<State<T, U>> getTargetStates(State<T, U> mainSourceState, State<T, U> mainTargetState,
-                                              Optional<State<T, U>> lowestCommonAncestorOpt, TransitionType transitionType) {
-        List<State<T, U>> res = stateTree.getPathBetween(mainTargetState, lowestCommonAncestorOpt);
-        if (lowestCommonAncestorOpt.isPresent()) {
-            State<T, U> lowestCommonAncestor = lowestCommonAncestorOpt.get();
-            if (TransitionType.EXTERNAL.equals(transitionType) &&
-                    (mainSourceState.equals(lowestCommonAncestor) || mainTargetState.equals(lowestCommonAncestor))) {
-                res.add(lowestCommonAncestor);
-            }
+                                              State<T, U> lowestCommonAncestor, TransitionType transitionType) {
+        List<State<T, U>> res = stateTree.getPathToAncestor(mainTargetState, lowestCommonAncestor, false);
+        if (TransitionType.EXTERNAL.equals(transitionType) &&
+                (mainSourceState.equals(lowestCommonAncestor) || mainTargetState.equals(lowestCommonAncestor))) {
+            res.add(lowestCommonAncestor);
         }
         Collections.reverse(res);
         return res;
     }
 
     private Optional<Transition<T, U>> getTriggeredTransition(State<T, U> currentState, T entity, Optional<?> event) {
-        List<State<T, U>> fromCurrentStateToRoot = stateTree.getPathToRootState(currentState);
+        List<State<T, U>> fromCurrentStateToRoot = stateTree.getPathToAncestor(currentState, stateTree.getRootState(), false);
         Collection<Transition<T, U>> transitions = Lists.newArrayList();
         for (State<T, U> state : fromCurrentStateToRoot) {
             transitions.addAll(transitionMap.getTransitionsFromState(state));

@@ -11,29 +11,24 @@ import java.util.Set;
  * @param <U> state id type
  */
 interface StateTree<T, U> {
+
+    State<T, U> getRootState();
+
     Set<State<T, U>> getStates();
 
     Optional<State<T, U>> getState(U id);
 
     boolean exists(State<T, U> a);
 
-    boolean isChild(State<T, U> a);
-
     public boolean isParent(State<T, U> a);
 
     Optional<State<T, U>> getParent(State<T, U> a);
-
-    boolean isChildOf(State<T, U> a, State<T, U> b);
-
-    boolean isParentOf(State<T, U> a, State<T, U> b);
 
     boolean isAncestorOf(State<T, U> a, State<T, U> b);
 
     boolean isDescendantOf(State<T, U> a, State<T, U> b);
 
-    Optional<State<T, U>> getLowestCommonAncestor(State<T, U> a, State<T, U> b);
+    State<T, U> getLowestCommonAncestor(State<T, U> a, State<T, U> b);
 
-    List<State<T, U>> getPathBetween(State<T, U> a, Optional<State<T, U>> bOpt);
-
-    List<State<T, U>> getPathToRootState(State<T, U> state);
+    public List<State<T, U>> getPathToAncestor(State<T, U> a, State<T, U> b, boolean includeAncestor);
 }

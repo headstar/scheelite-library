@@ -208,5 +208,17 @@ public class StateMachineBuilderTest extends TestBase {
         // then ...exception should be thrown
     }
 
+    @SuppressWarnings("unchecked")
+    @Test(expectedExceptions = IllegalStateException.class)
+    public void testSubStateEqualsToSuperState() {
+        // given
+        TestState a = new TestState(StateId.A);
+        TestState b = new TestState(StateId.B);
+
+        // when
+        builder.withCompositeState(a, b, a);
+
+        // then ...exception should be thrown
+    }
 
 }

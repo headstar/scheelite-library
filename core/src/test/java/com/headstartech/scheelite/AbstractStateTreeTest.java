@@ -71,36 +71,7 @@ public class AbstractStateTreeTest extends TestBase {
     }
 
     @Test
-    public void isChildWhenTrue() {
-        // given
-        MutableStateTree<TestEntity, StateId> tree = new MutableStateTree<TestEntity, StateId>();
-        TestState stateA = new TestState(StateId.A);
-        TestState stateB = new TestState(StateId.B);
-        tree.addState(stateA, stateB);
-
-        // when
-        boolean resStateA = tree.isChild(stateA);
-
-        // then
-        assertTrue(resStateA);
-    }
-
-    @Test
-    public void isChildWhenFalse() {
-        // given
-        MutableStateTree<TestEntity, StateId> tree = new MutableStateTree<TestEntity, StateId>();
-        TestState stateA = new TestState(StateId.A);
-        tree.addState(stateA);
-
-        // when
-        boolean resStateA = tree.isChild(stateA);
-
-        // then
-        assertFalse(resStateA);
-    }
-
-    @Test
-    public void getParentWhenNoParent() {
+    public void getParentWhenRootParent() {
         // given
         MutableStateTree<TestEntity, StateId> tree = new MutableStateTree<TestEntity, StateId>();
         TestState stateA = new TestState(StateId.A);
@@ -110,7 +81,8 @@ public class AbstractStateTreeTest extends TestBase {
         Optional<State<TestEntity, StateId>> res = tree.getParent(stateA);
 
         // then
-        assertFalse(res.isPresent());
+        assertTrue(res.isPresent());
+        assertEquals(res.get(), tree.getRootState());
     }
 
     @Test
@@ -127,106 +99,6 @@ public class AbstractStateTreeTest extends TestBase {
         // then
         assertTrue(res.isPresent());
         assertEquals(res.get(), stateB);
-    }
-
-    @Test
-    public void isChildOfWhenTrue() {
-        // given
-        MutableStateTree<TestEntity, StateId> tree = new MutableStateTree<TestEntity, StateId>();
-        TestState stateA = new TestState(StateId.A);
-        TestState stateB = new TestState(StateId.B);
-        tree.addState(stateA, stateB);
-
-        // when
-        boolean res = tree.isChildOf(stateA, stateB);
-
-        // then
-        assertTrue(res);
-    }
-
-    @Test
-    public void isChildOfWhenFalse() {
-        // given
-        MutableStateTree<TestEntity, StateId> tree = new MutableStateTree<TestEntity, StateId>();
-        TestState stateA = new TestState(StateId.A);
-        TestState stateB = new TestState(StateId.B);
-        TestState stateC = new TestState(StateId.C);
-
-        tree.addState(stateA, stateB);
-        tree.addState(stateC);
-
-        // when
-        boolean res1 = tree.isChildOf(stateB, stateA);
-        boolean res2 = tree.isChildOf(stateC, stateB);
-
-        // then
-        assertFalse(res1);
-        assertFalse(res2);
-    }
-
-    @Test
-    public void isParentOfWhenTrue() {
-        // given
-        MutableStateTree<TestEntity, StateId> tree = new MutableStateTree<TestEntity, StateId>();
-        TestState stateA = new TestState(StateId.A);
-        TestState stateB = new TestState(StateId.B);
-        tree.addState(stateA, stateB);
-
-        // when
-        boolean res = tree.isParentOf(stateB, stateA);
-
-        // then
-        assertTrue(res);
-    }
-
-    @Test
-    public void isParentOfWhenFalse() {
-        // given
-        MutableStateTree<TestEntity, StateId> tree = new MutableStateTree<TestEntity, StateId>();
-        TestState stateA = new TestState(StateId.A);
-        TestState stateB = new TestState(StateId.B);
-        TestState stateC = new TestState(StateId.C);
-
-        tree.addState(stateA, stateB);
-        tree.addState(stateC);
-
-        // when
-        boolean res1 = tree.isParentOf(stateA, stateB);
-        boolean res2 = tree.isParentOf(stateC, stateB);
-
-        // then
-        assertFalse(res1);
-        assertFalse(res2);
-    }
-
-
-    @Test
-    public void isParentWhenTrue() {
-        // given
-        MutableStateTree<TestEntity, StateId> tree = new MutableStateTree<TestEntity, StateId>();
-        TestState stateA = new TestState(StateId.A);
-        TestState stateB = new TestState(StateId.B);
-        tree.addState(stateA, stateB);
-
-        // when
-        boolean resStateA = tree.isParent(stateB);
-
-        // then
-        assertTrue(resStateA);
-    }
-
-    @Test
-    public void isParentWhenFalse() {
-        // given
-        MutableStateTree<TestEntity, StateId> tree = new MutableStateTree<TestEntity, StateId>();
-        TestState stateA = new TestState(StateId.A);
-        tree.addState(stateA);
-
-        // when
-        boolean resStateA = tree.isParent(stateA);
-
-        // then
-        assertFalse(resStateA);
     }
 
     @Test
@@ -293,6 +165,7 @@ public class AbstractStateTreeTest extends TestBase {
         // then
         assertTrue(res);
     }
+
 
     @Test
     public void isDescendantOfWhenFalse1() {
@@ -369,10 +242,10 @@ public class AbstractStateTreeTest extends TestBase {
         tree.addState(stateB);
 
         // when
-        Optional<State<TestEntity, StateId>> res = tree.getLowestCommonAncestor(stateA, stateB);
+        State<TestEntity, StateId> res = tree.getLowestCommonAncestor(stateA, stateB);
 
         // then
-        assertFalse(res.isPresent());
+        assertEquals(res, tree.getRootState());
     }
 
     @Test
@@ -383,11 +256,10 @@ public class AbstractStateTreeTest extends TestBase {
         tree.addState(stateA);
 
         // when
-        Optional<State<TestEntity, StateId>> res = tree.getLowestCommonAncestor(stateA, stateA);
+        State<TestEntity, StateId> res = tree.getLowestCommonAncestor(stateA, stateA);
 
         // then
-        assertTrue(res.isPresent());
-        assertEquals(stateA, res.get());
+        assertEquals(res, stateA);
     }
 
     @Test
@@ -399,11 +271,10 @@ public class AbstractStateTreeTest extends TestBase {
         tree.addState(stateA, stateB);
 
         // when
-        Optional<State<TestEntity, StateId>> res = tree.getLowestCommonAncestor(stateB, stateA);
+        State<TestEntity, StateId> res = tree.getLowestCommonAncestor(stateB, stateA);
 
         // then
-        assertTrue(res.isPresent());
-        assertEquals(stateB, res.get());
+        assertEquals(res, stateB);
     }
 
     @Test
@@ -417,11 +288,10 @@ public class AbstractStateTreeTest extends TestBase {
         tree.addState(stateC, stateA);
 
         // when
-        Optional<State<TestEntity, StateId>> res = tree.getLowestCommonAncestor(stateC, stateB);
+        State<TestEntity, StateId> res = tree.getLowestCommonAncestor(stateC, stateB);
 
         // then
-        assertTrue(res.isPresent());
-        assertEquals(stateB, res.get());
+        assertEquals(res, stateB);
     }
 
     @Test(expectedExceptions = {IllegalArgumentException.class})
@@ -434,27 +304,42 @@ public class AbstractStateTreeTest extends TestBase {
         tree.addState(stateB);
 
         // when
-        tree.getPathBetween(stateA, Optional.of(stateB));
+        tree.getPathToAncestor(stateA, stateB, true);
 
         // then
     }
 
     @Test
-    public void getPathBetweenSelf() {
+    public void getPathBetweenSelfIncludeAncestor() {
         // given
         MutableStateTree<TestEntity, StateId> tree = new MutableStateTree<TestEntity, StateId>();
         State<TestEntity, StateId> stateA = new TestState(StateId.A);
         tree.addState(stateA);
 
         // when
-        List<State<TestEntity, StateId>> res = tree.getPathBetween(stateA, Optional.of(stateA));
+        List<State<TestEntity, StateId>> res = tree.getPathToAncestor(stateA, stateA, true);
 
         // then
         assertTrue(res.isEmpty());
     }
 
     @Test
-    public void getPathBetween() {
+    public void getPathBetweenSelfNotIncludeAncestor() {
+        // given
+        MutableStateTree<TestEntity, StateId> tree = new MutableStateTree<TestEntity, StateId>();
+        State<TestEntity, StateId> stateA = new TestState(StateId.A);
+        tree.addState(stateA);
+
+        // when
+        List<State<TestEntity, StateId>> res = tree.getPathToAncestor(stateA, stateA, false);
+
+        // then
+        assertTrue(res.isEmpty());
+    }
+
+
+    @Test
+    public void getPathToAncestorInclude() {
         // given
         MutableStateTree<TestEntity, StateId> tree = new MutableStateTree<TestEntity, StateId>();
         State<TestEntity, StateId> stateA = new TestState(StateId.A);
@@ -464,7 +349,27 @@ public class AbstractStateTreeTest extends TestBase {
         tree.addState(stateC, stateA);
 
         // when
-        List<State<TestEntity, StateId>> res = tree.getPathBetween(stateC, Optional.of(stateB));
+        List<State<TestEntity, StateId>> res = tree.getPathToAncestor(stateC, stateB, true);
+
+        // then
+        assertEquals(3, res.size());
+        assertEquals(res.get(0), stateC);
+        assertEquals(res.get(1), stateA);
+        assertEquals(res.get(2), stateB);
+    }
+
+    @Test
+    public void getPathToAncestorExclude() {
+        // given
+        MutableStateTree<TestEntity, StateId> tree = new MutableStateTree<TestEntity, StateId>();
+        State<TestEntity, StateId> stateA = new TestState(StateId.A);
+        State<TestEntity, StateId> stateB = new TestState(StateId.B);
+        State<TestEntity, StateId> stateC = new TestState(StateId.C);
+        tree.addState(stateA, stateB);
+        tree.addState(stateC, stateA);
+
+        // when
+        List<State<TestEntity, StateId>> res = tree.getPathToAncestor(stateC, stateB, false);
 
         // then
         assertEquals(2, res.size());
@@ -483,7 +388,7 @@ public class AbstractStateTreeTest extends TestBase {
         tree.addState(stateC, stateA);
 
         // when
-        List<State<TestEntity, StateId>> res = tree.getPathToRootState(stateC);
+        List<State<TestEntity, StateId>> res = tree.getPathToAncestor(stateC, tree.getRootState(), false);
 
         // then
         assertEquals(3, res.size());

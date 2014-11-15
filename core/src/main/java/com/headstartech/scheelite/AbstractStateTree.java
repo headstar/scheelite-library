@@ -2,6 +2,7 @@ package com.headstartech.scheelite;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import java.util.Iterator;
 import java.util.List;
@@ -15,19 +16,18 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 abstract class AbstractStateTree<T, U> implements StateTree<T, U> {
 
-    protected final State<T, U> NO_PARENT = null;
-    private final Optional<State<T, U>> ROOT_STATE = Optional.absent();
-
     protected abstract Map<State<T, U>, State<T, U>> getMap();
+    protected final State<T, U> rootState = new RootState<T, U>();
 
     @Override
     public Set<State<T, U>> getStates() {
-        return getMap().keySet();
+        Set<State<T, U>> res = Sets.newHashSet(getMap().keySet());
+        res.remove(rootState);
+        return res;
     }
 
     @Override
     public Optional<State<T, U>> getState(U id) {
-        checkNotNull(id);
         for(State<T, U> state : getStates()) {
             if(state.getId().equals(id)) {
                 return Optional.of(state);
@@ -44,33 +44,11 @@ abstract class AbstractStateTree<T, U> implements StateTree<T, U> {
     }
 
     @Override
-    public boolean isChild(State<T, U> a) {
-        checkNotNull(a);
-        return getParent(a).isPresent();
-    }
-
-    @Override
     public Optional<State<T,U>> getParent(State<T, U> a) {
         checkNotNull(a);
         Map<State<T, U>, State<T, U>> map = getMap();
         State<T, U> value = map.get(a);
         return Optional.fromNullable(value);
-    }
-
-    @Override
-    public boolean isChildOf(State<T, U> a, State<T, U> b) {
-        checkNotNull(a);
-        checkNotNull(b);
-        Map<State<T, U>, State<T, U>> map = getMap();
-        State<T, U> value = map.get(a);
-        return value != null && value.equals(b);
-    }
-
-    @Override
-    public boolean isParentOf(State<T, U> a, State<T, U> b) {
-        checkNotNull(a);
-        checkNotNull(b);
-        return isChildOf(b, a);
     }
 
     @Override
@@ -84,69 +62,80 @@ abstract class AbstractStateTree<T, U> implements StateTree<T, U> {
     public boolean isAncestorOf(State<T, U> a, State<T, U> b) {
         checkNotNull(a);
         checkNotNull(b);
-        List<State<T, U>> bToRoot = getPathToRootState(b);
-        return bToRoot.contains(a);
+        List<State<T, U>> ancestorsOfB = getAncestors(b);
+        return ancestorsOfB.contains(a);
     }
 
     @Override
     public boolean isDescendantOf(State<T, U> a, State<T, U> b) {
         checkNotNull(a);
         checkNotNull(b);
-        List<State<T, U>> aToRoot = getPathToRootState(a);
-        return aToRoot.contains(b);
+        List<State<T, U>> ancestorsOfA = getAncestors(a);
+        return ancestorsOfA.contains(b);
     }
 
 
     @Override
-    public Optional<State<T, U>> getLowestCommonAncestor(State<T, U> a, State<T, U> b) {
+    public State<T, U> getLowestCommonAncestor(State<T, U> a, State<T, U> b) {
         checkNotNull(a);
         checkNotNull(b);
-        List<State<T, U>> aToRoot = getPathToRootState(a);
-        List<State<T, U>> bToRoot = getPathToRootState(b);
+        List<State<T, U>> aToRoot = getPathToAncestor(a, rootState, true);
+        List<State<T, U>> bToRoot = getPathToAncestor(b, rootState, true);
 
-        Optional<State<T, U>> result = ROOT_STATE;
-        Iterator<State<T, U>> iter = bToRoot.iterator();
-        while (iter.hasNext()) {
-            State<T, U> nextState = iter.next();
-            if (aToRoot.contains(nextState)) {
-                result = Optional.of(nextState);
+        for(State<T, U> bIter : bToRoot) {
+            if(aToRoot.contains(bIter)) {
+                return bIter;
             }
         }
-        return result;
+        return rootState;
     }
 
     @Override
-    public List<State<T, U>> getPathBetween(State<T, U> a, Optional<State<T, U>> bOpt) {
+    public List<State<T, U>> getPathToAncestor(State<T, U> a, State<T, U> b, boolean includeAncestor) {
         checkNotNull(a);
-        checkNotNull(bOpt);
+        checkNotNull(b);
 
-        List<State<T, U>> aToRoot = getPathToRootState(a);
-        if(bOpt.equals(ROOT_STATE)) {
-            return aToRoot;
-        } else {
-            State<T, U> b = bOpt.get();
-            int index = aToRoot.indexOf(b);
-            if(index == -1) {
-                throw new IllegalArgumentException(String.format("b not an ancestor of a: a=%s, b=%s", a, b));
-            } else {
-                List<State<T, U>> res = aToRoot.subList(0, index);
-                return res;
-            }
+        if(a.equals(b)) {
+            return Lists.newArrayList();
         }
-    }
-
-    @Override
-    public List<State<T, U>> getPathToRootState(State<T, U> state) {
-        checkNotNull(state);
 
         List<State<T, U>> res = Lists.newArrayList();
-        Optional<State<T, U>> stateOpt = Optional.of(state);
-        do {
-            State<T, U> s = stateOpt.get();
-            res.add(s);
-            stateOpt = getParent(s);
-        } while (!stateOpt.equals(ROOT_STATE));
-        return res;
+        Optional<State<T, U>> current = Optional.of(a);
+        while(true) {
+            res.add(current.get());
+            Optional<State<T, U>> next = getParent(current.get());
+            if(next.isPresent()) {
+                if(next.get().equals(b)) {
+                    if(includeAncestor) {
+                        res.add(b);
+                    }
+                    return res;
+                } else {
+                    current = next;
+                }
+            } else {
+                throw new IllegalArgumentException(String.format("b not an ancestor of a: a=%s, b=%s", a, b));
+            }
+        }
     }
 
+    private List<State<T, U>> getAncestors(State<T, U> state) {
+        checkNotNull(state);
+        List<State<T, U>> res = Lists.newArrayList();
+        State<T, U> current = state;
+        do {
+            res.add(current);
+            Optional<State<T, U>> parent = getParent(current);
+            if(parent.isPresent()) {
+                current = parent.get();
+            } else {
+                return res;
+            }
+        } while (true);
+    }
+
+    @Override
+    public State<T, U> getRootState() {
+        return rootState;
+    }
 }

@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 
 import java.util.Map;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -15,19 +16,21 @@ class MutableStateTree<T, U> extends AbstractStateTree<T,U> {
 
     public MutableStateTree() {
         this.map = Maps.newHashMap();
+        map.put(rootState, null);
     }
 
     public void addState(State<T, U> state) {
         checkNotNull(state);
         if(!exists(state)) {
-            map.put(state, NO_PARENT);
+            addState(state, rootState);
         }
     }
 
-    public void addState(State<T, U> state, State<T, U> parentState) {
+    public void addState(State<T, U> state, State<T, U> superState) {
         checkNotNull(state);
-        checkNotNull(parentState);
-        map.put(state, parentState);
+        checkNotNull(superState);
+        map.put(state, superState);
+        addState(superState);
     }
 
 

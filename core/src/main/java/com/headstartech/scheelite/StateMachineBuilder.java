@@ -39,8 +39,8 @@ public class StateMachineBuilder<T, U> {
 
     private static int MAX_TRANSITIONS_PER_EVENT_DEFAULT = 50;
 
-    private MutableStateTree<T, U> stateTree;
-    private MutableTransitionMap<T, U> transitionMap;
+    private final MutableStateTree<T, U> stateTree;
+    private final MutableTransitionMap<T, U> transitionMap;
     private MultipleTransitionsTriggeredResolver<T, U> multipleTransitionsTriggeredResolver;
     private int maxTransitionsPerEvent = MAX_TRANSITIONS_PER_EVENT_DEFAULT;
 
@@ -73,9 +73,9 @@ public class StateMachineBuilder<T, U> {
             Preconditions.checkNotNull(state);
         }
 
-        Preconditions.checkState(!stateTree.isAncestorOf(defaultSubState, superState), "state super state of supplied super state: %s", defaultSubState);
-        for (State<T, U> state : subStates) {
-            Preconditions.checkState(!stateTree.isAncestorOf(state, superState), "state super state of supplied super state: %s", state);
+        Preconditions.checkState(!stateTree.isAncestorOf(defaultSubState, superState), "default substate is super state/equal to supplied super state: %s", defaultSubState);
+        for (State<T, U> substate : subStates) {
+            Preconditions.checkState(!stateTree.isAncestorOf(substate, superState), "substate is super state/equal to supplied super state: %s", substate);
         }
 
         validateState(superState);
@@ -86,8 +86,8 @@ public class StateMachineBuilder<T, U> {
 
         stateTree.addState(superState);
         stateTree.addState(defaultSubState, superState);
-        for (State<T, U> state : subStates) {
-            stateTree.addState(state, superState);
+        for (State<T, U> substate : subStates) {
+            stateTree.addState(substate, superState);
         }
 
         transitionMap.addInitialTransition(new InitialTransition<T, U>(Optional.of(superState), defaultSubState, defaultAction));
@@ -222,8 +222,9 @@ public class StateMachineBuilder<T, U> {
             throw new IllegalStateException("no initial transition added");
         }
 
-        if(stateTree.isChild(transitionMap.getInitialTransitionFromRoot().getToState())) {
-            throw new IllegalStateException(String.format("initial transition toState cannot be a child: toState=%s", transitionMap.getInitialTransitionFromRoot().getToState()));
+        Optional<State<T, U>> initialTransitionToStateParent = stateTree.getParent(transitionMap.getInitialTransitionFromRoot().getToState());
+        if(!initialTransitionToStateParent.isPresent() || !(initialTransitionToStateParent.get().equals(stateTree.getRootState()))) {
+            throw new IllegalStateException(String.format("super state of initial transition toState must be root state: toState=%s", transitionMap.getInitialTransitionFromRoot().getToState()));
         }
 
         Set<State<T, U>> states = stateTree.getStates();
@@ -267,7 +268,7 @@ public class StateMachineBuilder<T, U> {
 
     private void checkLocalTransitions() {
         for (Transition<T, U> transition : transitionMap.getTransitions()) {
-            // if transition is local, source state and target state must be descendants
+            // if transition is local, source state and target state must descendants
             if(transition.getTransitionType().equals(TransitionType.LOCAL)
                     && !isRelated(transition.getFromState(), transition.getToState())) {
                 throw new IllegalStateException(String.format("states must be related in local transition: fromState=[%s], toState=[%s]", transition.getFromState(), transition.getToState()));
@@ -276,7 +277,7 @@ public class StateMachineBuilder<T, U> {
     }
 
     private boolean isRelated(State<T, U> a, State<T, U> b) {
-        return stateTree.isDescendantOf(a, b) || stateTree.isDescendantOf(b, a);
+        return a.equals(b) || stateTree.isDescendantOf(a, b) || stateTree.isDescendantOf(b, a);
     }
 
     private void checkAllStatesAreReachableFromStartState() {
