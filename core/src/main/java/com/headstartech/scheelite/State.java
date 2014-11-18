@@ -32,7 +32,7 @@ public interface State<T, U> {
      * Called by the state machine when processing an event.
      * @param entity
      * @param event
-     * @return <code>true</code> if the event should be passed on to a super state (if any), <code>false</code> otherwise.
+     * @return <code>false</code> if the event should be passed on to a super state (if any), <code>true</code> otherwise.
      */
     boolean onEvent(T entity, Object event);
 }
