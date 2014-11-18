@@ -39,7 +39,7 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
                 logger.debug("handling event: entity={}, state={}, event={}", entity, state.getId(), event);
                 eventHandled = state.onEvent(entity, event);
                 stateOpt = stateTree.getParent(state);
-            } while (!eventHandled && stateOpt.isPresent());
+            } while (!eventHandled && stateOpt.isPresent() && !stateOpt.get().equals(stateTree.getRootState()));
         }
     }
 

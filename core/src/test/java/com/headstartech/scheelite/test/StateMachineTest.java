@@ -612,7 +612,7 @@ public class StateMachineTest extends TestBase {
     public void testEventHandledBySuperState() {
         // given
         TestEntity e = spy(new TestEntity(StateId.B));
-        TestState a = spy(new TestState(StateId.A));
+        TestState a = spy(new TestState(StateId.A, HandleEvent.NO));
         TestState b = spy(new TestState(StateId.B, HandleEvent.NO));
 
         TestEventX event = new TestEventX();
