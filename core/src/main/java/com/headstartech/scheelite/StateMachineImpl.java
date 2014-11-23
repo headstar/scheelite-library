@@ -98,7 +98,7 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
             }
 
             // handle default transitions
-            U nextStateId = handleDefaultTransitions(Optional.of(mainTargetState), entity);
+            U nextStateId = handleInitialTransitions(mainTargetState, entity);
 
             return new ProcessEventResult<U>(true, nextStateId);
         } else {
@@ -126,18 +126,14 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
     }
 
     private U handleInitialTransition(T entity) {
-        return handleDefaultTransitions(Optional.<State<T, U>>absent(), entity);
+        return handleInitialTransitions(stateTree.getRootState(), entity);
     }
 
-    private U handleDefaultTransitions(Optional<State<T, U>> startState, T entity) {
+    private U handleInitialTransitions(State<T, U> startState, T entity) {
         Optional<InitialTransition<T, U>> initialTransitionOpt;
-        State<T, U> endState = null;
-        if (startState.isPresent()) {
-            endState = startState.get();
-            initialTransitionOpt = transitionMap.getInitialTransitionFromState(endState);
-        } else {
-            initialTransitionOpt = Optional.of(transitionMap.getInitialTransitionFromRoot());
-        }
+        State<T, U> currentState = null;
+        currentState = startState;
+        initialTransitionOpt = transitionMap.getInitialTransitionFromState(currentState);
         while (initialTransitionOpt.isPresent()) {
             InitialTransition<T, U> it = initialTransitionOpt.get();
             logger.debug("initial transition: transition={}", it);
@@ -148,14 +144,14 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
                 }
                 action.execute(entity);
             }
-            endState = it.getToState();
-            logger.debug("entering state: entity={}, state={}", entity, endState.getId());
-            endState.onEntry(entity);
-            initialTransitionOpt = transitionMap.getInitialTransitionFromState(endState);
+            currentState = it.getToState();
+            logger.debug("entering state: entity={}, state={}", entity, currentState.getId());
+            currentState.onEntry(entity);
+            initialTransitionOpt = transitionMap.getInitialTransitionFromState(currentState);
         }
 
 
-        return endState.getId();
+        return currentState.getId();
     }
 
     private List<State<T, U>> getSourceStates(State<T, U> currentState, State<T, U> mainSourceState, State<T, U> mainTargetState,

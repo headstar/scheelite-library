@@ -12,13 +12,11 @@ import java.util.Map;
 class ImmutableTransitionMap<T, U> extends AbstractTransitionMap<T, U> {
 
     private final ImmutableMultimap<State<T, U>, Transition<T, U>> transitions;
-    private final ImmutableMap<State<T, U>, InitialTransition<T, U>> defaultTransitions;
-    private final InitialTransition<T, U> initialTransition;
+    private final ImmutableMap<State<T, U>, InitialTransition<T, U>> initialTransitions;
 
     public ImmutableTransitionMap(MutableTransitionMap<T, U> transitionMap) {
         this.transitions = ImmutableMultimap.copyOf(transitionMap.getTransitionsFromMap());
-        this.defaultTransitions = ImmutableMap.copyOf(transitionMap.getInitialTransitionsFromMap());
-        this.initialTransition = transitionMap.getInitialTransitionFromRoot();
+        this.initialTransitions = ImmutableMap.copyOf(transitionMap.getInitialTransitionsFromMap());
     }
 
 
@@ -29,11 +27,7 @@ class ImmutableTransitionMap<T, U> extends AbstractTransitionMap<T, U> {
 
     @Override
     protected Map<State<T, U>, InitialTransition<T, U>> getInitialTransitionsFromMap() {
-        return defaultTransitions;
+        return initialTransitions;
     }
 
-    @Override
-    public InitialTransition<T, U> getInitialTransitionFromRoot() {
-        return initialTransition;
-    }
 }

@@ -39,22 +39,11 @@ abstract class AbstractTransitionMap<T, U> implements TransitionMap<T, U> {
         return map;
     }
 
-    protected Map<State<T, U>, InitialTransition<T, U>> createDefaultTransitionsFromMap(Set<InitialTransition<T, U>> transitions) {
+    protected Map<State<T, U>, InitialTransition<T, U>> createInitialTransitionsFromMap(Set<InitialTransition<T, U>> transitions) {
         Map<State<T, U>, InitialTransition<T, U>> map = Maps.newHashMap();
         for (InitialTransition<T, U> transition : transitions) {
-            if (transition.getFromState().isPresent()) {
-                map.put(transition.getFromState().get(), transition);
-            }
+            map.put(transition.getFromState(), transition);
         }
         return map;
-    }
-
-    protected InitialTransition<T, U> getInitialTransitionFromRoot(Set<InitialTransition<T, U>> transitions) {
-        for (InitialTransition<T, U> transition : transitions) {
-            if (!transition.getFromState().isPresent()) {
-                return transition;
-            }
-        }
-        throw new IllegalStateException("no initial transition found");
     }
 }

@@ -14,10 +14,10 @@ public class InitialTransitionTest extends TestBase {
     @Test
     public void testEquals() {
         // given
-        InitialTransition<TestEntity, StateId> it1 = new InitialTransition<TestEntity, StateId>(Optional.<State<TestEntity, StateId>>of(new TestState(StateId.A)),
-                new TestState(StateId.B), Optional.<InitialAction<TestEntity>>absent());
-        InitialTransition<TestEntity, StateId> it2 = new InitialTransition<TestEntity, StateId>(Optional.<State<TestEntity, StateId>>of(new TestState(StateId.A)),
-                new TestState(StateId.B), Optional.<InitialAction<TestEntity>>absent());
+        InitialTransition<TestEntity, StateId> it1 = new InitialTransition<TestEntity, StateId>(new TestState(StateId.A),
+                new TestState(StateId.B), null);
+        InitialTransition<TestEntity, StateId> it2 = new InitialTransition<TestEntity, StateId>(new TestState(StateId.A),
+                new TestState(StateId.B), null);
 
         // when
         boolean equalsRes = it1.equals(it2);
@@ -31,10 +31,10 @@ public class InitialTransitionTest extends TestBase {
     @Test
     public void testNotEquals() {
         // given
-        InitialTransition<TestEntity, StateId> it1 = new InitialTransition<TestEntity, StateId>(Optional.<State<TestEntity, StateId>>of(new TestState(StateId.A)),
-                new TestState(StateId.B), Optional.<InitialAction<TestEntity>>absent());
-        InitialTransition<TestEntity, StateId> it2 = new InitialTransition<TestEntity, StateId>(Optional.<State<TestEntity, StateId>>of(new TestState(StateId.C)),
-                new TestState(StateId.B), Optional.<InitialAction<TestEntity>>absent());
+        InitialTransition<TestEntity, StateId> it1 = new InitialTransition<TestEntity, StateId>(new TestState(StateId.A),
+                new TestState(StateId.B), null);
+        InitialTransition<TestEntity, StateId> it2 = new InitialTransition<TestEntity, StateId>(new TestState(StateId.C),
+                new TestState(StateId.B), null);
 
         // when
         boolean equalsRes = it1.equals(it2);

@@ -13,23 +13,23 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * @see InitialAction
  * @see State
  */
-class InitialTransition<T, U> {
+final class InitialTransition<T, U> {
 
-    private final Optional<State<T, U>> fromState;
+    private final State<T, U> fromState;
     private final State<T, U> toState;
     private final Optional<? extends InitialAction<T>> action;
 
-    InitialTransition(Optional<State<T, U>> fromState, State<T, U> toState, Optional<? extends InitialAction<T>> action) {
+    InitialTransition(State<T, U> fromState, State<T, U> toState, InitialAction<T> action) {
         this.fromState = checkNotNull(fromState);
         this.toState = checkNotNull(toState);
-        this.action = checkNotNull(action);
+        this.action = Optional.fromNullable(action);
     }
 
     State<T, U> getToState() {
         return toState;
     }
 
-    Optional<State<T, U>> getFromState() {
+    State<T, U> getFromState() {
         return fromState;
     }
 
@@ -63,11 +63,7 @@ class InitialTransition<T, U> {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        if(fromState.isPresent()) {
-            sb.append(String.format("%s->%s", fromState.get().getId(), toState.getId()));
-        } else {
-            sb.append(String.format("->%s", toState.getId()));
-        }
+        sb.append(String.format("%s->%s", fromState.getId(), toState.getId()));
         return sb.toString();
     }
 

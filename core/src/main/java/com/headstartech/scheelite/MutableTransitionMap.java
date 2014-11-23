@@ -46,11 +46,7 @@ class MutableTransitionMap <T, U> extends AbstractTransitionMap<T, U> {
 
     @Override
     protected Map<State<T, U>, InitialTransition<T, U>> getInitialTransitionsFromMap() {
-        return createDefaultTransitionsFromMap(initialTransitions);
+        return createInitialTransitionsFromMap(initialTransitions);
     }
 
-    @Override
-    public InitialTransition<T, U> getInitialTransitionFromRoot() {
-        return getInitialTransitionFromRoot(initialTransitions);
-    }
 }

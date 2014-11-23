@@ -54,20 +54,13 @@ public class StateMachineBuilder<T, U> {
         multipleTransitionsTriggeredResolver = new ThrowExceptionResolver<T, U>();
     }
 
-    public StateMachineBuilder<T, U> withCompositeState(State<T, U> state, InitialAction<T> initialAction,
-                                                        State<T, U> defaultSubState, State<T, U>... subStates) {
-        Preconditions.checkNotNull(initialAction);
-        return withCompositeState(state, Optional.of(initialAction), defaultSubState, subStates);
-    }
-
     public StateMachineBuilder<T, U> withCompositeState(State<T, U> state, State<T, U> defaultSubState, State<T, U>... subStates) {
-        return withCompositeState(state, Optional.<InitialAction<T>>absent(), defaultSubState, subStates);
+        return withCompositeState(state, null, defaultSubState, subStates);
     }
 
-    private StateMachineBuilder<T, U> withCompositeState(State<T, U> superState, Optional<? extends InitialAction<T>> defaultAction,
+    public StateMachineBuilder<T, U> withCompositeState(State<T, U> superState, InitialAction<T> initialAction,
                                                          State<T, U> defaultSubState, State<T, U>... subStates) {
         Preconditions.checkNotNull(superState);
-        Preconditions.checkNotNull(defaultAction);
         Preconditions.checkNotNull(defaultSubState);
         for (State<T, U> state : subStates) {
             Preconditions.checkNotNull(state);
@@ -90,7 +83,7 @@ public class StateMachineBuilder<T, U> {
             stateTree.addState(substate, superState);
         }
 
-        transitionMap.addInitialTransition(new InitialTransition<T, U>(Optional.of(superState), defaultSubState, defaultAction));
+        transitionMap.addInitialTransition(new InitialTransition<T, U>(superState, defaultSubState, initialAction));
         return this;
     }
 
@@ -188,21 +181,15 @@ public class StateMachineBuilder<T, U> {
     }
 
     public StateMachineBuilder<T, U> withInitialTransition(State<T, U> toState) {
-        return withInitialTransition(toState, Optional.<InitialAction<T>>absent());
+        return withInitialTransition(toState, null);
     }
 
-    public StateMachineBuilder<T, U> withInitialTransition(State<T, U> toState, InitialAction<T> action) {
-        return withInitialTransition(toState, Optional.of(action));
-    }
-
-
-    private StateMachineBuilder<T, U> withInitialTransition(State<T, U> toState, Optional<? extends InitialAction<T>> actionOpt) {
+    public StateMachineBuilder<T, U> withInitialTransition(State<T, U> toState, InitialAction<T> initialAction) {
         Preconditions.checkNotNull(toState);
-        Preconditions.checkNotNull(actionOpt);
 
         validateState(toState);
 
-        InitialTransition<T, U> initialTransition = new InitialTransition<T, U>(Optional.<State<T, U>>absent(), toState, actionOpt);
+        InitialTransition<T, U> initialTransition = new InitialTransition<T, U>(stateTree.getRootState(), toState, initialAction);
         transitionMap.addInitialTransition(initialTransition);
         stateTree.addState(initialTransition.getToState());
         return this;
@@ -218,13 +205,14 @@ public class StateMachineBuilder<T, U> {
     public StateMachine<T, U> build() {
 
         // check we have a top level initial transition state
-        if (transitionMap.getInitialTransitionFromRoot() == null) {
-            throw new IllegalStateException("no initial transition added");
+        if (!transitionMap.getInitialTransitionsFromMap().containsKey(stateTree.getRootState())) {
+            throw new IllegalStateException("no initial transition from root state added");
         }
 
-        Optional<State<T, U>> initialTransitionToStateParent = stateTree.getParent(transitionMap.getInitialTransitionFromRoot().getToState());
-        if(!initialTransitionToStateParent.isPresent() || !(initialTransitionToStateParent.get().equals(stateTree.getRootState()))) {
-            throw new IllegalStateException(String.format("super state of initial transition toState must be root state: toState=%s", transitionMap.getInitialTransitionFromRoot().getToState()));
+        InitialTransition<T, U> initialTransitionFromRoot = transitionMap.getInitialTransitionsFromMap().get(stateTree.getRootState());
+        Optional<State<T, U>> toStateParent = stateTree.getParent(initialTransitionFromRoot.getToState());
+        if(!toStateParent.isPresent() || !(toStateParent.get().equals(stateTree.getRootState()))) {
+            throw new IllegalStateException(String.format("super state of initial transition toState must be root state: toState=%s", initialTransitionFromRoot.getToState()));
         }
 
         Set<State<T, U>> states = stateTree.getStates();
@@ -236,7 +224,7 @@ public class StateMachineBuilder<T, U> {
         checkLocalTransitions();
 
         // check all states are reachable from the start state
-        checkAllStatesAreReachableFromStartState();
+        checkAllStatesAreReachableFromRootState();
 
         return new StateMachineImpl<T, U>(this);
     }
@@ -280,12 +268,11 @@ public class StateMachineBuilder<T, U> {
         return a.equals(b) || stateTree.isDescendantOf(a, b) || stateTree.isDescendantOf(b, a);
     }
 
-    private void checkAllStatesAreReachableFromStartState() {
+    private void checkAllStatesAreReachableFromRootState() {
 
-        State<T, U> startState = transitionMap.getInitialTransitionFromRoot().getToState();
+        State<T, U> startState = stateTree.getRootState();
 
         Set<State<T, U>> visited = Sets.newHashSet();
-
         Queue<State<T, U>> queue = new ArrayDeque<State<T, U>>();
         queue.add(startState);
         visited.add(startState);
@@ -317,9 +304,7 @@ public class StateMachineBuilder<T, U> {
             edges.put(transition.getFromState(), transition.getToState());
         }
         for (InitialTransition<T, U> transition : transitionMap.getInitialTransitions()) {
-            if(transition.getFromState().isPresent()) {
-                edges.put(transition.getFromState().get(), transition.getToState());
-            }
+            edges.put(transition.getFromState(), transition.getToState());
         }
         return edges;
     }

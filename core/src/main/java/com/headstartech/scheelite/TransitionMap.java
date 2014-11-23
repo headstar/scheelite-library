@@ -15,6 +15,4 @@ interface TransitionMap<T, U> {
 
     Optional<InitialTransition<T, U>> getInitialTransitionFromState(State<T, U> state);
 
-    InitialTransition<T, U> getInitialTransitionFromRoot();
-
 }
