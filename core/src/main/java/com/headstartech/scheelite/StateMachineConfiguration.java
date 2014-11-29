@@ -43,14 +43,14 @@ public class StateMachineConfiguration<T, U> {
      *
      * @see com.headstartech.scheelite.Transition
      */
-    public Set<InitialTransition<T, U>> getInitialTransitions() { return null; }
+    public Set<InitialTransition<T, U>> getInitialTransitions() { return transitionMap.getInitialTransitions(); }
 
 
     /**
      * Gets the super state of the specified {@link com.headstartech.scheelite.State}.
      *
      * @param state
-     * @return the super state
+     * @return the super state or <code>null</code> if the argument is the root state
      */
     public State<T, U> getSuperState(State<T, U> state) {
         Optional<State<T, U>> superState = stateTree.getParent(state);
