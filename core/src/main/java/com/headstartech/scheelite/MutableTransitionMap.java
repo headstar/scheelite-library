@@ -21,14 +21,6 @@ class MutableTransitionMap <T, U> extends AbstractTransitionMap<T, U> {
         initialTransitions = Sets.newHashSet();
     }
 
-    Set<Transition<T, U>> getTransitions() {
-        return transitions;
-    }
-
-    Set<InitialTransition<T, U>> getInitialTransitions() {
-        return initialTransitions;
-    }
-
     void addTransition(Transition<T, U> transition) {
         checkNotNull(transition);
         transitions.add(transition);

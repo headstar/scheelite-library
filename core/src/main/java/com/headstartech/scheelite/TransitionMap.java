@@ -3,6 +3,7 @@ package com.headstartech.scheelite;
 import com.google.common.base.Optional;
 
 import java.util.Collection;
+import java.util.Set;
 
 /**
  *
@@ -10,6 +11,10 @@ import java.util.Collection;
  * @param <U> state id type
  */
 interface TransitionMap<T, U> {
+
+    Set<Transition<T,U>> getTransitions();
+
+    Set<InitialTransition<T,U>> getInitialTransitions();
 
     Collection<Transition<T,U>> getTransitionsFromState(State<T,U> state);
 

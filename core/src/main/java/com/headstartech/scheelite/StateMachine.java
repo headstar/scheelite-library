@@ -29,4 +29,6 @@ public interface StateMachine<T, U> {
      * @see State
      */
     U processEvent(T entity, U stateId, Object event);
+
+    StateMachineConfiguration<T, U> getConfiguration();
 }

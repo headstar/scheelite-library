@@ -5,7 +5,7 @@ import com.google.common.base.Optional;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * Encapsulates the initial transition to be taken when entering a composite state.
+ * Encapsulates the initial transition to be taken when entering a composite state (including the implicit root state).
  *
  * @param <T> entity type
  * @param <U> state id type

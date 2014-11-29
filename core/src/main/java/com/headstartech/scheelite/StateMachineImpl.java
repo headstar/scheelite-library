@@ -20,6 +20,7 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
     private final StateTree<T, U> stateTree;
     private final TransitionMap<T, U> transitionMap;
     private final MultipleTransitionsTriggeredResolver<T, U> multipleTransitionsTriggeredResolver;
+    private final StateMachineConfiguration<T, U> configuration;
     private final int maxTransitionsPerEvent;
 
     protected StateMachineImpl(StateMachineBuilder<T, U> builder) {
@@ -27,6 +28,12 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
         this.transitionMap = new ImmutableTransitionMap<T, U>(builder.getTransitionMap());
         this.multipleTransitionsTriggeredResolver = builder.getMultipleTransitionsTriggeredResolver();
         this.maxTransitionsPerEvent = builder.getMaxTransitionsPerEvent();
+        this.configuration = new StateMachineConfiguration<T, U>(stateTree, transitionMap);
+    }
+
+    @Override
+    public StateMachineConfiguration<T, U> getConfiguration() {
+        return configuration;
     }
 
     private void handleEvent(State<T, U> sourceState, T entity, Optional<?> eventOpt) {

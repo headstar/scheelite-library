@@ -4,6 +4,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
 
 import java.util.Collection;
 import java.util.Map;
@@ -29,6 +30,16 @@ abstract class AbstractTransitionMap<T, U> implements TransitionMap<T, U> {
     public Optional<InitialTransition<T, U>> getInitialTransitionFromState(State<T, U> state) {
         checkNotNull(state);
         return Optional.fromNullable(getInitialTransitionsFromMap().get(state));
+    }
+
+    @Override
+    public Set<Transition<T, U>> getTransitions() {
+        return Sets.newHashSet(getTransitionsFromMap().values());
+    }
+
+    @Override
+    public Set<InitialTransition<T, U>> getInitialTransitions() {
+        return Sets.newHashSet(getInitialTransitionsFromMap().values());
     }
 
     protected Multimap<State<T, U>, Transition<T, U>> createTransitionsFromMap(Set<Transition<T, U>> transitions) {
