@@ -30,5 +30,10 @@ public interface StateMachine<T, U> {
      */
     U processEvent(T entity, U stateId, Object event);
 
+    /**
+     * Gets the configuration of the state machine.
+     *
+     * @return the configuration
+     */
     StateMachineConfiguration<T, U> getConfiguration();
 }
