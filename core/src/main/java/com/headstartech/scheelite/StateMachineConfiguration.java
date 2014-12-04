@@ -2,7 +2,6 @@ package com.headstartech.scheelite;
 
 import com.google.common.base.Optional;
 
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -35,16 +34,6 @@ public class StateMachineConfiguration<T, U> {
      * @see com.headstartech.scheelite.Transition
      */
     public Set<Transition<T, U>> getTransitions() { return transitionMap.getTransitions(); }
-
-    /**
-     * Gets the initial transition in the state machine
-     *
-     * @return the initial transitions
-     *
-     * @see com.headstartech.scheelite.Transition
-     */
-    public Set<InitialTransition<T, U>> getInitialTransitions() { return transitionMap.getInitialTransitions(); }
-
 
     /**
      * Gets the super state of the specified {@link com.headstartech.scheelite.State}.

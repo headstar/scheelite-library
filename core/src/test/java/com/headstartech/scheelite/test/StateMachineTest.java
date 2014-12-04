@@ -10,7 +10,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 
 /**
@@ -90,9 +89,9 @@ public class StateMachineTest extends TestBase {
         TestState a = spy(new TestState(StateId.A));
         TestState b = spy(new TestState(StateId.B));
         TestState c = spy(new TestState(StateId.C));
-        TestInitialAction defaultAction1 = spy(new TestInitialAction());
-        TestInitialAction defaultAction2 = spy(new TestInitialAction());
-        TestInitialAction defaultAction3 = spy(new TestInitialAction());
+        TestAction defaultAction1 = spy(new TestAction());
+        TestAction defaultAction2 = spy(new TestAction());
+        TestAction defaultAction3 = spy(new TestAction());
 
         StateMachine<TestEntity, StateId> stateMachine = builder
                 .withInitialTransition(a, defaultAction1)
@@ -107,19 +106,19 @@ public class StateMachineTest extends TestBase {
         assertEquals(nextStateId, StateId.C);
 
         InOrder inOrder = inOrder(a, b, c, defaultAction1, defaultAction2, defaultAction3, e);
-        inOrder.verify(defaultAction1).execute(e);
+        inOrder.verify(defaultAction1).execute(e, Optional.absent());
         inOrder.verify(a).onEntry(e);
-        inOrder.verify(defaultAction2).execute(e);
+        inOrder.verify(defaultAction2).execute(e, Optional.absent());
         inOrder.verify(b).onEntry(e);
-        inOrder.verify(defaultAction3).execute(e);
+        inOrder.verify(defaultAction3).execute(e, Optional.absent());
         inOrder.verify(c).onEntry(e);
 
         verifyStateInteraction(a, TestEntity.class, onEntry(1), onExit(0), onEvent(0));
         verifyStateInteraction(b, TestEntity.class, onEntry(1), onExit(0), onEvent(0));
         verifyStateInteraction(c, TestEntity.class, onEntry(1), onExit(0), onEvent(0));
-        verify(defaultAction1).execute(e);
-        verify(defaultAction2).execute(e);
-        verify(defaultAction3).execute(e);
+        verify(defaultAction1).execute(e, Optional.absent());
+        verify(defaultAction2).execute(e, Optional.absent());
+        verify(defaultAction3).execute(e, Optional.absent());
     }
 
     @Test

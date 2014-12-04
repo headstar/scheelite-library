@@ -137,19 +137,17 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
     }
 
     private U handleInitialTransitions(State<T, U> startState, T entity) {
-        Optional<InitialTransition<T, U>> initialTransitionOpt;
-        State<T, U> currentState = null;
-        currentState = startState;
-        initialTransitionOpt = transitionMap.getInitialTransitionFromState(currentState);
+        State<T, U> currentState = startState;
+        Optional<Transition<T, U>> initialTransitionOpt = transitionMap.getInitialTransitionFromState(currentState);
         while (initialTransitionOpt.isPresent()) {
-            InitialTransition<T, U> it = initialTransitionOpt.get();
+            Transition<T, U> it = initialTransitionOpt.get();
             logger.debug("initial transition: transition={}", it);
             if (it.getAction().isPresent()) {
-                InitialAction<T> action = it.getAction().get();
+                Action<T> action = it.getAction().get();
                 if(logger.isDebugEnabled()) {
-                    logger.debug("executing action for initial transition: entity={}, action={}", entity, getInitialActionName(action));
+                    logger.debug("executing action for initial transition: entity={}, action={}", entity, getActionName(action));
                 }
-                action.execute(entity);
+                action.execute(entity, Optional.absent());
             }
             currentState = it.getToState();
             logger.debug("entering state: entity={}, state={}", entity, currentState.getId());
@@ -186,7 +184,11 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
         List<State<T, U>> fromCurrentStateToRoot = stateTree.getPathToAncestor(currentState, stateTree.getRootState(), false);
         Collection<Transition<T, U>> transitions = Lists.newArrayList();
         for (State<T, U> state : fromCurrentStateToRoot) {
-            transitions.addAll(transitionMap.getTransitionsFromState(state));
+            for(Transition<T, U> t : transitionMap.getTransitionsFromState(state)) {
+                if(!t.getTransitionType().equals(TransitionType.INITIAL)) {
+                    transitions.add(t);
+                }
+            }
         }
 
         List<Transition<T, U>> triggeredTransitions = Lists.newArrayList(Iterables.filter(transitions, new TransitionTriggered<T, U>(entity, event)));
@@ -255,7 +257,4 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
         return action.getClass().getName();
     }
 
-    private String getInitialActionName(InitialAction<T> initialAction) {
-        return initialAction.getClass().getName();
-    }
 }

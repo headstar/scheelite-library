@@ -55,21 +55,6 @@ public class TestBase {
 
     }
 
-    public class TestInitialAction implements InitialAction<TestEntity> {
-
-        @Override
-        public String getName() {
-            return "TestInitialAction";
-        }
-
-        @Override
-        public void execute(TestEntity entity) {
-        }
-
-
-
-    }
-
     public class AlwaysAcceptTestGuard extends TestGuard {
 
         public AlwaysAcceptTestGuard() {

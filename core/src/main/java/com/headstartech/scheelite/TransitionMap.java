@@ -14,10 +14,8 @@ interface TransitionMap<T, U> {
 
     Set<Transition<T,U>> getTransitions();
 
-    Set<InitialTransition<T,U>> getInitialTransitions();
-
     Collection<Transition<T,U>> getTransitionsFromState(State<T,U> state);
 
-    Optional<InitialTransition<T, U>> getInitialTransitionFromState(State<T, U> state);
+    Optional<Transition<T, U>> getInitialTransitionFromState(State<T, U> state);
 
 }
