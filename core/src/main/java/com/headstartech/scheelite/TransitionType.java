@@ -3,6 +3,6 @@ package com.headstartech.scheelite;
 /**
  * Transition types.
  */
-enum TransitionType {
+public enum TransitionType {
     EXTERNAL, LOCAL, INITIAL
 }

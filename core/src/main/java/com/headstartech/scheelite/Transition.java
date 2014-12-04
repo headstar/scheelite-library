@@ -27,27 +27,27 @@ public class Transition<T, U> {
         this.guard = checkNotNull(guard);
     }
 
-    TransitionType getTransitionType() {
+    public TransitionType getTransitionType() {
         return transitionType;
     }
 
-    State<T, U> getFromState() {
+    public State<T, U> getFromState() {
         return fromState;
     }
 
-    State<T, U> getToState() {
+    public State<T, U> getToState() {
         return toState;
     }
 
-    Optional<? extends Action<T>> getAction() {
+    public Optional<? extends Action<T>> getAction() {
         return action;
     }
 
-    Optional<? extends Guard<T>> getGuard() {
+    public Optional<? extends Guard<T>> getGuard() {
         return guard;
     }
 
-    Optional<Class<?>>  getTriggerEventClass() {
+    public Optional<Class<?>> getTriggerEventClass() {
         return triggerEventClass;
     }
 
