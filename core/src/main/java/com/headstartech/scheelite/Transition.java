@@ -2,6 +2,7 @@ package com.headstartech.scheelite;
 
 import com.google.common.base.Optional;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -20,13 +21,91 @@ public class Transition<T, U> {
     private final Optional<Class<?>> triggerEventClass;
     private final TransitionType transitionType;
 
-    public Transition(State<T, U> mainSourceState, State<T, U> mainTargetState, TransitionType transitionType, Class<?> triggerEventClass, Guard<T> guard, Action<T> action) {
+
+    public static <T,U> InitialBuilder<T, U> initialBuilder(State<T, U> mainSourceState, State<T, U> mainTargetState) {
+        return new InitialBuilder<T, U>(mainSourceState, mainTargetState);
+    }
+
+    public static <T,U> ExternalOrLocalBuilder<T, U> externalBuilder(State<T, U> mainSourceState, State<T, U> mainTargetState) {
+        return new ExternalOrLocalBuilder<T, U>(mainSourceState, mainTargetState, TransitionType.EXTERNAL);
+    }
+
+    public static <T,U> ExternalOrLocalBuilder<T, U> localBuilder(State<T, U> mainSourceState, State<T, U> mainTargetState) {
+        return new ExternalOrLocalBuilder<T, U>(mainSourceState, mainTargetState, TransitionType.LOCAL);
+    }
+
+    private static <T,U> Transition<T, U> create(State<T, U> mainSourceState, State<T, U> mainTargetState, TransitionType transitionType,
+                                          Class<?> triggerEventClass, Guard<T> guard, Action<T> action) {
+        return new Transition<T, U>(mainSourceState, mainTargetState, transitionType, triggerEventClass, guard, action);
+    }
+
+    public static class InitialBuilder<T, U> {
+
+        private final State<T, U> mainSourceState;
+        private final State<T, U> mainTargetState;
+        private Action<T>  action;
+
+        public InitialBuilder(State<T, U> mainSourceState, State<T, U> mainTargetState) {
+            this.mainSourceState = mainSourceState;
+            this.mainTargetState = mainTargetState;
+        }
+
+        public InitialBuilder<T, U> withAction(Action<T> action) {
+            this.action = action;
+            return this;
+        }
+
+        public Transition<T, U> build() {
+            return create(mainSourceState, mainTargetState, TransitionType.INITIAL, null, null, action);
+        }
+    }
+
+    public static class ExternalOrLocalBuilder<T, U> {
+
+        private final State<T, U> mainSourceState;
+        private final State<T, U> mainTargetState;
+        private final TransitionType transitionType;
+        private Class<?> triggerEventClass;
+        private Guard<T> guard;
+        private Action<T>  action;
+
+        public ExternalOrLocalBuilder(State<T, U> mainSourceState, State<T, U> mainTargetState, TransitionType transitionType) {
+            this.mainSourceState = mainSourceState;
+            this.mainTargetState = mainTargetState;
+            this.transitionType = transitionType;
+        }
+
+        public ExternalOrLocalBuilder<T, U> withTriggerEventClass(Class<?> triggerEventClass) {
+            this.triggerEventClass = triggerEventClass;
+            return this;
+        }
+
+        public ExternalOrLocalBuilder<T, U> withGuard(Guard<T> guard) {
+            this.guard = guard;
+            return this;
+        }
+
+        public ExternalOrLocalBuilder<T, U> withAction(Action<T> action) {
+            this.action = action;
+            return this;
+        }
+
+        public Transition<T, U> build() {
+            return create(mainSourceState, mainTargetState, transitionType, triggerEventClass, guard, action);
+        }
+    }
+
+
+    Transition(State<T, U> mainSourceState, State<T, U> mainTargetState, TransitionType transitionType, Class<?> triggerEventClass, Guard<T> guard, Action<T> action) {
         this.transitionType = checkNotNull(transitionType);
         this.mainSourceState = checkNotNull(mainSourceState);
         this.mainTargetState = checkNotNull(mainTargetState);
         this.triggerEventClass = Optional.<Class<?>>fromNullable(triggerEventClass);
         this.action = Optional.fromNullable(action);
         this.guard = Optional.fromNullable(guard);
+        checkArgument(!TransitionType.INITIAL.equals(this.transitionType) || triggerEventClass == null, "triggerEventClass must be null for initial transition");
+        checkArgument(!TransitionType.INITIAL.equals(this.transitionType) || guard == null, "guard must be null for initial transition");
+
     }
 
     /**

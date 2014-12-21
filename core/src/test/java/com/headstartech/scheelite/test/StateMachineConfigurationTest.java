@@ -30,7 +30,7 @@ public class StateMachineConfigurationTest extends TestBase {
         // when
         StateMachine<TestEntity, StateId> sm = builder.withInitialTransition(a)
                 .withCompositeState(b, c, d)
-                .withTransition(a, b)
+                .withTransition(a, b, TestEventY.class)
                 .withTransition(c, d)
                 .withLocalTransition(d, b, TestEventX.class, testGuard, testAction)
                 .build();
@@ -51,10 +51,10 @@ public class StateMachineConfigurationTest extends TestBase {
 
         Set<Transition<TestEntity, StateId>> transitions = conf.getTransitions();
         assertEquals(5, transitions.size());
-        assertTrue(transitions.contains(new Transition<TestEntity, StateId>(conf.getRootState(), a, TransitionType.INITIAL, null, null, null)));
-        assertTrue(transitions.contains(new Transition<TestEntity, StateId>(b, c, TransitionType.INITIAL, null, null, null)));
-        assertTrue(transitions.contains(new Transition<TestEntity, StateId>(a, b, TransitionType.EXTERNAL, null, null, null)));
-        assertTrue(transitions.contains(new Transition<TestEntity, StateId>(c, d, TransitionType.EXTERNAL, null, null, null)));
-        assertTrue(transitions.contains(new Transition<TestEntity, StateId>(d, b, TransitionType.LOCAL, TestEventX.class, testGuard, testAction)));
+        assertTrue(transitions.contains(Transition.initialBuilder(conf.getRootState(), a).build()));
+        assertTrue(transitions.contains(Transition.initialBuilder(b, c).build()));
+        assertTrue(transitions.contains(Transition.externalBuilder(a, b).withTriggerEventClass(TestEventY.class).build()));
+        assertTrue(transitions.contains(Transition.externalBuilder(c, d).build()));
+        assertTrue(transitions.contains(Transition.localBuilder(d, b).withTriggerEventClass(TestEventX.class).withGuard(testGuard).withAction(testAction).build()));
     }
 }
