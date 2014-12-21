@@ -1,5 +1,7 @@
 package com.headstartech.scheelite;
 
+import com.google.common.base.Optional;
+
 import java.util.Collection;
 
 /**
@@ -11,5 +13,5 @@ import java.util.Collection;
  */
 public interface MultipleTransitionsTriggeredResolver<T, U> {
 
-    Transition<T, U> resolve(T entity, Object event, Collection<Transition<T, U>> transitions);
+    Transition<T, U> resolve(T entity, Optional<?> event, Collection<Transition<T, U>> transitions);
 }

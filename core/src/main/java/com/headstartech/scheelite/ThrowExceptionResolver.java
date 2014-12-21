@@ -1,5 +1,7 @@
 package com.headstartech.scheelite;
 
+import com.google.common.base.Optional;
+
 import java.util.Collection;
 
 /**
@@ -14,7 +16,7 @@ import java.util.Collection;
 public class ThrowExceptionResolver<T, U> implements MultipleTransitionsTriggeredResolver<T, U> {
 
     @Override
-    public Transition<T, U> resolve(T entity, Object event, Collection<Transition<T, U>> transitions) {
+    public Transition<T, U> resolve(T entity, Optional<?> event, Collection<Transition<T, U>> transitions) {
         throw new IllegalStateException(String.format("multiple transitions triggered: " +
                 "entity=[%s], transitions=[%s]", entity, transitions));
     }
