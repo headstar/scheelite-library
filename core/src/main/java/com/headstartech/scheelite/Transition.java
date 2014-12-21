@@ -5,7 +5,7 @@ import com.google.common.base.Optional;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * Class representing a transition in the state machine.
+ * A transition in the state machine.
  *
  * @param <T> entity type
  * @param <U> state id type
@@ -29,26 +29,59 @@ public class Transition<T, U> {
         this.guard = Optional.fromNullable(guard);
     }
 
+    /**
+     * Gets the {@link com.headstartech.scheelite.TransitionType}.
+     *
+     * @return
+     */
     public TransitionType getTransitionType() {
         return transitionType;
     }
 
+    /**
+     * Gets the main source {@link com.headstartech.scheelite.State}.
+     * @return
+     */
     public State<T, U> getMainSourceState() {
         return mainSourceState;
     }
 
+
+    /**
+     * Gets the main target {@link com.headstartech.scheelite.State}.
+     *
+     * @return
+     */
     public State<T, U> getMainTargetState() {
         return mainTargetState;
     }
 
+    /**
+     * Gets the transition {@link com.headstartech.scheelite.Action}.
+     *
+     * @return
+     */
     public Optional<? extends Action<T>> getAction() {
         return action;
     }
 
+    /**
+     * Gets the transition {@link com.headstartech.scheelite.Guard}.
+     *
+     *
+     * @return the guard or {@code Optional.absent()} if there is no guard. If the transition type is {@code TransitionType.INITIAL}. {@code Optional.absent()}
+     * will be returned.
+     */
     public Optional<? extends Guard<T>> getGuard() {
         return guard;
     }
 
+    /**
+     * Gets the event class triggering the transition.
+     *
+     * @return the event class or {@code Optional.absent()} if there is no event class. If the transition type is {@code TransitionType.INITIAL}. {@code Optional.absent()}
+     * will be returned.
+     */
     public Optional<Class<?>> getTriggerEventClass() {
         return triggerEventClass;
     }
