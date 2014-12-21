@@ -6,6 +6,8 @@ import java.util.Set;
 
 /**
  * The configuration of the state machine (states and their super state, transitions and initial transitions).
+ *
+ * @since 2.0
  */
 public class StateMachineConfiguration<T, U> {
 
