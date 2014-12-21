@@ -74,8 +74,8 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
             Transition<T, U> triggeredTransition = triggeredTransitionOpt.get();
             logger.debug("transition triggered: entity={}, state={}, transition={}, transitionType={}", entity, currentState.getId(), triggeredTransition, triggeredTransition.getTransitionType().name());
 
-            State<T, U> mainSourceState = triggeredTransition.getFromState();
-            State<T, U> mainTargetState = triggeredTransition.getToState();
+            State<T, U> mainSourceState = triggeredTransition.getMainSourceState();
+            State<T, U> mainTargetState = triggeredTransition.getMainTargetState();
 
             // get lowest common ancestor (LCA) for main source state and main target state
             State<T, U> lowestCommonAncestor = stateTree.getLowestCommonAncestor(mainSourceState, mainTargetState);
@@ -149,7 +149,7 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
                 }
                 action.execute(entity, Optional.absent());
             }
-            currentState = it.getToState();
+            currentState = it.getMainTargetState();
             logger.debug("entering state: entity={}, state={}", entity, currentState.getId());
             currentState.onEntry(entity);
             initialTransitionOpt = transitionMap.getInitialTransitionFromState(currentState);

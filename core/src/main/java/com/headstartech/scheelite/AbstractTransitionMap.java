@@ -40,7 +40,7 @@ abstract class AbstractTransitionMap<T, U> implements TransitionMap<T, U> {
     protected Multimap<State<T, U>, Transition<T, U>> createTransitionsFromMap(Set<Transition<T, U>> transitions) {
         Multimap<State<T, U>, Transition<T, U>> map = ArrayListMultimap.create();
         for (Transition<T, U> transition : transitions) {
-            map.put(transition.getFromState(), transition);
+            map.put(transition.getMainSourceState(), transition);
         }
         return map;
     }
@@ -49,7 +49,7 @@ abstract class AbstractTransitionMap<T, U> implements TransitionMap<T, U> {
         Map<State<T, U>, Transition<T, U>> map = Maps.newHashMap();
         for (Transition<T, U> transition : transitions) {
             if(TransitionType.INITIAL.equals(transition.getTransitionType())) {
-                map.put(transition.getFromState(), transition);
+                map.put(transition.getMainSourceState(), transition);
             }
         }
         return map;
