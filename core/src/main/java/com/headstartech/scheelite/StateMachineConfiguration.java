@@ -50,6 +50,13 @@ public class StateMachineConfiguration<T, U> {
         }
     }
 
+    /**
+     * Gets the implicit root state.
+     *
+     * The id of the root state is <code>null</code>.
+     *
+     * @return the root state.
+     */
     public State<T, U> getRootState() { return stateTree.getRootState(); }
 
 }
