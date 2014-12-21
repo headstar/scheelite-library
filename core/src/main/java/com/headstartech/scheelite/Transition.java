@@ -13,18 +13,18 @@ public class Transition<T, U> {
 
     private final State<T, U> fromState;
     private final State<T, U> toState;
-    private final Optional<? extends Action<T>> action;
-    private final Optional<? extends Guard<T>> guard;
+    private final Optional<Action<T> >action;
+    private final Optional<Guard<T>> guard;
     private final Optional<Class<?>> triggerEventClass;
     private final TransitionType transitionType;
 
-    Transition(State<T, U> fromState, State<T, U> toState, TransitionType transitionType, Optional<Class<?>> triggerEventClass, Optional<? extends Guard<T>> guard, Optional<? extends Action<T>> action) {
+    public Transition(State<T, U> fromState, State<T, U> toState, TransitionType transitionType, Class<?> triggerEventClass, Guard<T> guard, Action<T> action) {
         this.transitionType = checkNotNull(transitionType);
         this.fromState = checkNotNull(fromState);
         this.toState = checkNotNull(toState);
-        this.triggerEventClass = checkNotNull(triggerEventClass);
-        this.action = checkNotNull(action);
-        this.guard = checkNotNull(guard);
+        this.triggerEventClass = Optional.<Class<?>>fromNullable(triggerEventClass);
+        this.action = Optional.fromNullable(action);
+        this.guard = Optional.fromNullable(guard);
     }
 
     public TransitionType getTransitionType() {
