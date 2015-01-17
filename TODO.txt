@@ -1,0 +1,3 @@
+* final states
+* sort transitions when choosing one (children first)
+* callbacks when processing event

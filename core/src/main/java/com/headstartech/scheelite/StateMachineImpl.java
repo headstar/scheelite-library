@@ -197,7 +197,7 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
         } else if (triggeredTransitions.size() == 1) {
             return Optional.of(triggeredTransitions.get(0));
         } else {
-            return Optional.of(multipleTransitionsTriggeredResolver.resolve(entity, event, triggeredTransitions));
+            return Optional.of(multipleTransitionsTriggeredResolver.resolve(currentState.getId(), entity, event, triggeredTransitions));
         }
     }
 
