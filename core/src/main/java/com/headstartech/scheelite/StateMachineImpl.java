@@ -36,6 +36,25 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
         return configuration;
     }
 
+    @Override
+    public U start(T entity) throws Exception {
+        return handleInitialTransition(entity);
+    }
+
+    @Override
+    public U processEvent(T entity, U stateId, Object event) throws Exception {
+        checkNotNull(entity);
+        checkNotNull(stateId);
+        checkNotNull(event);
+
+        int transitionCount = 0;
+        ProcessEventResult<U> res = process(entity, stateId, Optional.of(event), transitionCount++);
+        while (res.isContinueProcessing()) {
+            res = process(entity, res.getNextStateId(), Optional.absent(), transitionCount++);
+        }
+        return res.getNextStateId();
+    }
+
     private void handleEvent(State<T, U> sourceState, T entity, Optional<?> eventOpt) throws Exception {
         if (eventOpt.isPresent()) {
             Object event = eventOpt.get();
@@ -112,26 +131,7 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
             return new ProcessEventResult<U>(false, currentState.getId());
         }
     }
-
-    @Override
-    public U start(T entity) throws Exception {
-        return handleInitialTransition(entity);
-    }
-
-    @Override
-    public U processEvent(T entity, U stateId, Object event) throws Exception {
-        checkNotNull(entity);
-        checkNotNull(stateId);
-        checkNotNull(event);
-
-        int transitionCount = 0;
-        ProcessEventResult<U> res = process(entity, stateId, Optional.of(event), transitionCount++);
-        while (res.isContinueProcessing()) {
-            res = process(entity, res.getNextStateId(), Optional.absent(), transitionCount++);
-        }
-        return res.getNextStateId();
-    }
-
+    
     private U handleInitialTransition(T entity) throws Exception {
         return handleInitialTransitions(stateTree.getRootState(), entity);
     }
