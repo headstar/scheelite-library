@@ -9,7 +9,7 @@ import com.headstartech.scheelite.StateMachineBuilder;
 public class Application {
 
     @SuppressWarnings("unchecked")
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
 
         OnState onState = new OnState();
         InitState initState = new InitState();

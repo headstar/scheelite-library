@@ -18,7 +18,7 @@ import static org.testng.Assert.fail;
 public class StateMachineTest extends TestBase {
 
     @Test
-    public void testThrowExceptionResolver() {
+    public void testThrowExceptionResolver() throws Exception {
         // given
         TestEntity e = spy(new TestEntity(StateId.A));
         TestState a = spy(new TestState(StateId.A));
@@ -47,7 +47,7 @@ public class StateMachineTest extends TestBase {
     }
 
     @Test(expectedExceptions = NullPointerException.class)
-    public void testNullStateId() {
+    public void testNullStateId() throws Exception {
         // given
         TestEntity e = new TestEntity(null);
         TestState a = new TestState(StateId.A);
@@ -65,7 +65,7 @@ public class StateMachineTest extends TestBase {
 
 
     @Test(expectedExceptions = UnknownStateIdException.class)
-    public void testNoStateForStateId() {
+    public void testNoStateForStateId() throws Exception {
         // given
         TestEntity e = new TestEntity(StateId.B);
         TestState a = new TestState(StateId.A);
@@ -83,7 +83,7 @@ public class StateMachineTest extends TestBase {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testInitialTransition() {
+    public void testInitialTransition() throws Exception {
         // given
         TestEntity e = spy(new TestEntity(StateId.B));
         TestState a = spy(new TestState(StateId.A));
@@ -122,7 +122,7 @@ public class StateMachineTest extends TestBase {
     }
 
     @Test
-    public void testTransitionFiredWithTriggerEventAndNoGuard() {
+    public void testTransitionFiredWithTriggerEventAndNoGuard() throws Exception {
         // given
         TestEntity e = spy(new TestEntity(StateId.A));
         TestState a = spy(new TestState(StateId.A));
@@ -152,7 +152,7 @@ public class StateMachineTest extends TestBase {
     }
 
     @Test
-    public void testTransitionFiredWithTriggerEventAndGuardAccept() {
+    public void testTransitionFiredWithTriggerEventAndGuardAccept() throws Exception {
         // given
         TestEntity e = spy(new TestEntity(StateId.A));
         TestState a = spy(new TestState(StateId.A));
@@ -184,7 +184,7 @@ public class StateMachineTest extends TestBase {
 
 
     @Test
-    public void testNoTransitionFiredGuardDeny() {
+    public void testNoTransitionFiredGuardDeny() throws Exception {
         // given
         TestEntity e = spy(new TestEntity(StateId.A));
         TestState a = spy(new TestState(StateId.A));
@@ -209,7 +209,7 @@ public class StateMachineTest extends TestBase {
     }
 
     @Test
-    public void testMultipleTransitionsOneGuardAccept() {
+    public void testMultipleTransitionsOneGuardAccept() throws Exception {
         // given
         TestState a = new TestState(StateId.A);
         TestState b = new TestState(StateId.B);
@@ -231,7 +231,7 @@ public class StateMachineTest extends TestBase {
     }
 
     @Test
-    public void testExternalSelfTransition() {
+    public void testExternalSelfTransition() throws Exception {
         // given
         TestEntity e = spy(new TestEntity(StateId.A));
         TestState a = spy(new TestState(StateId.A));
@@ -260,7 +260,7 @@ public class StateMachineTest extends TestBase {
     }
 
     @Test
-    public void testLocalSelfTransition() {
+    public void testLocalSelfTransition() throws Exception {
         // given
         TestEntity e = spy(new TestEntity(StateId.A));
         TestState a = spy(new TestState(StateId.A));
@@ -287,7 +287,7 @@ public class StateMachineTest extends TestBase {
     }
 
     @Test
-    public void testInternalTransition() {
+    public void testInternalTransition() throws Exception {
         // given
         TestEntity e = spy(new TestEntity(StateId.A));
         TestState a = spy(new TestState(StateId.A));
@@ -310,7 +310,7 @@ public class StateMachineTest extends TestBase {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testTransitionBetweenSubStates() {
+    public void testTransitionBetweenSubStates() throws Exception {
         // given
         TestEntity e = spy(new TestEntity(StateId.B));
         TestState a = spy(new TestState(StateId.A));
@@ -344,7 +344,7 @@ public class StateMachineTest extends TestBase {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testTransitionBetweenTopLevelStates() {
+    public void testTransitionBetweenTopLevelStates() throws Exception {
         // given
         TestEntity e = spy(new TestEntity(StateId.A));
         TestState a = spy(new TestState(StateId.A));
@@ -375,7 +375,7 @@ public class StateMachineTest extends TestBase {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testExternalTransitionToSuperState() {
+    public void testExternalTransitionToSuperState() throws Exception {
         // given
         TestEntity e = spy(new TestEntity(StateId.C));
         TestState a = spy(new TestState(StateId.A));
@@ -412,7 +412,7 @@ public class StateMachineTest extends TestBase {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testLocalTransitionToSuperState() {
+    public void testLocalTransitionToSuperState() throws Exception {
         // given
         TestEntity e = spy(new TestEntity(StateId.C));
         TestState a = spy(new TestState(StateId.A));
@@ -447,7 +447,7 @@ public class StateMachineTest extends TestBase {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testExternalTransitionToSubState() {
+    public void testExternalTransitionToSubState() throws Exception {
         // given
         TestEntity e = spy(new TestEntity(StateId.B));
         TestState a = spy(new TestState(StateId.A));
@@ -484,7 +484,7 @@ public class StateMachineTest extends TestBase {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testLocalTransitionToSubState() {
+    public void testLocalTransitionToSubState() throws Exception {
         // given
         TestEntity e = spy(new TestEntity(StateId.B));
         TestState a = spy(new TestState(StateId.A));
@@ -518,7 +518,7 @@ public class StateMachineTest extends TestBase {
     }
 
     @Test
-    public void testTriggerlessTransition() {
+    public void testTriggerlessTransition() throws Exception {
         // given
         TestEntity e = spy(new TestEntity(StateId.A));
         TestState a = spy(new TestState(StateId.A));
@@ -556,7 +556,7 @@ public class StateMachineTest extends TestBase {
     }
 
     @Test(expectedExceptions = MaxTransitionsPerEventException.class)
-    public void testTransitionLoopDetection() {
+    public void testTransitionLoopDetection() throws Exception {
         // given
         TestEntity e = spy(new TestEntity(StateId.A));
         TestState a = spy(new TestState(StateId.A));
@@ -585,7 +585,7 @@ public class StateMachineTest extends TestBase {
     }
 
     @Test(expectedExceptions = MaxTransitionsPerEventException.class)
-    public void testTransitionLoopNoStackOverflow() {
+    public void testTransitionLoopNoStackOverflow() throws Exception {
         // given
         TestEntity e = spy(new TestEntity(StateId.A));
         TestState a = spy(new TestState(StateId.A));
@@ -608,7 +608,7 @@ public class StateMachineTest extends TestBase {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testEventHandledBySuperState() {
+    public void testEventHandledBySuperState() throws Exception {
         // given
         TestEntity e = spy(new TestEntity(StateId.B));
         TestState a = spy(new TestState(StateId.A, HandleEvent.NO));
@@ -630,7 +630,7 @@ public class StateMachineTest extends TestBase {
         inOrder.verify(a).onEvent(e, event);
     }
 
-    private <T,U> void verifyStateInteraction(State<T, U> state, Class<T> clazz, OnEntry onEntry, OnExit onExit, OnEvent onEvent) {
+    private <T,U> void verifyStateInteraction(State<T, U> state, Class<T> clazz, OnEntry onEntry, OnExit onExit, OnEvent onEvent) throws Exception {
         verify(state, times(onEntry.times)).onEntry(Mockito.<T>any(clazz));
         verify(state, times(onExit.times)).onExit(Mockito.<T>any(clazz));
         verify(state, times(onEvent.times)).onEvent(Mockito.<T>any(clazz), Mockito.anyObject());

@@ -19,20 +19,26 @@ public interface State<T, U> {
     /**
      * Called by the state machine when the state is entered.
      * @param entity
+     *
+     * @throws java.lang.Exception
      */
-    void onEntry(T entity);
+    void onEntry(T entity) throws Exception;
 
     /**
      * Called by the state machine when the state is exited.
      * @param entity
+     *
+     * @throws java.lang.Exception
      */
-    void onExit(T entity);
+    void onExit(T entity) throws  Exception;
 
     /**
      * Called by the state machine when processing an event.
      * @param entity
      * @param event
      * @return <code>false</code> if the event should be passed on to a super state (if any), <code>true</code> otherwise.
+     *
+     * @throws java.lang.Exception
      */
-    boolean onEvent(T entity, Object event);
+    boolean onEvent(T entity, Object event) throws Exception;
 }

@@ -22,6 +22,8 @@ public interface MultipleTransitionsTriggeredResolver<T, U> {
      * @param event Event triggering the transitions.
      * @param transitions Triggered transitions, ordered according to source state's distance from the root (furthest away first).
      * @return The transition to execute
+     *
+     * @throws java.lang.Exception
      */
-    Transition<T, U> resolve(U stateId, T entity, Optional<?> event, List<Transition<T, U>> transitions);
+    Transition<T, U> resolve(U stateId, T entity, Optional<?> event, List<Transition<T, U>> transitions) throws Exception;
 }

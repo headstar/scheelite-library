@@ -36,7 +36,7 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
         return configuration;
     }
 
-    private void handleEvent(State<T, U> sourceState, T entity, Optional<?> eventOpt) {
+    private void handleEvent(State<T, U> sourceState, T entity, Optional<?> eventOpt) throws Exception {
         if (eventOpt.isPresent()) {
             Object event = eventOpt.get();
             boolean eventHandled = false;
@@ -50,7 +50,7 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
         }
     }
 
-    private ProcessEventResult<U> process(T entity, U stateId, Optional<?> eventOpt, int transitionCount) {
+    private ProcessEventResult<U> process(T entity, U stateId, Optional<?> eventOpt, int transitionCount) throws Exception {
         checkNotNull(entity);
         checkNotNull(stateId);
         checkNotNull(eventOpt);
@@ -114,12 +114,12 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
     }
 
     @Override
-    public U start(T entity) {
+    public U start(T entity) throws Exception {
         return handleInitialTransition(entity);
     }
 
     @Override
-    public U processEvent(T entity, U stateId, Object event) {
+    public U processEvent(T entity, U stateId, Object event) throws Exception {
         checkNotNull(entity);
         checkNotNull(stateId);
         checkNotNull(event);
@@ -132,11 +132,11 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
         return res.getNextStateId();
     }
 
-    private U handleInitialTransition(T entity) {
+    private U handleInitialTransition(T entity) throws Exception {
         return handleInitialTransitions(stateTree.getRootState(), entity);
     }
 
-    private U handleInitialTransitions(State<T, U> startState, T entity) {
+    private U handleInitialTransitions(State<T, U> startState, T entity) throws Exception {
         State<T, U> currentState = startState;
         Optional<Transition<T, U>> initialTransitionOpt = transitionMap.getInitialTransitionFromState(currentState);
         while (initialTransitionOpt.isPresent()) {
@@ -180,7 +180,7 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
         return res;
     }
 
-    private Optional<Transition<T, U>> getTriggeredTransition(State<T, U> currentState, T entity, Optional<?> event) {
+    private Optional<Transition<T, U>> getTriggeredTransition(State<T, U> currentState, T entity, Optional<?> event) throws Exception {
         List<State<T, U>> fromCurrentStateToRoot = stateTree.getPathToAncestor(currentState, stateTree.getRootState(), false);
         Collection<Transition<T, U>> transitions = Lists.newArrayList();
         for (State<T, U> state : fromCurrentStateToRoot) {

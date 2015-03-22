@@ -23,5 +23,5 @@ public interface Action<T> {
      * @param entity
      * @param event
      */
-    void execute(T entity, Optional<?> event);
+    void execute(T entity, Optional<?> event) throws Exception;
 }

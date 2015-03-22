@@ -13,10 +13,11 @@ public interface StateMachine<T, U> {
      *
      * @param entity
      * @return id of the state after the initial transition
+     * @throws java.lang.Exception
      *
      * @see State
      */
-    U start(T entity);
+    U start(T entity) throws Exception;
 
     /**
      * Processes the given event.
@@ -25,10 +26,11 @@ public interface StateMachine<T, U> {
      * @param stateId id of the current state
      * @param event
      * @return id of the next state
+     * @throws java.lang.Exception
      *
      * @see State
      */
-    U processEvent(T entity, U stateId, Object event);
+    U processEvent(T entity, U stateId, Object event) throws Exception;
 
     /**
      * Gets the configuration of the state machine.
