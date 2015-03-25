@@ -1,7 +1,10 @@
 package com.headstartech.scheelite.test;
 
 import com.google.common.base.Optional;
-import com.headstartech.scheelite.*;
+import com.headstartech.scheelite.Action;
+import com.headstartech.scheelite.Guard;
+import com.headstartech.scheelite.StateAdapter;
+import com.headstartech.scheelite.StateMachineBuilder;
 import org.testng.annotations.BeforeMethod;
 
 /**

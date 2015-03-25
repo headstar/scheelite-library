@@ -1,13 +1,14 @@
 package com.headstartech.scheelite.test;
 
-import com.headstartech.scheelite.*;
+import com.headstartech.scheelite.State;
+import com.headstartech.scheelite.StateMachine;
+import com.headstartech.scheelite.StateMachineConfiguration;
+import com.headstartech.scheelite.Transition;
 import org.testng.annotations.Test;
 
 import java.util.Set;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.*;
 
 /**
  * Created by per on 12/6/14.

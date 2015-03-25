@@ -2,7 +2,6 @@ package com.headstartech.scheelite;
 
 import com.google.common.base.Optional;
 
-import java.util.Collection;
 import java.util.List;
 
 /**

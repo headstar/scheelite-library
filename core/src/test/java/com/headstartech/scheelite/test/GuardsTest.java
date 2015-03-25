@@ -1,9 +1,7 @@
 package com.headstartech.scheelite.test;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
 import com.headstartech.scheelite.Guard;
-import com.headstartech.scheelite.GuardArgs;
 import com.headstartech.scheelite.Guards;
 import org.testng.annotations.Test;
 

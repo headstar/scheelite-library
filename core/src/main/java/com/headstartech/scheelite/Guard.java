@@ -1,7 +1,6 @@
 package com.headstartech.scheelite;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
 
 /**
  * Guard predicate enabling transitions.

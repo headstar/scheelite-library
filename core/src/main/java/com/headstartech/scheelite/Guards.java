@@ -2,7 +2,6 @@ package com.headstartech.scheelite;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
-import com.google.common.base.Predicates;
 
 import java.util.ArrayList;
 import java.util.Arrays;

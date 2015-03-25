@@ -2,8 +2,6 @@ package com.headstartech.scheelite.test;
 
 import org.testng.annotations.Test;
 
-import static org.testng.Assert.assertEquals;
-
 public class StateMachineBuilderTest extends TestBase {
 
     @Test(expectedExceptions = IllegalStateException.class)
