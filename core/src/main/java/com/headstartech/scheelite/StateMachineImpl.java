@@ -182,7 +182,7 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
 
     private Optional<Transition<T, U>> getTriggeredTransition(State<T, U> currentState, T entity, Optional<?> event) throws Exception {
         List<State<T, U>> fromCurrentStateToRoot = stateTree.getPathToAncestor(currentState, stateTree.getRootState(), false);
-        Collection<Transition<T, U>> transitions = Lists.newArrayList();
+        List<Transition<T, U>> transitions = Lists.newArrayList();
         for (State<T, U> state : fromCurrentStateToRoot) {
             for(Transition<T, U> t : transitionMap.getTransitionsFromState(state)) {
                 if(!t.getTransitionType().equals(TransitionType.INITIAL)) {
@@ -191,7 +191,7 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
             }
         }
 
-        List<Transition<T, U>> triggeredTransitions = Lists.newArrayList(Iterables.filter(transitions, new TransitionTriggered<T, U>(entity, event)));
+        List<Transition<T, U>> triggeredTransitions = filterTransitions(transitions, entity, event);
         if (triggeredTransitions.isEmpty()) {
             return Optional.absent();
         } else if (triggeredTransitions.size() == 1) {
@@ -201,39 +201,41 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
         }
     }
 
-    private static class TransitionTriggered<T, U> implements Predicate<Transition<T, U>> {
+    List<Transition<T, U>> filterTransitions(Collection<Transition<T, U>> transitions, T entity, Optional<?> event) throws Exception {
+        List<Transition<T, U>> res = Lists.newArrayList();
 
-        private final GuardArgs<T> guardArgs;
-
-        private TransitionTriggered(T entity, Optional<?> event) {
-            this.guardArgs = new GuardArgs<T>(entity, event);
+        for(Transition<T, U> t : transitions) {
+            if(isTransitionTriggered(t, entity, event)) {
+                res.add(t);
+            }
         }
 
-        @Override
-        public boolean apply(Transition<T, U> input) {
-            if (input.getTriggerEventClass().isPresent()) {
-                Class<?> triggerEventClass = input.getTriggerEventClass().get();
-                if (guardArgs.getEvent().isPresent()) {
-                    Object event = guardArgs.getEvent().get();
-                    if (!triggerEventClass.isInstance(event)) {
-                        return false;
-                    }
-                } else {
+        return res;
+    }
+
+    private boolean isTransitionTriggered(Transition<T, U> t, T entity, Optional<?> event) throws Exception {
+        if (t.getTriggerEventClass().isPresent()) {
+            Class<?> triggerEventClass = t.getTriggerEventClass().get();
+            if (event.isPresent()) {
+                if (!triggerEventClass.isInstance(event.get())) {
                     return false;
                 }
             } else {
-                if(guardArgs.getEvent().isPresent()) {
-                    return false;
-                }
+                return false;
             }
-            if (input.getGuard().isPresent()) {
-                return input.getGuard().get().apply(guardArgs);
-            } else {
-                // no guard present
-                return true;
+        } else {
+            if(event.isPresent()) {
+                return false;
             }
+        }
+        if (t.getGuard().isPresent()) {
+            return t.getGuard().get().evaluate(entity, event);
+        } else {
+            // no guard present
+            return true;
         }
     }
+
 
     private static class ProcessEventResult<U> {
         private final boolean continueProcessing;

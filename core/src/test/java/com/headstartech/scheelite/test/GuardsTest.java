@@ -15,12 +15,12 @@ import static org.testng.Assert.*;
 public class GuardsTest extends TestBase {
 
     @Test
-    public void testOf() {
+    public void testSimple() throws Exception {
         // given
-        Guard<TestEntity> guard = Guards.of(new TestPred(true));
+        Guard<TestEntity> guard = new TestPred(true);
 
         // when
-        boolean res = guard.apply(new GuardArgs<TestEntity>(new TestEntity(), Optional.absent()));
+        boolean res = guard.evaluate(new TestEntity(), Optional.absent());
 
         // then
         assertTrue(res);
@@ -28,12 +28,12 @@ public class GuardsTest extends TestBase {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testAndTrue() {
+    public void testAndTrue() throws Exception {
         // given
-        Guard<TestEntity> guard = Guards.and(Guards.of(new TestPred(true)), Guards.of(new TestPred(true)));
+        Guard<TestEntity> guard = Guards.and(new TestPred(true), new TestPred(true));
 
         // when
-        boolean res = guard.apply(new GuardArgs<TestEntity>(new TestEntity(), Optional.absent()));
+        boolean res = guard.evaluate(new TestEntity(), Optional.absent());
 
         // then
         assertTrue(res);
@@ -41,12 +41,12 @@ public class GuardsTest extends TestBase {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testAndFalse() {
+    public void testAndFalse() throws Exception {
         // given
-        Guard<TestEntity> guard = Guards.and(Guards.of(new TestPred(true)), Guards.of(new TestPred(false)));
+        Guard<TestEntity> guard = Guards.and(new TestPred(true), new TestPred(false));
 
         // when
-        boolean res = guard.apply(new GuardArgs<TestEntity>(new TestEntity(), Optional.absent()));
+        boolean res = guard.evaluate(new TestEntity(), Optional.absent());
 
         // then
         assertFalse(res);
@@ -54,12 +54,12 @@ public class GuardsTest extends TestBase {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testOrTrue() {
+    public void testOrTrue() throws Exception {
         // given
-        Guard<TestEntity> guard = Guards.or(Guards.of(new TestPred(true)), Guards.of(new TestPred(false)));
+        Guard<TestEntity> guard = Guards.or(new TestPred(true), new TestPred(false));
 
         // when
-        boolean res = guard.apply(new GuardArgs<TestEntity>(new TestEntity(), Optional.absent()));
+        boolean res = guard.evaluate(new TestEntity(), Optional.absent());
 
         // then
         assertTrue(res);
@@ -67,12 +67,12 @@ public class GuardsTest extends TestBase {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testOrFalse() {
+    public void testOrFalse() throws Exception {
         // given
-        Guard<TestEntity> guard = Guards.or(Guards.of(new TestPred(false)), Guards.of(new TestPred(false)));
+        Guard<TestEntity> guard = Guards.or(new TestPred(false), new TestPred(false));
 
         // when
-        boolean res = guard.apply(new GuardArgs<TestEntity>(new TestEntity(), Optional.absent()));
+        boolean res = guard.evaluate(new TestEntity(), Optional.absent());
 
         // then
         assertFalse(res);
@@ -80,12 +80,12 @@ public class GuardsTest extends TestBase {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testNotTrue() {
+    public void testNotTrue() throws Exception {
         // given
-        Guard<TestEntity> guard = Guards.not(Guards.of(new TestPred(false)));
+        Guard<TestEntity> guard = Guards.not(new TestPred(false));
 
         // when
-        boolean res = guard.apply(new GuardArgs<TestEntity>(new TestEntity(), Optional.absent()));
+        boolean res = guard.evaluate(new TestEntity(), Optional.absent());
 
         // then
         assertTrue(res);
@@ -93,18 +93,18 @@ public class GuardsTest extends TestBase {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testNotFalse() {
+    public void testNotFalse() throws Exception {
         // given
-        Guard<TestEntity> guard = Guards.not(Guards.of(new TestPred(true)));
+        Guard<TestEntity> guard = Guards.not(new TestPred(true));
 
         // when
-        boolean res = guard.apply(new GuardArgs<TestEntity>(new TestEntity(), Optional.absent()));
+        boolean res = guard.evaluate(new TestEntity(), Optional.absent());
 
         // then
         assertFalse(res);
     }
 
-    private static class TestPred implements Predicate<GuardArgs<TestEntity>> {
+    private static class TestPred implements Guard<TestEntity> {
 
         private final boolean accept;
 
@@ -113,11 +113,12 @@ public class GuardsTest extends TestBase {
         }
 
         @Override
-        public boolean apply(GuardArgs<TestEntity> input) {
-            assertNotNull(input.getEntity());
-            assertNotNull(input.getEvent());
+        public boolean evaluate(TestEntity context, Optional<?> event) {
+            assertNotNull(context);
+            assertNotNull(event);
             return accept;
         }
+
     }
 
 }

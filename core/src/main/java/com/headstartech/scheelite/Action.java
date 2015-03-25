@@ -10,14 +10,6 @@ import com.google.common.base.Optional;
 public interface Action<T> {
 
     /**
-     * Name of action.
-     * Not used anymore, will be removed in next major version.
-     * @return
-     */
-    @Deprecated
-    String getName();
-
-    /**
      * Called when action is executed.
      *
      * @param entity

@@ -44,11 +44,6 @@ public class TestBase {
     public class TestAction implements Action<TestEntity> {
 
         @Override
-        public String getName() {
-            return "testAction";
-        }
-
-        @Override
         public void execute(TestEntity entity, Optional<?> event) {
 
         }
@@ -89,7 +84,7 @@ public class TestBase {
 
 
         @Override
-        public boolean apply(GuardArgs<TestEntity> input) {
+        public boolean evaluate(TestEntity context, Optional<?> event) {
             return accept;
         }
     }
