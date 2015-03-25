@@ -1,9 +1,14 @@
 package com.headstartech.scheelite;
 
 /**
+ * Interface for a state machine. A state machine is created using the {@linkplain com.headstartech.scheelite.StateMachineBuilder}.
+ *
+ * The user provided context is passed to the states, actions and guards (treated as an opaque object).
  *
  * @param <T> context type
  * @param <U> state id type
+ *
+ * @see com.headstartech.scheelite.StateMachineBuilder
  *
  */
 public interface StateMachine<T, U> {
