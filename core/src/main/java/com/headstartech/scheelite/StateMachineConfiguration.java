@@ -20,7 +20,7 @@ public class StateMachineConfiguration<T, U> {
     }
 
     /**
-     * Gets the states in the state machine
+     * Gets the states in the state machine. The root state is not included (see {@linkplain #getRootState()}).
      *
      * @return the states
      *
@@ -29,7 +29,7 @@ public class StateMachineConfiguration<T, U> {
     public Set<State<T, U>> getStates() { return stateTree.getStates(); }
 
     /**
-     * Gets the transitions in the state machine
+     * Gets the transitions in the state machine.
      *
      * @return the transitions
      *
@@ -38,7 +38,7 @@ public class StateMachineConfiguration<T, U> {
     public Set<Transition<T, U>> getTransitions() { return transitionMap.getTransitions(); }
 
     /**
-     * Gets the super state of the specified {@link com.headstartech.scheelite.State}.
+     * Gets the super state of the specified state.
      *
      * @param state
      * @return the super state or <code>null</code> if the argument is the root state
