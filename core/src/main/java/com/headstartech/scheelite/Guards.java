@@ -19,14 +19,38 @@ public class Guards {
     private Guards() {
     }
 
+    /**
+     * Returns a guard that evaluates to {@code true} if each of its
+     * components evaluates to {@code true}.
+     *
+     * @param components
+     * @param <T>
+     * @return
+     */
     public static <T> Guard<T> and(final Guard<T>... components) {
         return new AndGuard<T>(defensiveCopy(components));
     }
 
+    /**
+     * Returns a predicate that evaluates to {@code true} if any one of its
+     * components evaluates to {@code true}.
+     *
+     * @param components
+     * @param <T>
+     * @return
+     */
     public static <T> Guard<T> or(final Guard<T>... components) {
         return new OrGuard<T>(defensiveCopy(components));
     }
 
+    /**
+     * Returns a predicate that evaluates to {@code true} if the given guard
+     * evaluates to {@code false}.
+     *
+     * @param component
+     * @param <T>
+     * @return
+     */
     public static <T> Guard<T> not(final Guard<T> component) {
        return new NotGuard<T>(component);
     }
