@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by per on 20/02/14.
  */
-public class Operand2State extends StateAdapter<CalculatorEntity, CalculatorState> {
+public class Operand2State extends StateAdapter<CalculatorContext, CalculatorState> {
 
     private static final Logger logger = LoggerFactory.getLogger(Operand2State.class);
 
@@ -17,17 +17,17 @@ public class Operand2State extends StateAdapter<CalculatorEntity, CalculatorStat
     }
 
     @Override
-    public boolean onEvent(CalculatorEntity entity, Object event) {
+    public boolean onEvent(CalculatorContext context, Object event) {
         if(event instanceof ResultEvent) {
-            Integer op1 = entity.getOperand1();
-            Integer op2 = entity.getOperand2();
-            Operation op = entity.getOp();
+            Integer op1 = context.getOperand1();
+            Integer op2 = context.getOperand2();
+            Operation op = context.getOp();
             switch(op) {
                 case ADDITION:
-                    entity.setResult(op1 + op2);
+                    context.setResult(op1 + op2);
                     break;
                 case SUBTRACTION:
-                    entity.setResult(op1 - op2);
+                    context.setResult(op1 - op2);
                     break;
             }
             logger.info("Result requested");

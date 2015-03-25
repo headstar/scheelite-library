@@ -32,7 +32,7 @@ import static com.google.common.base.Preconditions.checkArgument;
  *      .withTransition(onState, offState, eventInstanceOf(OffEvent.class))
  *      .build();}</pre>
  *
- * @param <T> entity type
+ * @param <T> context type
  * @param <U> state id type
  */
 public class StateMachineBuilder<T, U> {

@@ -5,7 +5,7 @@ import com.headstartech.scheelite.StateAdapter;
 /**
  * Created by per on 20/02/14.
  */
-public class OnState extends StateAdapter<CalculatorEntity, CalculatorState> {
+public class OnState extends StateAdapter<CalculatorContext, CalculatorState> {
 
     @Override
     public CalculatorState getId() {
@@ -13,8 +13,8 @@ public class OnState extends StateAdapter<CalculatorEntity, CalculatorState> {
     }
 
     @Override
-    public void onEntry(CalculatorEntity entity) {
-        entity.clear();
+    public void onEntry(CalculatorContext context) {
+        context.clear();
     }
 
 }

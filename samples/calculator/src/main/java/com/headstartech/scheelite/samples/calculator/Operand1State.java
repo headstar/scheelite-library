@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by per on 20/02/14.
  */
-public class Operand1State extends StateAdapter<CalculatorEntity, CalculatorState> {
+public class Operand1State extends StateAdapter<CalculatorContext, CalculatorState> {
 
     private static final Logger logger = LoggerFactory.getLogger(Operand1State.class);
 
@@ -17,10 +17,10 @@ public class Operand1State extends StateAdapter<CalculatorEntity, CalculatorStat
     }
 
     @Override
-    public boolean onEvent(CalculatorEntity entity, Object event) {
+    public boolean onEvent(CalculatorContext context, Object event) {
         if(event instanceof OperationEvent) {
             OperationEvent ev = (OperationEvent) event;
-            entity.setOp(ev.getOp());
+            context.setOp(ev.getOp());
             logger.info("Operation entered: operation={}", ev.getOp().name());
             return true;
         }

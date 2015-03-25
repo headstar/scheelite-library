@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Encapsulates the action to be taken when multiple transitions have been triggered.
  *
- * @param <T> entity type
+ * @param <T> context type
  * @param <U> state id type
  *
  */
@@ -17,13 +17,13 @@ public interface MultipleTransitionsTriggeredResolver<T, U> {
     /**
      * Resolves a situation where multiple transitions have triggered.
      *
-     * @param stateId State id of current state.
-     * @param entity Entity
-     * @param event Event triggering the transitions.
-     * @param transitions Triggered transitions, ordered according to source state's distance from the root (furthest away first).
-     * @return The transition to execute
+     * @param stateId state id of current state.
+     * @param context the context
+     * @param event event triggering the transitions.
+     * @param transitions triggered transitions, ordered according to source state's distance from the root (furthest away first).
+     * @return the transition to execute
      *
      * @throws java.lang.Exception
      */
-    Transition<T, U> resolve(U stateId, T entity, Optional<?> event, List<Transition<T, U>> transitions) throws Exception;
+    Transition<T, U> resolve(U stateId, T context, Optional<?> event, List<Transition<T, U>> transitions) throws Exception;
 }

@@ -3,7 +3,7 @@ package com.headstartech.scheelite;
 /**
  * State adapter class.
  *
- * @param <T> entity type
+ * @param <T> context type
  * @param <U> state id type
  *
  * @see State
@@ -11,17 +11,17 @@ package com.headstartech.scheelite;
 public abstract class StateAdapter<T, U> implements State<T, U> {
 
     @Override
-    public void onEntry(T entity) {
+    public void onEntry(T context) {
         // nothing done here
     }
 
     @Override
-    public void onExit(T entity) {
+    public void onExit(T context) {
         // nothing done here
     }
 
     @Override
-    public boolean onEvent(T entity, Object event) {
+    public boolean onEvent(T context, Object event) {
         // event not handled here
         return false;
     }

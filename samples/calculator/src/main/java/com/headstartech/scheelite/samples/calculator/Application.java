@@ -19,8 +19,8 @@ public class Application {
         ResultState resultState = new ResultState();
         OffState offState = new OffState();
 
-        StateMachineBuilder<CalculatorEntity, CalculatorState> fsmBuilder = StateMachineBuilder.<CalculatorEntity, CalculatorState>newBuilder();
-        StateMachine<CalculatorEntity, CalculatorState> fsm = fsmBuilder
+        StateMachineBuilder<CalculatorContext, CalculatorState> fsmBuilder = StateMachineBuilder.<CalculatorContext, CalculatorState>newBuilder();
+        StateMachine<CalculatorContext, CalculatorState> fsm = fsmBuilder
                 .withInitialTransition(onState)
                 .withCompositeState(onState, initState, operand1State, operand2State, opEnteredState, resultState)
                 .withTransition(initState, operand1State, DigitEvent.class)
@@ -33,15 +33,15 @@ public class Application {
                 .build();
 
 
-        CalculatorEntity entity = new CalculatorEntity();
-        CalculatorState state = fsm.start(entity);
-        state = fsm.processEvent(entity, state, new DigitEvent(7));
-        state = fsm.processEvent(entity, state, new OperationEvent(Operation.ADDITION));
-        state = fsm.processEvent(entity, state, new DigitEvent(4));
-        state = fsm.processEvent(entity, state, new ResultEvent());
-        state = fsm.processEvent(entity, state, new OperationEvent(Operation.SUBTRACTION));
-        state = fsm.processEvent(entity, state, new DigitEvent(2));
-        state = fsm.processEvent(entity, state, new ResultEvent());
-        fsm.processEvent(entity, state, new OffEvent());
+        CalculatorContext context = new CalculatorContext();
+        CalculatorState state = fsm.start(context);
+        state = fsm.processEvent(context, state, new DigitEvent(7));
+        state = fsm.processEvent(context, state, new OperationEvent(Operation.ADDITION));
+        state = fsm.processEvent(context, state, new DigitEvent(4));
+        state = fsm.processEvent(context, state, new ResultEvent());
+        state = fsm.processEvent(context, state, new OperationEvent(Operation.SUBTRACTION));
+        state = fsm.processEvent(context, state, new DigitEvent(2));
+        state = fsm.processEvent(context, state, new ResultEvent());
+        fsm.processEvent(context, state, new OffEvent());
     }
 }

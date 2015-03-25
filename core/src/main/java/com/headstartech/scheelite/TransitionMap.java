@@ -7,7 +7,7 @@ import java.util.Set;
 
 /**
  *
- * @param <T> entity type
+ * @param <T> context type
  * @param <U> state id type
  */
 interface TransitionMap<T, U> {

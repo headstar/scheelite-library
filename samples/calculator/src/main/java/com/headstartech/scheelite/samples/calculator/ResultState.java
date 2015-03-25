@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by per on 20/02/14.
  */
-public class ResultState extends StateAdapter<CalculatorEntity, CalculatorState> {
+public class ResultState extends StateAdapter<CalculatorContext, CalculatorState> {
 
     private static final Logger logger = LoggerFactory.getLogger(ResultState.class);
 
@@ -17,21 +17,21 @@ public class ResultState extends StateAdapter<CalculatorEntity, CalculatorState>
     }
 
     @Override
-    public void onEntry(CalculatorEntity entity) {
-        logger.info("Result: operation={}", entity.getResult());
+    public void onEntry(CalculatorContext context) {
+        logger.info("Result: operation={}", context.getResult());
     }
 
     @Override
-    public boolean onEvent(CalculatorEntity entity, Object event) {
+    public boolean onEvent(CalculatorContext context, Object event) {
         if(event instanceof OperationEvent) {
             OperationEvent ev = (OperationEvent) event;
-            entity.setOp(ev.getOp());
-            entity.setOperand1(entity.getResult());
+            context.setOp(ev.getOp());
+            context.setOperand1(context.getResult());
             logger.info("Operation entered: operation={}", ev.getOp().name());
             return true;
         } else if(event instanceof DigitEvent) {
             DigitEvent ev = (DigitEvent) event;
-            entity.setOperand1(ev.getDigit());
+            context.setOperand1(ev.getDigit());
             logger.info("Digit entered: digit={}", ev.getDigit());
             return true;
         }

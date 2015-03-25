@@ -4,14 +4,14 @@ package com.headstartech.scheelite.samples.calculator;
 /**
  * Created by per on 20/02/14.
  */
-public class CalculatorEntity {
+public class CalculatorContext {
 
     private Integer operand1;
     private Integer operand2;
     private Integer result;
     private Operation op;
 
-    CalculatorEntity() {
+    CalculatorContext() {
     }
 
     void clear() {

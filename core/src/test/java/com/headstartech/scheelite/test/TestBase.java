@@ -44,7 +44,7 @@ public class TestBase {
     public class TestAction implements Action<TestEntity> {
 
         @Override
-        public void execute(TestEntity entity, Optional<?> event) {
+        public void execute(TestEntity context, Optional<?> event) {
 
         }
 
@@ -106,7 +106,7 @@ public class TestBase {
         }
 
         @Override
-        public boolean onEvent(TestEntity entity, Object event) {
+        public boolean onEvent(TestEntity context, Object event) {
             return handleEvent.equals(HandleEvent.YES);
         }
 

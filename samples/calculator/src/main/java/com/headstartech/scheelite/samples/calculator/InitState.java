@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by per on 22/02/14.
  */
-public class InitState extends StateAdapter<CalculatorEntity, CalculatorState> {
+public class InitState extends StateAdapter<CalculatorContext, CalculatorState> {
 
     private static final Logger logger = LoggerFactory.getLogger(InitState.class);
 
@@ -17,10 +17,10 @@ public class InitState extends StateAdapter<CalculatorEntity, CalculatorState> {
     }
 
     @Override
-    public boolean onEvent(CalculatorEntity entity, Object event) {
+    public boolean onEvent(CalculatorContext context, Object event) {
         if(event instanceof DigitEvent) {
             DigitEvent ev = (DigitEvent) event;
-            entity.setOperand1(ev.getDigit());
+            context.setOperand1(ev.getDigit());
             logger.info("Digit entered: digit={}", ev.getDigit());
             return true;
         }

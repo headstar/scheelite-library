@@ -8,7 +8,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 /**
  * A transition in the state machine.
  *
- * @param <T> entity type
+ * @param <T> context type
  * @param <U> state id type
  *
  */
