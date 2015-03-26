@@ -209,6 +209,31 @@ public class StateMachineTest extends TestBase {
     }
 
     @Test
+    public void testNoTransitionFiredWrongEvent() throws Exception {
+        // given
+        TestEntity e = spy(new TestEntity(StateId.A));
+        TestState a = spy(new TestState(StateId.A));
+        TestState b = spy(new TestState(StateId.B));
+        TestGuard guard = spy(new TestGuard(true));
+        TestAction action = spy(new TestAction());
+        TestEventX event = new TestEventX();
+
+        StateMachine<TestEntity, StateId> stateMachine = builder
+                .withInitialTransition(a)
+                .withTransition(a, b, TestEventY.class, guard, action)
+                .build();
+
+        // when
+        StateId nextStateId = stateMachine.processEvent(e, e.getStateId(), event);
+
+        // then
+        assertEquals(nextStateId, StateId.A);
+
+        verifyStateInteraction(a, TestEntity.class, onEntry(0), onExit(0), onEvent(1));
+        verifyStateInteraction(b, TestEntity.class, onEntry(0), onExit(0), onEvent(0));
+    }
+
+    @Test
     public void testMultipleTransitionsOneGuardAccept() throws Exception {
         // given
         TestState a = new TestState(StateId.A);
