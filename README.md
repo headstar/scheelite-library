@@ -12,4 +12,4 @@ Lightweight Java finite state machine library.
 
 ##License
 
-Scheelite is Open Source software released under the http://www.apache.org/licenses/LICENSE-2.0.html[Apache 2.0 license].
+Scheelite is Open Source software released under the [Apache 2.0 license](http://www.apache.org/licenses/LICENSE-2.0.html).
