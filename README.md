@@ -10,6 +10,17 @@ Lightweight Java finite state machine library.
 * Triggerless transitions
 * Immutable state machine logic (no more than one instance needed) 
 
+###Maven
+
+Current version is 2.0.
+
+```xml
+<dependency>
+    <groupId>com.headstartech.scheelite</groupId>
+    <artifactId>scheelite-core</artifactId>
+    <version>2.0.0.RELEASE</version>
+</dependency>
+
 ##Changes
 
 ###2.0
