@@ -20,6 +20,7 @@ Current version is 2.0.
     <artifactId>scheelite-core</artifactId>
     <version>2.0.0.RELEASE</version>
 </dependency>
+```
 
 ##Changes
 
