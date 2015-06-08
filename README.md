@@ -10,6 +10,9 @@ Lightweight Java finite state machine library.
 * Triggerless transitions
 * Immutable state machine logic (no more than one instance needed) 
 
+##Concepts
+See  http://en.wikipedia.org/wiki/UML_state_machine.
+
 ###Maven
 
 Current version is 2.0.
