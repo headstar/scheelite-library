@@ -10,7 +10,7 @@ modifyPom {
         inceptionYear '2014'
 
         scm {
-            url 'https://github.com/headstar/scheelite-librar'
+            url 'https://github.com/headstar/scheelite-library'
             connection 'scm:https://github.com/headstar/scheelite-library.git'
             developerConnection 'scm:git@github.com:headstar/scheelite-library.git'
         }
