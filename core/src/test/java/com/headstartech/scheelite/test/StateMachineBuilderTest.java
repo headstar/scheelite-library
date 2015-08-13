@@ -219,4 +219,42 @@ public class StateMachineBuilderTest extends TestBase {
         // then ...exception should be thrown
     }
 
+    @Test
+    public void testTransitionToFinalState() {
+        // given
+        TestState a = new TestState(StateId.A);
+        TestState b = new TestState(StateId.B);
+        TestFinalState c = new TestFinalState(StateId.C);
+
+        // when
+        builder.withInitialTransition(a)
+                .withTransition(a, b)
+                .withTransition(b, c)
+                .build();
+
+        // when
+        builder.build();
+
+        // then ...no exception should be thrown
+    }
+
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void testTransitionFromFinalState() {
+        // given
+        TestState a = new TestState(StateId.A);
+        TestState b = new TestState(StateId.B);
+        TestFinalState c = new TestFinalState(StateId.C);
+
+        // when
+        builder.withInitialTransition(a)
+                .withTransition(a, b)
+                .withTransition(b, c)
+                .withTransition(c, a)
+                .build();
+
+        // when
+        builder.build();
+
+        // then ...exception should be thrown
+    }
 }

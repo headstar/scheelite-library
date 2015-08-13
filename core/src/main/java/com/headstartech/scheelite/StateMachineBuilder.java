@@ -166,6 +166,10 @@ public class StateMachineBuilder<T, U> {
     private StateMachineBuilder<T, U> withTransition(Transition<T, U> transition) {
         Preconditions.checkNotNull(transition);
 
+        if(transition.getMainSourceState() instanceof FinalState) {
+            throw new IllegalArgumentException("main source state of transition cannot be a final state");
+        }
+
         stateTree.addState(transition.getMainSourceState());
         stateTree.addState(transition.getMainTargetState());
         transitionMap.addTransition(transition);

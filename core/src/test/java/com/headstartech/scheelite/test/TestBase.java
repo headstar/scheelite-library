@@ -1,10 +1,7 @@
 package com.headstartech.scheelite.test;
 
 import com.google.common.base.Optional;
-import com.headstartech.scheelite.Action;
-import com.headstartech.scheelite.Guard;
-import com.headstartech.scheelite.StateAdapter;
-import com.headstartech.scheelite.StateMachineBuilder;
+import com.headstartech.scheelite.*;
 import org.testng.annotations.BeforeMethod;
 
 /**
@@ -143,6 +140,20 @@ public class TestBase {
         }
 
 
+    }
+
+    public static class TestFinalState extends FinalState<TestEntity, StateId> {
+
+        private final StateId id;
+
+        public TestFinalState(StateId id) {
+            this.id = id;
+        }
+
+        @Override
+        public StateId getId() {
+            return id;
+        }
     }
 
     public class TestEventX {
