@@ -1,5 +1,6 @@
 package com.headstartech.scheelite.test;
 
+import com.headstartech.scheelite.FinalState;
 import org.testng.annotations.Test;
 
 public class StateMachineBuilderTest extends TestBase {
@@ -224,7 +225,7 @@ public class StateMachineBuilderTest extends TestBase {
         // given
         TestState a = new TestState(StateId.A);
         TestState b = new TestState(StateId.B);
-        TestFinalState c = new TestFinalState(StateId.C);
+        FinalState c = new TestFinalState(StateId.C);
 
         // when
         builder.withInitialTransition(a)
@@ -243,7 +244,7 @@ public class StateMachineBuilderTest extends TestBase {
         // given
         TestState a = new TestState(StateId.A);
         TestState b = new TestState(StateId.B);
-        TestFinalState c = new TestFinalState(StateId.C);
+        FinalState c = new TestFinalState(StateId.C);
 
         // when
         builder.withInitialTransition(a)
@@ -257,4 +258,18 @@ public class StateMachineBuilderTest extends TestBase {
 
         // then ...exception should be thrown
     }
+
+    @SuppressWarnings("unchecked")
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void testFinalStateAsSuperState() {
+        // given
+        FinalState a = new TestFinalState(StateId.A);
+        TestState b = new TestState(StateId.B);
+
+        // when
+        builder.withCompositeState(a, b);
+
+        // then ...exception should be thrown
+    }
+
 }

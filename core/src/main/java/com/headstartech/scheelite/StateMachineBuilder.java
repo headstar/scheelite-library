@@ -66,6 +66,10 @@ public class StateMachineBuilder<T, U> {
             Preconditions.checkNotNull(state);
         }
 
+        if(superState instanceof FinalState) {
+            throw new IllegalArgumentException("superState cannot be a final state");
+        }
+
         Preconditions.checkState(!stateTree.isAncestorOf(defaultSubState, superState), "default substate is super state/equal to supplied super state: %s", defaultSubState);
         for (State<T, U> substate : subStates) {
             Preconditions.checkState(!stateTree.isAncestorOf(substate, superState), "substate is super state/equal to supplied super state: %s", substate);
