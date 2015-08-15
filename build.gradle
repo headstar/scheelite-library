@@ -20,7 +20,7 @@ task wrapper(type: Wrapper) {
     gradleVersion = '2.4'
 }
 
-def javaProjects = [ project(':scheelite-core'), project(':scheelite-samples-calculator') ]
+def javaProjects = [ project(':scheelite-core'), project(':scheelite-diagram'), project(':scheelite-samples-calculator') ]
 def javaReleaseProjects = [ project(':scheelite-core') ]
 
 configure(javaProjects) {

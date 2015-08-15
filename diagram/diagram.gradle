@@ -1,0 +1,12 @@
+dependencies {
+    compile project(':scheelite-core'),
+            "com.google.guava:guava:$guavaVersion"
+
+    testCompile "net.sourceforge.plantuml:plantuml:$plantUMLVersion"
+    testCompile "org.testng:testng:$testngVersion"
+    testRuntime "ch.qos.logback:logback-classic:$logbackClassicVersion"
+}
+
+test {
+    useTestNG()
+}
