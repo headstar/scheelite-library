@@ -94,7 +94,7 @@ class PlantUMLVisitor<T, U> implements StateTreeVisitor<T, U> {
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("%s --> %s", source, target));
         if(triggerEventClass.isPresent()) {
-            sb.append(String.format(" : %s", diagramLabelProducer.getLabelForTriggerEvent(triggerEventClass.get())));
+            sb.append(String.format(" : %s", getEventLabel(triggerEventClass.get())));
         }
         return sb.toString();
     }

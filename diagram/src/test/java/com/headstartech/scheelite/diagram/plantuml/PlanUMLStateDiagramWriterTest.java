@@ -5,6 +5,7 @@ import com.headstartech.scheelite.StateMachineConfiguration;
 import org.testng.annotations.Test;
 
 import java.io.PrintWriter;
+import java.util.Arrays;
 
 /**
  * Created by per on 8/12/15.
@@ -14,11 +15,11 @@ public class PlanUMLStateDiagramWriterTest extends TestBase {
     @Test
     public void test() {
         // given
-        TestBase.TestState a = new TestBase.TestState(TestBase.StateId.A);
-        TestBase.TestState b = new TestBase.TestState(TestBase.StateId.B);
-        TestBase.TestState c = new TestBase.TestState(TestBase.StateId.C);
-        TestBase.TestState d = new TestBase.TestState(TestBase.StateId.D);
-        TestBase.TestFinalState e = new TestBase.TestFinalState(TestBase.StateId.E);
+        TestBase.StateA a = new TestBase.StateA();
+        TestBase.StateB b = new TestBase.StateB();
+        TestBase.StateC c = new TestBase.StateC();
+        TestBase.StateD d = new TestBase.StateD();
+        TestBase.TestFinalState e = new TestBase.TestFinalState();
 
         TestBase.TestGuard testGuard = new TestBase.TestGuard();
         TestBase.TestAction testAction = new TestBase.TestAction();
