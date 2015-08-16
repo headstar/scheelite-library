@@ -253,7 +253,7 @@ public class StateMachineBuilder<T, U> {
         for (State<T, U> outer : states) {
             for (State<T, U> inner : states) {
                 if (!(outer.getId().equals(inner.getId()) == outer.equals(inner))) {
-                    throw new IllegalStateException(String.format("states equals not valid: states=[]", states));
+                    throw new IllegalStateException(String.format("states equals not valid: states=[%s]", states));
                 }
             }
         }
