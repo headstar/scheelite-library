@@ -20,11 +20,13 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
     private final MultipleTransitionsTriggeredResolver<T, U> multipleTransitionsTriggeredResolver;
     private final StateMachineConfiguration<T, U> configuration;
     private final int maxTransitionsPerEvent;
+    private final ExceptionMapper exceptionMapper;
 
     protected StateMachineImpl(StateMachineBuilder<T, U> builder) {
         this.stateTree = new ImmutableStateTree<T, U>(builder.getStateTree());
         this.transitionMap = new ImmutableTransitionMap<T, U>(builder.getTransitionMap());
         this.multipleTransitionsTriggeredResolver = builder.getMultipleTransitionsTriggeredResolver();
+        this.exceptionMapper = builder.getExceptionMapper();
         this.maxTransitionsPerEvent = builder.getMaxTransitionsPerEvent();
         this.configuration = new StateMachineConfiguration<T, U>(stateTree, transitionMap);
     }
@@ -35,12 +37,12 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
     }
 
     @Override
-    public U start(T context) throws Exception {
+    public U start(T context) {
         return handleInitialTransition(context);
     }
 
     @Override
-    public U processEvent(T context, U stateId, Object event) throws Exception {
+    public U processEvent(T context, U stateId, Object event) {
         checkNotNull(context);
         checkNotNull(stateId);
         checkNotNull(event);
@@ -53,7 +55,7 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
         return res.getNextStateId();
     }
 
-    private void handleEvent(State<T, U> sourceState, T context, Optional<?> eventOpt) throws Exception {
+    private void handleEvent(State<T, U> sourceState, T context, Optional<?> eventOpt) {
         if (eventOpt.isPresent()) {
             Object event = eventOpt.get();
             boolean eventHandled = false;
@@ -61,13 +63,17 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
             do {
                 State<T, U> state = stateOpt.get();
                 logger.debug("handling event: context={}, state={}, event={}", context, state.getId(), event);
-                eventHandled = state.onEvent(context, event);
+                try {
+                    eventHandled = state.onEvent(context, event);
+                } catch(Exception e) {
+                    throw exceptionMapper.mapException(e);
+                }
                 stateOpt = stateTree.getParent(state);
             } while (!eventHandled && stateOpt.isPresent() && !stateOpt.get().equals(stateTree.getRootState()));
         }
     }
 
-    private ProcessEventResult<U> process(T context, U stateId, Optional<?> eventOpt, int transitionCount) throws Exception {
+    private ProcessEventResult<U> process(T context, U stateId, Optional<?> eventOpt, int transitionCount) {
         checkNotNull(context);
         checkNotNull(stateId);
         checkNotNull(eventOpt);
@@ -101,7 +107,11 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
             List<State<T, U>> sourceStates = getSourceStates(currentState, mainSourceState, mainTargetState, lowestCommonAncestor, triggeredTransition.getTransitionType());
             for (State<T, U> state : sourceStates) {
                 logger.debug("exiting state: context={}, state={}", context, state.getId());
-                state.onExit(context);
+                try {
+                    state.onExit(context);
+                } catch(Exception e) {
+                    throw exceptionMapper.mapException(e);
+                }
             }
 
             // execute transition action (if any)
@@ -111,14 +121,22 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
                 if(logger.isDebugEnabled()) {
                     logger.debug("executing action: context={}, action={}", context, getActionName(action));
                 }
-                action.execute(context, eventOpt);
+                try {
+                    action.execute(context, eventOpt);
+                } catch(Exception e) {
+                    throw exceptionMapper.mapException(e);
+                }
             }
 
             // enter target states
             List<State<T, U>> targetStates = getTargetStates(mainSourceState, mainTargetState, lowestCommonAncestor, triggeredTransition.getTransitionType());
             for (State<T, U> state : targetStates) {
                 logger.debug("entering state: context={}, state={}", context, state.getId());
-                state.onEntry(context);
+                try {
+                    state.onEntry(context);
+                } catch(Exception e) {
+                    throw exceptionMapper.mapException(e);
+                }
             }
 
             // handle default transitions
@@ -130,11 +148,11 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
         }
     }
     
-    private U handleInitialTransition(T context) throws Exception {
+    private U handleInitialTransition(T context) {
         return handleInitialTransitions(stateTree.getRootState(), context);
     }
 
-    private U handleInitialTransitions(State<T, U> startState, T context) throws Exception {
+    private U handleInitialTransitions(State<T, U> startState, T context) {
         State<T, U> currentState = startState;
         Optional<Transition<T, U>> initialTransitionOpt = transitionMap.getInitialTransitionFromState(currentState);
         while (initialTransitionOpt.isPresent()) {
@@ -145,11 +163,19 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
                 if(logger.isDebugEnabled()) {
                     logger.debug("executing action for initial transition: context={}, action={}", context, getActionName(action));
                 }
-                action.execute(context, Optional.absent());
+                try {
+                    action.execute(context, Optional.absent());
+                } catch(Exception e) {
+                    throw exceptionMapper.mapException(e);
+                }
             }
             currentState = it.getMainTargetState();
             logger.debug("entering state: context={}, state={}", context, currentState.getId());
-            currentState.onEntry(context);
+            try {
+                currentState.onEntry(context);
+            } catch(Exception e) {
+                throw exceptionMapper.mapException(e);
+            }
             initialTransitionOpt = transitionMap.getInitialTransitionFromState(currentState);
         }
 
@@ -178,7 +204,7 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
         return res;
     }
 
-    private Optional<Transition<T, U>> getTriggeredTransition(State<T, U> currentState, T context, Optional<?> event) throws Exception {
+    private Optional<Transition<T, U>> getTriggeredTransition(State<T, U> currentState, T context, Optional<?> event) {
         List<State<T, U>> fromCurrentStateToRoot = stateTree.getPathToAncestor(currentState, stateTree.getRootState(), false);
         List<Transition<T, U>> transitions = Lists.newArrayList();
         for (State<T, U> state : fromCurrentStateToRoot) {
@@ -195,11 +221,15 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
         } else if (triggeredTransitions.size() == 1) {
             return Optional.of(triggeredTransitions.get(0));
         } else {
-            return Optional.of(multipleTransitionsTriggeredResolver.resolve(currentState.getId(), context, event, triggeredTransitions));
+            try {
+                return Optional.of(multipleTransitionsTriggeredResolver.resolve(currentState.getId(), context, event, triggeredTransitions));
+            } catch(Exception e) {
+                throw exceptionMapper.mapException(e);
+            }
         }
     }
 
-    List<Transition<T, U>> filterTransitions(Collection<Transition<T, U>> transitions, T context, Optional<?> event) throws Exception {
+    List<Transition<T, U>> filterTransitions(Collection<Transition<T, U>> transitions, T context, Optional<?> event) {
         List<Transition<T, U>> res = Lists.newArrayList();
 
         for(Transition<T, U> t : transitions) {
@@ -211,7 +241,7 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
         return res;
     }
 
-    private boolean isTransitionTriggered(Transition<T, U> t, T context, Optional<?> event) throws Exception {
+    private boolean isTransitionTriggered(Transition<T, U> t, T context, Optional<?> event) {
         if (t.getTriggerEventClass().isPresent()) {
             Class<?> triggerEventClass = t.getTriggerEventClass().get();
             if (event.isPresent()) {
@@ -227,7 +257,11 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
             }
         }
         if (t.getGuard().isPresent()) {
-            return t.getGuard().get().evaluate(context, event);
+            try {
+                return t.getGuard().get().evaluate(context, event);
+            } catch(Exception e) {
+                throw exceptionMapper.mapException(e);
+            }
         } else {
             // no guard present
             return true;

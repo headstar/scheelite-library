@@ -30,7 +30,7 @@ public interface State<T, U> {
      *
      * @throws java.lang.Exception
      */
-    void onExit(T context) throws  Exception;
+    void onExit(T context) throws Exception;
 
     /**
      * Called by the state machine when processing an event.

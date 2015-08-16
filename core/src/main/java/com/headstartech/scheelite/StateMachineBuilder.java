@@ -43,6 +43,7 @@ public class StateMachineBuilder<T, U> {
     private final MutableTransitionMap<T, U> transitionMap;
     private MultipleTransitionsTriggeredResolver<T, U> multipleTransitionsTriggeredResolver;
     private int maxTransitionsPerEvent = MAX_TRANSITIONS_PER_EVENT_DEFAULT;
+    private ExceptionMapper exceptionMapper;
 
     public static <T, U> StateMachineBuilder<T, U> newBuilder() {
         return new StateMachineBuilder<T, U>();
@@ -52,6 +53,7 @@ public class StateMachineBuilder<T, U> {
         stateTree = new MutableStateTree<T, U>();
         transitionMap = new MutableTransitionMap<T, U>();
         multipleTransitionsTriggeredResolver = new ThrowExceptionResolver<T, U>();
+        exceptionMapper = new DefaultExceptionMapper();
     }
 
     public StateMachineBuilder<T, U> withCompositeState(State<T, U> state, State<T, U> defaultSubState, State<T, U>... subStates) {
@@ -205,6 +207,16 @@ public class StateMachineBuilder<T, U> {
         Preconditions.checkNotNull(multipleTransitionsTriggeredResolver);
         this.multipleTransitionsTriggeredResolver = multipleTransitionsTriggeredResolver;
         return this;
+    }
+
+    public StateMachineBuilder<T, U> withExceptionMapper(ExceptionMapper exceptionMapper) {
+        Preconditions.checkNotNull(exceptionMapper);
+        this.exceptionMapper = exceptionMapper;
+        return this;
+    }
+
+    public ExceptionMapper getExceptionMapper() {
+        return exceptionMapper;
     }
 
     public StateMachine<T, U> build() {

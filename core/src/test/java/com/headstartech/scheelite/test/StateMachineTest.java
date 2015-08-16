@@ -18,7 +18,7 @@ import static org.testng.Assert.fail;
 public class StateMachineTest extends TestBase {
 
     @Test
-    public void testThrowExceptionResolver() throws Exception {
+    public void testThrowExceptionResolver() {
         // given
         TestEntity e = spy(new TestEntity(StateId.A));
         TestState a = spy(new TestState(StateId.A));
@@ -47,7 +47,7 @@ public class StateMachineTest extends TestBase {
     }
 
     @Test(expectedExceptions = NullPointerException.class)
-    public void testNullStateId() throws Exception {
+    public void testNullStateId() {
         // given
         TestEntity e = new TestEntity(null);
         TestState a = new TestState(StateId.A);
@@ -65,7 +65,7 @@ public class StateMachineTest extends TestBase {
 
 
     @Test(expectedExceptions = UnknownStateIdException.class)
-    public void testNoStateForStateId() throws Exception {
+    public void testNoStateForStateId() {
         // given
         TestEntity e = new TestEntity(StateId.B);
         TestState a = new TestState(StateId.A);
