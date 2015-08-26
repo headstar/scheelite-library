@@ -2,10 +2,16 @@ package com.headstartech.scheelite.diagram.plantuml;
 
 import com.headstartech.scheelite.StateMachine;
 import com.headstartech.scheelite.StateMachineConfiguration;
+import net.sourceforge.plantuml.SourceStringReader;
 import org.testng.annotations.Test;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Arrays;
+
+import static org.testng.Assert.assertNotNull;
 
 /**
  * Created by per on 8/12/15.
@@ -13,7 +19,7 @@ import java.util.Arrays;
 public class PlanUMLStateDiagramWriterTest extends TestBase {
 
     @Test
-    public void test() {
+    public void test() throws IOException {
         // given
         TestBase.StateA a = new TestBase.StateA();
         TestBase.StateB b = new TestBase.StateB();
@@ -33,11 +39,19 @@ public class PlanUMLStateDiagramWriterTest extends TestBase {
                 .build();
         StateMachineConfiguration<TestEntity, StateId> conf = sm.getConfiguration();
 
-        // when
         PlantUMLStateDiagramWriter diagramWriter = new PlantUMLStateDiagramWriter();
-        PrintWriter pw = new PrintWriter(System.out);
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
         diagramWriter.writeDiagram(conf, pw);
         pw.flush();
 
+        SourceStringReader reader = new SourceStringReader(sw.toString());
+        final ByteArrayOutputStream os = new ByteArrayOutputStream();
+
+        // when
+        String desc = reader.generateImage(os);
+
+        // then
+        assertNotNull(desc);
     }
 }
