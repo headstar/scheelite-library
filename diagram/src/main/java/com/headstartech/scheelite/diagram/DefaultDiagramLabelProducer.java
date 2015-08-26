@@ -1,5 +1,6 @@
 package com.headstartech.scheelite.diagram;
 
+import com.headstartech.scheelite.Guard;
 import com.headstartech.scheelite.State;
 import com.headstartech.scheelite.diagram.annotations.Diagram;
 
@@ -28,4 +29,13 @@ public class DefaultDiagramLabelProducer implements DiagramLabelProducer {
         }
     }
 
+    @Override
+    public String getLabelForGuard(Guard<?> guard) {
+        Diagram label = guard.getClass().getAnnotation(Diagram.class);
+        if(label != null) {
+            return label.value();
+        } else {
+            return guard.getClass().getSimpleName();
+        }
+    }
 }

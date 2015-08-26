@@ -1,5 +1,6 @@
 package com.headstartech.scheelite.diagram;
 
+import com.headstartech.scheelite.Guard;
 import com.headstartech.scheelite.State;
 
 /**
@@ -10,4 +11,6 @@ public interface DiagramLabelProducer {
     <T, U> String getLabelForState(State<T, U> state);
 
     String getLabelForTriggerEvent(Class<?> triggerEventClass);
+
+    String getLabelForGuard(Guard<?> guard);
 }

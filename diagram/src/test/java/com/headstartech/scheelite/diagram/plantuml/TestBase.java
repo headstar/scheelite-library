@@ -50,6 +50,7 @@ public class TestBase {
         }
     }
 
+    @Diagram("aguard")
     public class TestGuard implements Guard<TestEntity> {
         private final boolean accept;
 

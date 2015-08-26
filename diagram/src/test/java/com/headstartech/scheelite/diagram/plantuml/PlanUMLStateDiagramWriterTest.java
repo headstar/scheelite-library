@@ -45,6 +45,8 @@ public class PlanUMLStateDiagramWriterTest extends TestBase {
         diagramWriter.writeDiagram(conf, pw);
         pw.flush();
 
+        System.out.print(sw.toString());
+
         SourceStringReader reader = new SourceStringReader(sw.toString());
         final ByteArrayOutputStream os = new ByteArrayOutputStream();
 

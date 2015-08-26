@@ -1,10 +1,7 @@
 package com.headstartech.scheelite.diagram.plantuml;
 
 import com.google.common.base.Optional;
-import com.headstartech.scheelite.FinalState;
-import com.headstartech.scheelite.State;
-import com.headstartech.scheelite.Transition;
-import com.headstartech.scheelite.TransitionType;
+import com.headstartech.scheelite.*;
 import com.headstartech.scheelite.diagram.DiagramLabelProducer;
 import com.headstartech.scheelite.diagram.StateTreeVisitor;
 
@@ -75,7 +72,8 @@ class PlantUMLVisitor<T, U> implements StateTreeVisitor<T, U> {
     }
 
     private <T, U> String buildTransition(Transition<T, U> transition) {
-        return buildTransition(getStateLabel(transition.getMainSourceState()), getStateLabel(transition.getMainTargetState()), transition.getTriggerEventClass());
+        return buildTransition(getStateLabel(transition.getMainSourceState()), getStateLabel(transition.getMainTargetState()), transition.getTriggerEventClass(),
+                transition.getGuard());
     }
 
     private <T, U> String buildInitialTransition(State<T, U> target) {
@@ -99,12 +97,34 @@ class PlantUMLVisitor<T, U> implements StateTreeVisitor<T, U> {
         return sb.toString();
     }
 
+    private String buildTransition(String source, String target, Optional<Class<?>> triggerEventClass, Optional<? extends Guard<?>> guard) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("%s --> %s", source, target));
+        if(triggerEventClass.isPresent()) {
+            String eventLabel = getEventLabel(triggerEventClass.get());
+            if(eventLabel != null) {
+                sb.append(String.format(" : %s", eventLabel));
+            }
+        }
+        if(guard.isPresent()) {
+            String guardLabel = getGuardLabel(guard.get());
+            if(guardLabel != null) {
+                sb.append(String.format(" [%s]", guardLabel));
+            }
+        }
+        return sb.toString();
+    }
+
     private <T, U> String getStateLabel(State<T, U> state) {
         return diagramLabelProducer.getLabelForState(state);
     }
 
     private <T, U> String getEventLabel(Class<?> triggerEventClass) {
         return diagramLabelProducer.getLabelForTriggerEvent(triggerEventClass);
+    }
+
+    private String getGuardLabel(Guard<?> guard) {
+        return diagramLabelProducer.getLabelForGuard(guard);
     }
 
 }
