@@ -50,27 +50,35 @@ public class TestBase {
         }
     }
 
-    @Diagram("aguard")
-    public class TestGuard implements Guard<TestEntity> {
-        private final boolean accept;
-
+    @Diagram("firstguard")
+    public class FirstTestGuard implements Guard<TestEntity> {
         @Override
         public String toString() {
             return getClass().getSimpleName();
         }
 
-        public TestGuard(boolean accept) {
-            this.accept = accept;
+        public FirstTestGuard() {
         }
-
-        public TestGuard() {
-            this(true);
-        }
-
 
         @Override
         public boolean evaluate(TestEntity context, Optional<?> event) {
-            return accept;
+            return true;
+        }
+    }
+
+    @Diagram("secondguard")
+    public class SecondTestGuard implements Guard<TestEntity> {
+        @Override
+        public String toString() {
+            return getClass().getSimpleName();
+        }
+
+        public SecondTestGuard() {
+        }
+
+        @Override
+        public boolean evaluate(TestEntity context, Optional<?> event) {
+            return true;
         }
     }
 

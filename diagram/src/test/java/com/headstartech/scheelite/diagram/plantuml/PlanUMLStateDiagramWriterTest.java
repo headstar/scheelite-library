@@ -1,5 +1,6 @@
 package com.headstartech.scheelite.diagram.plantuml;
 
+import com.headstartech.scheelite.Guards;
 import com.headstartech.scheelite.StateMachine;
 import com.headstartech.scheelite.StateMachineConfiguration;
 import net.sourceforge.plantuml.SourceStringReader;
@@ -9,7 +10,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Arrays;
 
 import static org.testng.Assert.assertNotNull;
 
@@ -27,15 +27,17 @@ public class PlanUMLStateDiagramWriterTest extends TestBase {
         TestBase.StateD d = new TestBase.StateD();
         TestBase.TestFinalState e = new TestBase.TestFinalState();
 
-        TestBase.TestGuard testGuard = new TestBase.TestGuard();
+        FirstTestGuard firstTestGuard = new FirstTestGuard();
+        SecondTestGuard secondTestGuard = new SecondTestGuard();
         TestBase.TestAction testAction = new TestBase.TestAction();
 
         StateMachine<TestEntity, StateId> sm = builder.withInitialTransition(a)
                 .withCompositeState(b, c, d)
-                .withTransition(a, b, TestBase.TestEventY.class)
+                .withTransition(a, b, TestBase.TestEventY.class, Guards.and(Guards.not(firstTestGuard),
+                        Guards.or(secondTestGuard, firstTestGuard)))
                 .withTransition(a, e, TestBase.TestEventX.class)
                 .withTransition(c, d)
-                .withLocalTransition(d, b, TestBase.TestEventX.class, testGuard, testAction)
+                .withLocalTransition(d, b, TestBase.TestEventX.class, firstTestGuard, testAction)
                 .build();
         StateMachineConfiguration<TestEntity, StateId> conf = sm.getConfiguration();
 
