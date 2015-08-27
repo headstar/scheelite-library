@@ -2,6 +2,7 @@ package com.headstartech.scheelite;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
+import com.headstartech.scheelite.exceptionmapper.ExceptionMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

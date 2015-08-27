@@ -1,4 +1,4 @@
-package com.headstartech.scheelite;
+package com.headstartech.scheelite.exceptionmapper;
 
 /**
  * Maps an {@link java.lang.Exception} to a {@link java.lang.RuntimeException}.

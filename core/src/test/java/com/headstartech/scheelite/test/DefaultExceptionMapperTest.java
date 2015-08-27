@@ -1,7 +1,7 @@
 package com.headstartech.scheelite.test;
 
-import com.headstartech.scheelite.DefaultExceptionMapper;
-import com.headstartech.scheelite.ExceptionMapper;
+import com.headstartech.scheelite.exceptionmapper.DefaultExceptionMapper;
+import com.headstartech.scheelite.exceptionmapper.ExceptionMapper;
 import org.testng.annotations.Test;
 
 import java.io.IOException;

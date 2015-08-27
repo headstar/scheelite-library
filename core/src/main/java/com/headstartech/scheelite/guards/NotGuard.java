@@ -1,16 +1,17 @@
-package com.headstartech.scheelite;
+package com.headstartech.scheelite.guards;
 
 import com.google.common.base.Optional;
+import com.headstartech.scheelite.Guard;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * Created by per on 8/26/15.
+ * Logical NOT guard.
  */
 public class NotGuard<T> implements Guard<T> {
     final Guard<T> component;
 
-    NotGuard(Guard<T> component) {
+    public NotGuard(Guard<T> component) {
         this.component = checkNotNull(component);
     }
 

@@ -1,6 +1,8 @@
 package com.headstartech.scheelite;
 
-import com.google.common.base.Joiner;
+import com.headstartech.scheelite.guards.AndGuard;
+import com.headstartech.scheelite.guards.NotGuard;
+import com.headstartech.scheelite.guards.OrGuard;
 
 import java.util.ArrayList;
 import java.util.Arrays;

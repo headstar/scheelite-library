@@ -1,4 +1,4 @@
-package com.headstartech.scheelite;
+package com.headstartech.scheelite.exceptionmapper;
 
 /**
  * Exception mapper which propagates {@link java.lang.RuntimeException}s and wraps a checked exception in a RuntimeException.

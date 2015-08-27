@@ -7,6 +7,8 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
+import com.headstartech.scheelite.exceptionmapper.DefaultExceptionMapper;
+import com.headstartech.scheelite.exceptionmapper.ExceptionMapper;
 
 import java.util.ArrayDeque;
 import java.util.Collection;

@@ -2,6 +2,9 @@ package com.headstartech.scheelite.diagram;
 
 import com.headstartech.scheelite.*;
 import com.headstartech.scheelite.diagram.annotations.Diagram;
+import com.headstartech.scheelite.guards.AndGuard;
+import com.headstartech.scheelite.guards.NotGuard;
+import com.headstartech.scheelite.guards.OrGuard;
 
 import java.util.List;
 
