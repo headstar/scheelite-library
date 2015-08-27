@@ -3,6 +3,8 @@ package com.headstartech.scheelite.diagram.plantuml;
 import com.headstartech.scheelite.Guards;
 import com.headstartech.scheelite.StateMachine;
 import com.headstartech.scheelite.StateMachineConfiguration;
+import com.headstartech.scheelite.diagram.DefaultDiagramLabelProducer;
+import com.headstartech.scheelite.diagram.DiagramLabelProducer;
 import net.sourceforge.plantuml.SourceStringReader;
 import org.testng.annotations.Test;
 
@@ -42,9 +44,10 @@ public class PlanUMLStateDiagramWriterTest extends TestBase {
         StateMachineConfiguration<TestEntity, StateId> conf = sm.getConfiguration();
 
         PlantUMLStateDiagramWriter diagramWriter = new PlantUMLStateDiagramWriter();
+        DiagramLabelProducer diagramLabelProducer = new DefaultDiagramLabelProducer(true, false);
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
-        diagramWriter.writeDiagram(conf, pw);
+        diagramWriter.writeDiagram(conf, pw, diagramLabelProducer);
         pw.flush();
 
         System.out.print(sw.toString());

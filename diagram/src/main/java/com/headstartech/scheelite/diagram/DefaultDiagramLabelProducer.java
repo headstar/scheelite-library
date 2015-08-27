@@ -6,9 +6,21 @@ import com.headstartech.scheelite.diagram.annotations.Diagram;
 import java.util.List;
 
 /**
- * Created by per on 8/14/15.
+ * Produces labels for state, trigger events and guards.
  */
 public class DefaultDiagramLabelProducer implements DiagramLabelProducer {
+
+    private final boolean triggerEventLabelsEnabled;
+    private final boolean guardLabelsEnabled;
+
+    public DefaultDiagramLabelProducer(boolean triggerEventLabelsEnabled, boolean guardLabelsEnabled) {
+        this.triggerEventLabelsEnabled = triggerEventLabelsEnabled;
+        this.guardLabelsEnabled = guardLabelsEnabled;
+    }
+
+    public DefaultDiagramLabelProducer() {
+        this(true, true);
+    }
 
     @Override
     public <T, U> String getLabelForState(State<T, U> state) {
@@ -22,17 +34,25 @@ public class DefaultDiagramLabelProducer implements DiagramLabelProducer {
 
     @Override
     public String getLabelForTriggerEvent(Class<?> triggerEventClass) {
-        Diagram label = triggerEventClass.getAnnotation(Diagram.class);
-        if(label != null) {
-            return label.value();
+        if(triggerEventLabelsEnabled) {
+            Diagram label = triggerEventClass.getAnnotation(Diagram.class);
+            if (label != null) {
+                return label.value();
+            } else {
+                return triggerEventClass.getSimpleName();
+            }
         } else {
-            return triggerEventClass.getSimpleName();
+            return null;
         }
     }
 
     @Override
     public String getLabelForGuard(Guard<?> guard) {
-        return getLabelForGuard(guard, 0);
+        if(guardLabelsEnabled) {
+            return getLabelForGuard(guard, 0);
+        } else {
+            return null;
+        }
     }
 
     private String getLabelForGuard(Guard<?> guard, int depth) {
