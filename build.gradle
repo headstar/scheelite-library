@@ -21,7 +21,7 @@ task wrapper(type: Wrapper) {
 }
 
 def javaProjects = [ project(':scheelite-core'), project(':scheelite-diagram'), project(':scheelite-samples-calculator') ]
-def javaReleaseProjects = [ project(':scheelite-core') ]
+def javaReleaseProjects = [ project(':scheelite-core'), project(':scheelite-diagram') ]
 
 configure(javaProjects) {
     apply from: "$rootDir/gradle/javaprojects.gradle"
