@@ -140,7 +140,7 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
                 }
             }
 
-            // handle default transitions
+            // handle initial transitions
             U nextStateId = handleInitialTransitions(mainTargetState, context);
 
             return new ProcessEventResult<U>(true, nextStateId);
