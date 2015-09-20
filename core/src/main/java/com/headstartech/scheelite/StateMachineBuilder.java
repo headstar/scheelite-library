@@ -95,6 +95,20 @@ public class StateMachineBuilder<T, U> {
         return this;
     }
 
+    public StateMachineBuilder<T, U> withCompositeStateCompletedTransition(State<T, U> compositeSourceState, State<T, U> mainTargetState) {
+        return withCompositeStateCompletedTransition(compositeSourceState, mainTargetState, null);
+    }
+
+    public StateMachineBuilder<T, U> withCompositeStateCompletedTransition(State<T, U> compositeSourceState, State<T, U> mainTargetState, Action<T> action) {
+        Preconditions.checkNotNull(compositeSourceState);
+        Preconditions.checkNotNull(mainTargetState);
+
+        Preconditions.checkArgument(stateTree.isParent(compositeSourceState), "compositeSourceState argument is not a composite state!");
+        Preconditions.checkState(!stateTree.isDescendantOf(compositeSourceState, mainTargetState), "mainTargetState is sub state/equal to compositeSourceState: %s", mainTargetState);
+
+        return withTransition(compositeSourceState, mainTargetState, CompositeStateCompleted.class, new CompositeStateCompletedGuard<T, U>(compositeSourceState.getId()), action);
+    }
+
     public StateMachineBuilder<T, U> withMaxTransitions(int maxTransitions) {
         checkArgument(maxTransitions > 0, "maxTransitionsPerEvent must be > 0");
         this.maxTransitionsPerEvent = maxTransitions;

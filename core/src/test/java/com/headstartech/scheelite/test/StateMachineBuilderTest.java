@@ -272,4 +272,35 @@ public class StateMachineBuilderTest extends TestBase {
         // then ...exception should be thrown
     }
 
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void testNonCompositeStateWithCompletionTransition() {
+
+        // given
+        TestState a = new TestState(StateId.A);
+        TestState b = new TestState(StateId.B);
+
+        // when
+        builder.withInitialTransition(a)
+                .withCompositeStateCompletedTransition(a, b);
+
+        // then ...exception should be thrown
+    }
+
+    @Test
+    public void testCompositeStateWithCompletionTransition() {
+
+        // given
+        TestState a = new TestState(StateId.A);
+        TestState b = new TestState(StateId.B);
+        TestState c = new TestState(StateId.C);
+
+        // when
+        builder.withInitialTransition(a)
+                .withCompositeState(a, b)
+                .withCompositeStateCompletedTransition(a, c)
+                .build();
+
+        // then
+    }
+
 }

@@ -655,6 +655,42 @@ public class StateMachineTest extends TestBase {
         inOrder.verify(a).onEvent(e, event);
     }
 
+    @Test
+    public void testCompositeStateCompleted() throws Exception {
+        // given
+        TestEntity e = spy(new TestEntity(StateId.B));
+        TestState a = spy(new TestState(StateId.A));
+        TestState b = spy(new TestState(StateId.B));
+        TestFinalState c = spy(new TestFinalState(StateId.C));
+        TestState d = spy(new TestState(StateId.D));
+        TestAction action = spy(new TestAction());
+        TestEventX event = new TestEventX();
+        CompositeStateCompleted<StateId> completionEvent = new CompositeStateCompleted<StateId>(StateId.A);
+
+        StateMachine<TestEntity, StateId> stateMachine = builder
+                .withInitialTransition(a)
+                .withCompositeState(a, b, c)
+                .withTransition(b, c, TestEventX.class)
+                .withCompositeStateCompletedTransition(a, d, action)
+                .build();
+
+        // when
+        StateId nextStateId = stateMachine.processEvent(e, e.getStateId(), event);
+
+        // then
+        assertEquals(nextStateId, StateId.D);
+
+        InOrder inOrder = inOrder(a, b, c, d, action, e);
+        inOrder.verify(b).onEvent(e, event);
+        inOrder.verify(b).onExit(e);
+        inOrder.verify(c).onEntry(e);
+        // can't verify onEvent for FinalState (is final)
+        // can't verify onExit for FinalState (is final)
+        inOrder.verify(a).onExit(e);
+        inOrder.verify(action).execute(e, Optional.of(completionEvent));
+        inOrder.verify(d).onEntry(e);
+    }
+
     private <T,U> void verifyStateInteraction(State<T, U> state, Class<T> clazz, OnEntry onEntry, OnExit onExit, OnEvent onEvent) throws Exception {
         verify(state, times(onEntry.times)).onEntry(Mockito.<T>any(clazz));
         verify(state, times(onExit.times)).onExit(Mockito.<T>any(clazz));
