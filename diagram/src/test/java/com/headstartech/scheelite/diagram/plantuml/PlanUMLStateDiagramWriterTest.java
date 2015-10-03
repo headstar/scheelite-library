@@ -48,7 +48,7 @@ public class PlanUMLStateDiagramWriterTest extends TestBase {
         StateMachineConfiguration<TestEntity, StateId> conf = sm.getConfiguration();
 
         PlantUMLStateDiagramWriter diagramWriter = new PlantUMLStateDiagramWriter();
-        DiagramLabelProducer diagramLabelProducer = new DefaultDiagramLabelProducer(true, false);
+        DiagramLabelProducer diagramLabelProducer = new DefaultDiagramLabelProducer(true, true);
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         diagramWriter.writeDiagram(conf, pw, diagramLabelProducer);

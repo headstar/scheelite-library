@@ -5,12 +5,16 @@ import com.google.common.base.Optional;
 /**
  * Created by per on 9/6/15.
  */
-class CompositeStateCompletedGuard<T, U> implements Guard<T> {
+public class CompositeStateCompletedGuard<T, U> implements Guard<T> {
 
     private final U finalStateId;
 
     public CompositeStateCompletedGuard(U finalStateId) {
         this.finalStateId = finalStateId;
+    }
+
+    public U getFinalStateId() {
+        return finalStateId;
     }
 
     @Override

@@ -31,8 +31,12 @@ public class DefaultDiagramLabelProducer implements DiagramLabelProducer {
         if(label != null) {
             return label.value();
         } else {
-            return state.getId().toString();
+            return getLabelForStateId(state.getId());
         }
+    }
+
+    protected <U> String getLabelForStateId(U stateId) {
+        return stateId.toString();
     }
 
     @Override
@@ -42,11 +46,23 @@ public class DefaultDiagramLabelProducer implements DiagramLabelProducer {
             if (label != null) {
                 return label.value();
             } else {
-                return triggerEventClass.getSimpleName();
+                if(triggerEventClass.equals(CompositeStateCompleted.class)) {
+                    return getLabelForCompositeStateCompletedTriggerEvent();
+                } else {
+                    return getLabelForTriggerEventWithNoDiagramAnnotation(triggerEventClass);
+                }
             }
         } else {
             return null;
         }
+    }
+
+    protected String getLabelForTriggerEventWithNoDiagramAnnotation(Class<?> triggerEventClass) {
+        return triggerEventClass.getSimpleName();
+    }
+
+    protected String getLabelForCompositeStateCompletedTriggerEvent() {
+        return "stateCompleted";
     }
 
     @Override
@@ -58,7 +74,7 @@ public class DefaultDiagramLabelProducer implements DiagramLabelProducer {
         }
     }
 
-    private String getLabelForGuard(Guard<?> guard, int depth) {
+    protected String getLabelForGuard(Guard<?> guard, int depth) {
         if(AndGuard.class.isInstance(guard)) {
             List<? extends Guard<?>> components = ((AndGuard<?>) guard).getComponents();
             return joinComponents(components, " && ", depth);
@@ -73,12 +89,24 @@ public class DefaultDiagramLabelProducer implements DiagramLabelProducer {
             if (label != null) {
                 return label.value();
             } else {
-                return guard.getClass().getSimpleName();
+                if(guard instanceof CompositeStateCompletedGuard) {
+                    return getLabelForCompositeStateCompletedGuard((CompositeStateCompletedGuard) guard);
+                } else {
+                    return getLabelForGuardWithNoDiagramAnnotation(guard);
+                }
             }
         }
     }
 
-    private String joinComponents(List<? extends Guard<?>> components, String joinString, int depth) {
+    protected String getLabelForCompositeStateCompletedGuard(CompositeStateCompletedGuard guard) {
+        return String.format("finalState == %s", getLabelForStateId(guard.getFinalStateId()));
+    }
+
+    protected String getLabelForGuardWithNoDiagramAnnotation(Guard<?> guard) {
+        return guard.getClass().getSimpleName();
+    }
+
+    protected String joinComponents(List<? extends Guard<?>> components, String joinString, int depth) {
         StringBuilder sb = new StringBuilder();
         boolean first = true;
         for(Guard<?> g : components) {
