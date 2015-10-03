@@ -24,22 +24,26 @@ public class PlanUMLStateDiagramWriterTest extends TestBase {
     public void test() throws IOException {
         // given
         TestBase.StateA a = new TestBase.StateA();
-        TestBase.StateB b = new TestBase.StateB();
-        TestBase.StateC c = new TestBase.StateC();
-        TestBase.StateD d = new TestBase.StateD();
-        TestBase.TestFinalState e = new TestBase.TestFinalState();
+        TestState b = new TestState(StateId.B);
+        TestState c = new TestState(StateId.C);
+        TestState d = new TestState(StateId.D);
+        TestBase.TestFinalState e = new TestBase.TestFinalState(StateId.E);
+        TestBase.TestFinalState f = new TestBase.TestFinalState(StateId.F);
+        TestState g = new TestState(StateId.G);
 
         FirstTestGuard firstTestGuard = new FirstTestGuard();
         SecondTestGuard secondTestGuard = new SecondTestGuard();
         TestBase.TestAction testAction = new TestBase.TestAction();
 
         StateMachine<TestEntity, StateId> sm = builder.withInitialTransition(a)
-                .withCompositeState(b, c, d)
+                .withCompositeState(b, c, d, e)
                 .withTransition(a, b, TestBase.TestEventY.class, Guards.and(Guards.not(firstTestGuard),
                         Guards.or(secondTestGuard, firstTestGuard)))
-                .withTransition(a, e, TestBase.TestEventX.class)
+                .withTransition(a, f, TestBase.TestEventX.class)
                 .withTransition(c, d)
+                .withTransition(d, e)
                 .withLocalTransition(d, b, TestBase.TestEventX.class, firstTestGuard, testAction)
+                .withCompositeStateCompletedTransition(e, g)
                 .build();
         StateMachineConfiguration<TestEntity, StateId> conf = sm.getConfiguration();
 

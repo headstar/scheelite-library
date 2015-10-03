@@ -9,7 +9,7 @@ import org.testng.annotations.BeforeMethod;
  * Created by Per on 2014-01-16.
  */
 public class TestBase {
-    public enum StateId {A, B, C, D, E, F}
+    public enum StateId {A, B, C, D, E, F, G}
 
     public class TestEntity {
 
@@ -109,9 +109,13 @@ public class TestBase {
         }
     }
 
-    public static class StateB extends StateAdapter<TestEntity, StateId> {
+    public static class TestState extends StateAdapter<TestEntity, StateId> {
 
-        private StateId stateId = StateId.B;
+        private final StateId stateId;
+
+        public TestState(StateId stateId) {
+            this.stateId = stateId;
+        }
 
         @Override
         public StateId getId() {
@@ -123,61 +127,9 @@ public class TestBase {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
 
-            StateA stateA = (StateA) o;
+            TestState testState = (TestState) o;
 
-            return stateId == stateA.stateId;
-
-        }
-
-        @Override
-        public int hashCode() {
-            return stateId.hashCode();
-        }
-    }
-
-    public static class StateC extends StateAdapter<TestEntity, StateId> {
-
-        private StateId stateId = StateId.C;
-
-        @Override
-        public StateId getId() {
-            return stateId;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            StateA stateA = (StateA) o;
-
-            return stateId == stateA.stateId;
-
-        }
-
-        @Override
-        public int hashCode() {
-            return stateId.hashCode();
-        }
-    }
-
-    public static class StateD extends StateAdapter<TestEntity, StateId> {
-
-        private StateId stateId = StateId.D;
-
-        @Override
-        public StateId getId() {
-            return stateId;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            StateA stateA = (StateA) o;
-
-            return stateId == stateA.stateId;
+            return stateId == testState.stateId;
 
         }
 
@@ -189,9 +141,30 @@ public class TestBase {
 
     public static class TestFinalState extends FinalState<TestEntity, StateId> {
 
-        @Override
+        private final StateId stateId;
+
+        public TestFinalState(StateId stateId) {
+            this.stateId = stateId;
+        }
+
         public StateId getId() {
-            return StateId.F;
+            return stateId;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            TestFinalState that = (TestFinalState) o;
+
+            return stateId == that.stateId;
+
+        }
+
+        @Override
+        public int hashCode() {
+            return stateId != null ? stateId.hashCode() : 0;
         }
     }
 
