@@ -5,14 +5,14 @@ package com.headstartech.scheelite;
  */
 public final class CompositeStateCompleted<U> {
 
-    final U stateId;
+    final U finalStateId;
 
-    public CompositeStateCompleted(U stateId) {
-        this.stateId = stateId;
+    public CompositeStateCompleted(U finalStateId) {
+        this.finalStateId = finalStateId;
     }
 
-    public U getStateId() {
-        return stateId;
+    public U getFinalStateId() {
+        return finalStateId;
     }
 
     @Override
@@ -22,12 +22,12 @@ public final class CompositeStateCompleted<U> {
 
         CompositeStateCompleted<?> that = (CompositeStateCompleted<?>) o;
 
-        return !(stateId != null ? !stateId.equals(that.stateId) : that.stateId != null);
+        return !(finalStateId != null ? !finalStateId.equals(that.finalStateId) : that.finalStateId != null);
 
     }
 
     @Override
     public int hashCode() {
-        return stateId != null ? stateId.hashCode() : 0;
+        return finalStateId != null ? finalStateId.hashCode() : 0;
     }
 }

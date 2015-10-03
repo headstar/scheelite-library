@@ -95,18 +95,18 @@ public class StateMachineBuilder<T, U> {
         return this;
     }
 
-    public StateMachineBuilder<T, U> withCompositeStateCompletedTransition(State<T, U> compositeSourceState, State<T, U> mainTargetState) {
-        return withCompositeStateCompletedTransition(compositeSourceState, mainTargetState, null);
+    public StateMachineBuilder<T, U> withCompositeStateCompletedTransition(FinalState<T, U> subState, State<T, U> mainTargetState) {
+        return withCompositeStateCompletedTransition(subState, mainTargetState, null);
     }
 
-    public StateMachineBuilder<T, U> withCompositeStateCompletedTransition(State<T, U> compositeSourceState, State<T, U> mainTargetState, Action<T> action) {
-        Preconditions.checkNotNull(compositeSourceState);
+    public StateMachineBuilder<T, U> withCompositeStateCompletedTransition(FinalState<T, U> subState, State<T, U> mainTargetState, Action<T> action) {
+        Preconditions.checkNotNull(subState);
         Preconditions.checkNotNull(mainTargetState);
 
-        Preconditions.checkArgument(stateTree.isParent(compositeSourceState), "compositeSourceState argument is not a composite state!");
-        Preconditions.checkState(!stateTree.isDescendantOf(compositeSourceState, mainTargetState), "mainTargetState is sub state/equal to compositeSourceState: %s", mainTargetState);
-
-        return withTransition(compositeSourceState, mainTargetState, CompositeStateCompleted.class, new CompositeStateCompletedGuard<T, U>(compositeSourceState.getId()), action);
+        Optional<State<T,U>> parent = stateTree.getParent(subState);
+        Preconditions.checkArgument(parent.isPresent() && !stateTree.getRootState().equals(parent.get()), "finalState is not a substate");
+        Preconditions.checkState(!stateTree.isDescendantOf(subState, mainTargetState), "mainTargetState is sub state/equal to compositeSourceState: %s", mainTargetState);
+        return withTransition(parent.get(), mainTargetState, CompositeStateCompleted.class, new CompositeStateCompletedGuard<T, U>(subState.getId()), action);
     }
 
     public StateMachineBuilder<T, U> withMaxTransitions(int maxTransitions) {

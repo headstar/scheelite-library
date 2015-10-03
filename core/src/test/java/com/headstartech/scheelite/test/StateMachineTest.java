@@ -665,13 +665,13 @@ public class StateMachineTest extends TestBase {
         TestState d = spy(new TestState(StateId.D));
         TestAction action = spy(new TestAction());
         TestEventX event = new TestEventX();
-        CompositeStateCompleted<StateId> completionEvent = new CompositeStateCompleted<StateId>(StateId.A);
+        CompositeStateCompleted<StateId> completionEvent = new CompositeStateCompleted<StateId>(StateId.C);
 
         StateMachine<TestEntity, StateId> stateMachine = builder
                 .withInitialTransition(a)
                 .withCompositeState(a, b, c)
                 .withTransition(b, c, TestEventX.class)
-                .withCompositeStateCompletedTransition(a, d, action)
+                .withCompositeStateCompletedTransition(c, d, action)
                 .build();
 
         // when

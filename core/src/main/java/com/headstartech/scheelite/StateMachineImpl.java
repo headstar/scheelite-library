@@ -56,7 +56,7 @@ class StateMachineImpl<T, U> implements StateMachine<T, U> {
             State<T, U> nextState = stateTree.getState(nextStateId).get();
             Optional<State<T, U>> nextStateParentOpt = stateTree.getParent(nextState);
             if(nextState instanceof FinalState && nextStateParentOpt.isPresent()) {
-                nextEvent = Optional.<Object>of(new CompositeStateCompleted<U>(nextStateParentOpt.get().getId()));
+                nextEvent = Optional.<Object>of(new CompositeStateCompleted<U>(nextState.getId()));
             }
             res = process(context, res.getNextStateId(), nextEvent, transitionCount++);
         }

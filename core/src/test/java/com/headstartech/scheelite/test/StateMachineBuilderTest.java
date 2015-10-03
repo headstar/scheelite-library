@@ -276,7 +276,7 @@ public class StateMachineBuilderTest extends TestBase {
     public void testNonCompositeStateWithCompletionTransition() {
 
         // given
-        TestState a = new TestState(StateId.A);
+        FinalState a = new TestFinalState(StateId.A);
         TestState b = new TestState(StateId.B);
 
         // when
@@ -291,13 +291,13 @@ public class StateMachineBuilderTest extends TestBase {
 
         // given
         TestState a = new TestState(StateId.A);
-        TestState b = new TestState(StateId.B);
+        FinalState b = new TestFinalState(StateId.B);
         TestState c = new TestState(StateId.C);
 
         // when
         builder.withInitialTransition(a)
                 .withCompositeState(a, b)
-                .withCompositeStateCompletedTransition(a, c)
+                .withCompositeStateCompletedTransition(b, c)
                 .build();
 
         // then
