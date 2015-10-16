@@ -28,6 +28,14 @@ Current version is 2.1.
 </dependency>
 ```
 
+```xml
+<dependency>
+    <groupId>com.headstartech.scheelite</groupId>
+    <artifactId>scheelite-diagram</artifactId>
+    <version>2.1.0.RELEASE</version>
+</dependency>
+```
+
 ##Changes
 
 ###2.1
