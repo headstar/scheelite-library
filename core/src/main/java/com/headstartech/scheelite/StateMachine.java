@@ -18,10 +18,13 @@ public interface StateMachine<T, U> {
      *
      * @param context the context
      * @return id of the state after the initial transition
+     * @throws ExecutionException if an exception is thrown from a state, action or guard.
      *
      * @see State
+     * @see Action
+     * @see Guard
      */
-    U start(T context);
+    U start(T context) throws ExecutionException;
 
     /**
      * Processes the given event.
@@ -30,10 +33,13 @@ public interface StateMachine<T, U> {
      * @param stateId id of the current state
      * @param event the current event
      * @return id of the next state
+     * @throws ExecutionException if an exception is thrown from a state, action or guard.
      *
      * @see State
+     * @see Action
+     * @see Guard
      */
-    U processEvent(T context, U stateId, Object event);
+    U processEvent(T context, U stateId, Object event) throws ExecutionException;
 
     /**
      * Gets the configuration of the state machine.

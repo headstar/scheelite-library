@@ -10,6 +10,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 
 /**
@@ -18,7 +19,7 @@ import static org.testng.Assert.fail;
 public class StateMachineTest extends TestBase {
 
     @Test
-    public void testThrowExceptionResolver() {
+    public void testThrowExceptionResolver() throws ExecutionException {
         // given
         TestEntity e = spy(new TestEntity(StateId.A));
         TestState a = spy(new TestState(StateId.A));
@@ -37,8 +38,9 @@ public class StateMachineTest extends TestBase {
         try {
             stateMachine.processEvent(e, e.getStateId(), event);
             fail("should have thrown");
-        } catch(IllegalStateException ex) {
+        } catch(ExecutionException ex) {
             // expected
+            assertTrue(ex.getCause() instanceof IllegalStateException);
             assertThat(ex.getMessage(), containsString("multiple transitions triggered"));
         }
 
@@ -47,7 +49,7 @@ public class StateMachineTest extends TestBase {
     }
 
     @Test(expectedExceptions = NullPointerException.class)
-    public void testNullStateId() {
+    public void testNullStateId() throws ExecutionException {
         // given
         TestEntity e = new TestEntity(null);
         TestState a = new TestState(StateId.A);
@@ -65,7 +67,7 @@ public class StateMachineTest extends TestBase {
 
 
     @Test(expectedExceptions = UnknownStateIdException.class)
-    public void testNoStateForStateId() {
+    public void testNoStateForStateId() throws ExecutionException {
         // given
         TestEntity e = new TestEntity(StateId.B);
         TestState a = new TestState(StateId.A);
