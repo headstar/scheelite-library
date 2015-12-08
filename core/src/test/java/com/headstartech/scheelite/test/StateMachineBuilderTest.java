@@ -76,55 +76,7 @@ public class StateMachineBuilderTest extends TestBase {
         // then ... no exception should be thrown
 
     }
-
-
-    @Test
-    public void testSimpleReachability() {
-        // given
-        TestState a = new TestState(StateId.A);
-        TestState b = new TestState(StateId.B);
-
-        // when
-        builder.withInitialTransition(a)
-                .withTransition(a, b)
-                .build();
-
-        // then ... no exception should be thrown
-
-    }
-
-    @Test(expectedExceptions = IllegalStateException.class)
-    public void testUnreachableState1() {
-        // given
-        TestState a = new TestState(StateId.A);
-        TestState b = new TestState(StateId.B);
-        TestState c = new TestState(StateId.C);
-
-        // when
-        builder.withInitialTransition(a)
-                .withTransition(b, c)
-                .build();
-
-        // then ...exception should be thrown
-    }
-
-    @Test(expectedExceptions = IllegalStateException.class)
-    public void testUnreachableState2() {
-        // given
-        TestState a = new TestState(StateId.A);
-        TestState b = new TestState(StateId.B);
-        TestState c = new TestState(StateId.C);
-        TestState d = new TestState(StateId.D);
-
-        // when
-        builder.withInitialTransition(a)
-                .withTransition(a, b)
-                .withTransition(c, d)
-                .build();
-
-        // then ...exception should be thrown
-    }
-
+    
     @SuppressWarnings("unchecked")
     @Test
     public void testCompositeStatesWithInitialTransition() {
