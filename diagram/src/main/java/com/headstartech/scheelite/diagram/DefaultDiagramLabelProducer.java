@@ -98,7 +98,7 @@ public class DefaultDiagramLabelProducer implements DiagramLabelProducer {
         }
     }
 
-    protected String getLabelForCompositeStateCompletedGuard(CompositeStateCompletedGuard guard) {
+    protected String getLabelForCompositeStateCompletedGuard(CompositeStateCompletedGuard<?, ?> guard) {
         return String.format("finalState == %s", getLabelForStateId(guard.getFinalStateId()));
     }
 
