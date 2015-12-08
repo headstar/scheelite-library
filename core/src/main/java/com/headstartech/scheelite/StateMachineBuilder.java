@@ -220,9 +220,6 @@ public class StateMachineBuilder<T, U> {
         // check local transitions are valid
         checkLocalTransitions();
 
-        // check all states are reachable from the start state
-        checkAllStatesAreReachableFromRootState();
-
         return new StateMachineImpl<T, U>(this);
     }
 
@@ -263,51 +260,6 @@ public class StateMachineBuilder<T, U> {
 
     private boolean isRelated(State<T, U> a, State<T, U> b) {
         return a.equals(b) || stateTree.isDescendantOf(a, b) || stateTree.isDescendantOf(b, a);
-    }
-
-    private void checkAllStatesAreReachableFromRootState() {
-
-        State<T, U> startState = stateTree.getRootState();
-
-        Set<State<T, U>> visited = Sets.newHashSet();
-        Queue<State<T, U>> queue = new ArrayDeque<State<T, U>>();
-        queue.add(startState);
-        visited.add(startState);
-
-        Multimap<State<T, U>, State<T, U>> edges = getEdges();
-
-        while (!queue.isEmpty()) {
-            State<T, U> w = queue.remove();
-            Collection<State<T, U>> neighbours = edges.get(w);
-            for (State<T, U> vertex : neighbours) {
-                if (!visited.contains(vertex)) {
-                    visited.add(vertex);
-                    queue.add(vertex);
-                }
-            }
-        }
-
-        Set<State<T, U>> leafs = Sets.newHashSet(Iterables.filter(stateTree.getStates(), new NotParentPredicate()));
-        Set<State<T, U>> notVisited = Sets.difference(leafs, visited);
-        if (!notVisited.isEmpty()) {
-            throw new IllegalStateException(String.format("states not reachable from start state: startState=[%s] states=[%s]", startState,
-                    notVisited));
-        }
-    }
-
-    private Multimap<State<T, U>, State<T, U>> getEdges() {
-        Multimap<State<T, U>, State<T, U>> edges = HashMultimap.create();
-        for (Transition<T, U> transition : transitionMap.getTransitions()) {
-            edges.put(transition.getMainSourceState(), transition.getMainTargetState());
-        }
-        return edges;
-    }
-
-    private class NotParentPredicate implements Predicate<State<T,U>> {
-        @Override
-        public boolean apply(State<T, U> input) {
-            return !stateTree.isParent(input);
-        }
     }
 
 }
